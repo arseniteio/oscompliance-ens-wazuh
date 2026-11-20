@@ -11,11 +11,15 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - The engine reads `BÁSICO` as the system category of rank 1.
 - `configuration.levelAdjustments` lowers the level of a control, for all machines or for one, with a required reason.
 - An attested requirement carries the links of its attestation in `reason_args.links`.
+- op.acc.1 EV-04, EV-07 and EV-08, op.exp.2 EV-03 and EV-06 and op.exp.10 EV-02, EV-07 and EV-08 count their items.
 
 ### Changed
 
 - A NOT_EVALUABLE reason caused by CONFIGURATION names the machine, the parameter and its value in force and origin, or that it has no value.
 - Out-of-level reasons speak of the system category, BÁSICO, MEDIO or ALTO.
+- A counted evidence is COMPLIANT when its CMM level reaches the one its level asks for: L2 for BÁSICO, L3 for MEDIO, L4 for ALTO. The default scale is 20, 40, 60, 80 and 100 %.
+- A requirement whose evidences are all NOT_APPLICABLE is NOT_APPLICABLE instead of NON_COMPLIANT.
+- A control applies at the highest declared level of its dimensions, as in the plugin, instead of the system category alone.
 
 ## [2.0.1] - 2026-11-19
 
