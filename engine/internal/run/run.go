@@ -140,7 +140,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 					fail(fmt.Errorf("%s agent %s: %w", control.Control, agent.ID, err))
 				}
 				if d, ok := ev.(evaluator.Decider); ok {
-					decisions = d.Decisions(agent.ID)
+					decisions = explainDecisions(policy, control.Control, agent, d.Decisions(agent.ID))
 				}
 			}
 
@@ -164,6 +164,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 					continue
 				}
 
+				r.Judgement = explainConfiguration(policy, control.Control, agent, r.Judgement)
 				evidences[e.ID] = r.Judgement
 
 				v := base(agent, verdict.ScopeEvidence)
