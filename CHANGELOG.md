@@ -20,6 +20,7 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - A counted evidence is COMPLIANT when its CMM level reaches the one its level asks for: L2 for BÁSICO, L3 for MEDIO, L4 for ALTO. The default scale is 20, 40, 60, 80 and 100 %.
 - A requirement whose evidences are all NOT_APPLICABLE is NOT_APPLICABLE instead of NON_COMPLIANT.
 - A control applies at the highest declared level of its dimensions, as in the plugin, instead of the system category alone.
+- 100 reasons are rewritten in plain words: no internal fact names, configuration keys or run ids. Collection gaps name the fact type by its label, such as "el inventario de cuentas".
 
 ## [2.0.1] - 2026-11-19
 
