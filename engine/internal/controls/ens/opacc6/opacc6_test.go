@@ -79,7 +79,7 @@ func TestJudgeEV03(t *testing.T) {
 		cause  verdict.Cause
 		reason string
 	}{
-		{"no PAM read", EV03Input{Settings: config(), MaxAttempts: 5}, verdict.NotEvaluable, verdict.CauseCollection, "no pam_snapshot"},
+		{"no PAM read", EV03Input{Settings: config(), MaxAttempts: 5}, verdict.NotEvaluable, verdict.CauseCollection, "pam_snapshot did not arrive"},
 		{"P-05 missing", EV03Input{Settings: config(), PAM: pam("login auth required pam_unix.so"), MaxAttemptsProblem: catalog.Says("param.not_set", "param", "P-05")}, verdict.NotEvaluable, verdict.CauseConfiguration, "P-05"},
 		{"stock Ubuntu: no lockout on login", EV03Input{
 			Settings: config(keysOnly), PAM: pam("sshd auth required pam_unix.so", "login auth required pam_unix.so"), MaxAttempts: 5,
@@ -89,7 +89,7 @@ func TestJudgeEV03(t *testing.T) {
 		}, verdict.NonCompliant, "", "unlocks by itself after 600 s"},
 		{"deny above P-05", EV03Input{
 			Settings: config(keysOnly), PAM: pam("login auth required pam_faillock.so preauth deny=10 unlock_time=never"), MaxAttempts: 5,
-		}, verdict.NonCompliant, "", "deny=10, P-05 allows 5"},
+		}, verdict.NonCompliant, "", "locks after 10 attempts (deny), P-05 allows 5"},
 		{"faillock.conf settings, rule overrides", EV03Input{
 			Settings: config(passwordSSHD, faillock),
 			PAM:      pam("sshd auth required pam_faillock.so preauth", "login auth [default=die] pam_faillock.so authfail deny=3"), MaxAttempts: 5,
@@ -99,7 +99,7 @@ func TestJudgeEV03(t *testing.T) {
 		}, verdict.NonCompliant, "", "no lockout module"},
 		{"tally2 without deny", EV03Input{
 			Settings: config(keysOnly), PAM: pam("login auth required pam_tally2.so onerr=fail"), MaxAttempts: 5,
-		}, verdict.NonCompliant, "", "without deny"},
+		}, verdict.NonCompliant, "", "without a maximum number of attempts"},
 		{"sshd unreadable", EV03Input{
 			Settings: config(fact.ConfigFile{Source: "/usr/sbin/sshd -T", Kind: fact.ConfigKindCommand, Status: fact.SourceError, Error: "exit 255", Entries: []fact.ConfigEntry{}}),
 			PAM:      pam("sshd auth required pam_unix.so"), MaxAttempts: 5,
@@ -149,7 +149,7 @@ func TestJudgeEV05(t *testing.T) {
 		{"old password", EV05Input{Accounts: accounts(fresh, old), Settings: defs, Today: today, MaxAge: 180}, verdict.NonCompliant, "", "bob: password 662 days old"},
 		{"never expires", EV05Input{Accounts: accounts(never), Settings: defs, Today: today, MaxAge: 180}, verdict.NonCompliant, "", "eve: password never expires"},
 		{"old keys", EV05Input{Accounts: accounts(oldKeys), Settings: defs, Today: today, MaxAge: 180}, verdict.NonCompliant, "", "deploy: 2 SSH keys unchanged for 511 days"},
-		{"login.defs default", EV05Input{Accounts: accounts(fresh), Settings: config(file("/etc/login.defs", "PASS_MAX_DAYS", "99999")), Today: today, MaxAge: 180}, verdict.NonCompliant, "", "PASS_MAX_DAYS 99999"},
+		{"login.defs default", EV05Input{Accounts: accounts(fresh), Settings: config(file("/etc/login.defs", "PASS_MAX_DAYS", "99999")), Today: today, MaxAge: 180}, verdict.NonCompliant, "", "after 99999 days (PASS_MAX_DAYS"},
 		{"keys unknown", EV05Input{Accounts: accounts(fresh, unknownKeys), Settings: defs, Today: today, MaxAge: 180}, verdict.NotEvaluable, verdict.CauseCollection, "x: cannot tell"},
 	}
 
@@ -186,7 +186,7 @@ func TestJudgeEV09(t *testing.T) {
 		{"ALL reaches a listed command", EV09Input{Sudoers: sudoers(nil, all), PAM: pam(), Points: []string{"sudo:/usr/bin/rsync"}}, verdict.NonCompliant, "", "NOPASSWD: ALL"},
 		{"!authenticate", EV09Input{Sudoers: sudoers(noAuth), PAM: pam(), Points: []string{"sudo"}}, verdict.NonCompliant, "", "!authenticate"},
 		{"timestamp forever", EV09Input{Sudoers: sudoers(forever), PAM: pam(), Points: []string{"sudo"}}, verdict.NonCompliant, "", "without expiry"},
-		{"su trusts wheel", EV09Input{Sudoers: sudoers(nil), PAM: wheel, Points: []string{"su"}}, verdict.NonCompliant, "", "pam_wheel trust"},
+		{"su trusts wheel", EV09Input{Sudoers: sudoers(nil), PAM: wheel, Points: []string{"su"}}, verdict.NonCompliant, "", "pam_wheel with the trust option"},
 		{"undefined alias", EV09Input{Sudoers: sudoers(nil, alias), PAM: pam(), Points: []string{"sudo"}}, verdict.NotEvaluable, verdict.CauseCollection, "UNDEFINED"},
 		{"no sudo installed", EV09Input{Sudoers: Sudoers{Snapshot: &fact.SudoersSnapshot{Status: fact.SourceAbsent}}, PAM: pam(), Points: []string{"sudo"}}, verdict.Compliant, "", ""},
 		{"blind spots", EV09Input{Sudoers: Sudoers{Snapshot: &fact.SudoersSnapshot{Status: fact.SourceRead, BlindSpots: 1, BlindSpotReasons: []string{"/etc/sudoers:3: ALL users granted"}}}, PAM: pam(), Points: []string{"sudo"}}, verdict.NotEvaluable, verdict.CauseCollection, "ALL users granted"},
@@ -309,7 +309,7 @@ func TestJudgeEV01(t *testing.T) {
 		{"no local source", EV01Input{Sources: []string{"ldap"}}, verdict.Compliant, "", "ldap"},
 		{"probe came back", EV01Input{Settings: info, Sources: []string{"local"}, Log: reaches}, verdict.Compliant, "", "reaches Wazuh"},
 		{"probe lost", EV01Input{Settings: info, Sources: []string{"local"}, Log: lost}, verdict.NonCompliant, "", "never reached Wazuh"},
-		{"probe not known", EV01Input{Settings: info, Sources: []string{"local"}, Log: passes.AuthLog{Detail: catalog.Says("gap.no_fact", "fact", "auth_log_probe")}}, verdict.NotEvaluable, verdict.CauseCollection, "no auth_log_probe"},
+		{"probe not known", EV01Input{Settings: info, Sources: []string{"local"}, Log: passes.AuthLog{Detail: catalog.Says("gap.no_fact", "fact", "auth_log_probe")}}, verdict.NotEvaluable, verdict.CauseCollection, "auth_log_probe did not arrive"},
 		{"sshd quiet", EV01Input{Settings: quiet, Sources: []string{"local"}, Log: reaches}, verdict.NonCompliant, "", "LogLevel QUIET"},
 	}
 
@@ -546,7 +546,7 @@ func TestWindowsAccountPolicy(t *testing.T) {
 	}{
 		{"lockout hardened", JudgeEV03(EV03Input{Settings: config(hardened), MaxAttempts: 5}), verdict.Compliant, "windows"},
 		{"no lockout", JudgeEV03(EV03Input{Settings: config(stock), MaxAttempts: 5}), verdict.NonCompliant, "windows: no lockout module"},
-		{"deny too high and unlocks", JudgeEV03(EV03Input{Settings: config(selfUnlock), MaxAttempts: 5}), verdict.NonCompliant, "secpol deny=10"},
+		{"deny too high and unlocks", JudgeEV03(EV03Input{Settings: config(selfUnlock), MaxAttempts: 5}), verdict.NonCompliant, "secpol locks after 10 attempts"},
 		{"quality hardened", JudgeEV11(EV11Input{Settings: config(hardened), Minimums: p10}), verdict.Compliant, "secpol"},
 		{"quality stock", JudgeEV11(EV11Input{Settings: config(stock), Minimums: p10}), verdict.NonCompliant, "minimum length 0 (P-10 12)"},
 	}

@@ -29,7 +29,7 @@ func TestJudgeEV01(t *testing.T) {
 
 	check(t, "kept", JudgeEV01(assessed, policies, map[string]int{"cis_ubuntu24-04": 46}, 40, 30, catalog.Message{}), verdict.Compliant, "", "at least 40 % in the last 30 days (cis_ubuntu24-04 46 %)")
 	check(t, "fell", JudgeEV01(assessed, policies, map[string]int{"cis_ubuntu24-04": 38}, 40, 30, catalog.Message{}), verdict.NonCompliant, "", "fell below 40 %: cis_ubuntu24-04 38 %")
-	check(t, "no change in the series", JudgeEV01(assessed, policies, nil, 40, 30, catalog.Message{}), verdict.Compliant, "", "assessed against cis_ubuntu24-04")
+	check(t, "no change in the series", JudgeEV01(assessed, policies, nil, 40, 30, catalog.Message{}), verdict.Compliant, "", "evaluated with the SCA policies cis_ubuntu24-04")
 	off := verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp2.sca_disabled"))
 	check(t, "baseline not assessed", JudgeEV01(off, policies, nil, 40, 30, catalog.Message{}), verdict.NonCompliant, "", "SCA is disabled")
 }
@@ -75,7 +75,7 @@ func TestJudgeEV04(t *testing.T) {
 
 	check(t, "unauthorised", JudgeEV04(units, listening, sockets, authorised, catalog.Message{}), verdict.NonCompliant, "", "nginx.service, php")
 	check(t, "authorised", JudgeEV04(units, listening, sockets, append(authorised, "nginx.service", "php"), catalog.Message{}), verdict.Compliant, "", "4 services and 1 listening processes")
-	check(t, "no systemd", JudgeEV04(&fact.UnitSnapshot{Status: fact.SourceAbsent}, listening, sockets, []string{"php"}, catalog.Message{}), verdict.Compliant, "", "no systemd")
+	check(t, "does not use systemd", JudgeEV04(&fact.UnitSnapshot{Status: fact.SourceAbsent}, listening, sockets, []string{"php"}, catalog.Message{}), verdict.Compliant, "", "does not use systemd")
 }
 
 func TestJudgeEV09(t *testing.T) {

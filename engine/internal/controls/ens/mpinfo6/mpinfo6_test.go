@@ -44,7 +44,7 @@ func TestJudges(t *testing.T) {
 	_, gap, _ := Read(&fact.BackupSnapshot{Status: fact.SourceRead}, copies)
 	check(t, "not read", gap, verdict.NotEvaluable, verdict.CauseCollection, "")
 
-	check(t, "done", JudgeEV01(copies, read), verdict.Compliant, "", "2 copies")
+	check(t, "done", JudgeEV01(copies, read), verdict.Compliant, "", "2 backups")
 	empty := map[string]fact.BackupSource{"/srv/copias/diaria": {Status: fact.SourceRead, Newest: "2026-11-01T02:00:00Z", Files: 3}, "git:/etc": read["git:/etc"]}
 	check(t, "empty", JudgeEV01(copies, empty), verdict.NonCompliant, "", "diaria")
 

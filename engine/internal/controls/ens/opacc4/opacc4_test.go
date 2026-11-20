@@ -43,11 +43,11 @@ func TestJudgeEV01(t *testing.T) {
 	smb := entries("/etc/samba/smb.conf", "publico", "guest ok", "Yes")
 
 	check(t, "closed", JudgeEV01(EV01Input{Firewall: drop, Settings: config()}), verdict.Compliant, "", "denies by default")
-	check(t, "accept policy", JudgeEV01(EV01Input{Firewall: accept, Settings: config(), Resources: []string{"sudo"}}), verdict.NonCompliant, "", "cortafuegos: iptables ip input chain INPUT accepts")
+	check(t, "accept policy", JudgeEV01(EV01Input{Firewall: accept, Settings: config(), Resources: []string{"sudo"}}), verdict.NonCompliant, "", "cortafuegos: iptables (ip, input): the INPUT chain accepts")
 	check(t, "empty ruleset", JudgeEV01(EV01Input{Firewall: empty, Settings: config()}), verdict.NonCompliant, "", "no input chain")
 	check(t, "no firewall, authorised", JudgeEV01(EV01Input{Firewall: none, Settings: config(), Resources: []string{"cortafuegos"}}), verdict.Compliant, "", "authorised in P-01")
 	check(t, "guest share, no P-01", JudgeEV01(EV01Input{Firewall: drop, Settings: config(smb), ResourcesProblem: catalog.Says("param.not_set", "param", "P-01")}), verdict.NotEvaluable, verdict.CauseConfiguration, "P-01")
-	check(t, "guest share not authorised", JudgeEV01(EV01Input{Firewall: drop, Settings: config(smb), Resources: []string{"cortafuegos"}}), verdict.NonCompliant, "", "publico: Samba share with guest ok = Yes")
+	check(t, "guest share not authorised", JudgeEV01(EV01Input{Firewall: drop, Settings: config(smb), Resources: []string{"cortafuegos"}}), verdict.NonCompliant, "", "publico: Samba share that admits guests (guest ok = Yes)")
 	check(t, "vsftpd", JudgeEV01(EV01Input{Firewall: drop, Settings: config(entries("/etc/vsftpd.conf", "", "anonymous_enable", "YES")), Resources: []string{"x"}}), verdict.NonCompliant, "", "vsftpd")
 	check(t, "no firewall fact", JudgeEV01(EV01Input{Settings: config()}), verdict.NotEvaluable, verdict.CauseCollection, "")
 }
@@ -69,11 +69,11 @@ func TestJudgeEV02(t *testing.T) {
 	})
 
 	check(t, "as authorised, commas and blanks", JudgeEV02(sudoers(root, group, ops), matrix, catalog.Message{}), verdict.Compliant, "", "3 sudo grants")
-	check(t, "no row", JudgeEV02(sudoers(fact.SudoGrant{SubjectKind: "user", Subject: "eve", Spec: "ALL=(ALL) ALL"}), matrix, catalog.Message{}), verdict.NonCompliant, "", "no P-01 row for eve | sudo")
+	check(t, "no row", JudgeEV02(sudoers(fact.SudoGrant{SubjectKind: "user", Subject: "eve", Spec: "ALL=(ALL) ALL"}), matrix, catalog.Message{}), verdict.NonCompliant, "", "without a «eve | sudo» row in P-01")
 
 	wider := ops
 	wider.Spec = "ALL=(root) /usr/bin/systemctl, /bin/bash"
-	check(t, "beyond the row", JudgeEV02(sudoers(wider), matrix, catalog.Message{}), verdict.NonCompliant, "", `"/bin/bash" not among`)
+	check(t, "beyond the row", JudgeEV02(sudoers(wider), matrix, catalog.Message{}), verdict.NonCompliant, "", "«/bin/bash» is not among")
 	check(t, "no sudo", JudgeEV02(Sudoers{Snapshot: &fact.SudoersSnapshot{Status: fact.SourceAbsent}}, matrix, catalog.Message{}), verdict.Compliant, "", "not installed")
 	check(t, "no P-01", JudgeEV02(sudoers(root), nil, catalog.Says("param.not_set", "param", "P-01")), verdict.NotEvaluable, verdict.CauseConfiguration, "P-01")
 }

@@ -166,7 +166,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 					continue
 				}
 
-				r.Judgement = explainConfiguration(policy, control.Control, agent, r.Judgement)
+				r.Judgement = readableFacts(explainConfiguration(policy, control.Control, agent, r.Judgement))
 				tally := scored(r.Judgement.Tally, cfg.Scales, control.Control, agent.ID)
 				r.Judgement = judgedByLevel(r.Judgement, tally, controlLevel(policy, control.Control, agent.ID).Level)
 				evidences[e.ID] = r.Judgement

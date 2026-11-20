@@ -82,7 +82,7 @@ func TestJudgeEV02(t *testing.T) {
 
 	check(t, "c1 run", JudgeEV02(EV02Input{Services: services, Policies: good, Events: events, MaxAttempts: 5}), verdict.NonCompliant, "", "sede c1: 6 failures in a row")
 	got := JudgeEV02(EV02Input{Services: services, Policies: good, Events: events[6:], MaxAttempts: 5})
-	check(t, "c2 reset, c3 locked", got, verdict.Compliant, "", "sede locks after 5")
+	check(t, "c2 reset, c3 locked", got, verdict.Compliant, "", "sede locks the account after 5")
 
 	check(t, "lockout off", JudgeEV02(EV02Input{Services: services, Policies: map[string]Policy{"sede": {Found: true, Lockout: "desactivado"}}, MaxAttempts: 5}), verdict.NonCompliant, "", "lockout disabled")
 	check(t, "too many", JudgeEV02(EV02Input{Services: services, Policies: map[string]Policy{"sede": {Found: true, Lockout: "activado", MaxAttempts: 10}}, MaxAttempts: 5}), verdict.NonCompliant, "", "10 attempts, P-03 allows 5")
@@ -236,7 +236,7 @@ func TestJudgeEV09(t *testing.T) {
 	check(t, "not reaching Wazuh", JudgeEV09(EV09Input{Services: []Service{late}, Passes: grow}), verdict.NonCompliant, "", "newest event in Wazuh")
 
 	declared := Service{Name: "portal", Declared: true}
-	check(t, "declared, not read", JudgeEV09(EV09Input{Services: []Service{declared}, Passes: grow}), verdict.NonCompliant, "", "no labelled localfile")
+	check(t, "declared, not read", JudgeEV09(EV09Input{Services: []Service{declared}, Passes: grow}), verdict.NonCompliant, "", "does not collect its log")
 }
 
 func TestDecisions(t *testing.T) {

@@ -58,7 +58,7 @@ func TestIndexer(t *testing.T) {
 
 	wanted := LongestRetention([]string{"autenticación | 365", "sistema | 180"})
 	check(t, "early", JudgeEV07(90, true, wanted, catalog.Message{}), verdict.NonCompliant, "", "after 90 days, P-07 asks 365")
-	check(t, "forever", JudgeEV07(0, false, wanted, catalog.Message{}), verdict.Compliant, "", "no ISM policy")
+	check(t, "forever", JudgeEV07(0, false, wanted, catalog.Message{}), verdict.Compliant, "", "no indexer retention policy (ISM)")
 
 	days := ShortestFrequency([]string{"alertas | NAS | diaria | sí", "archives | cinta | 7 | sí"})
 	check(t, "snapshot", JudgeEV09(now.Add(-2*time.Hour), days, catalog.Message{}, now), verdict.Compliant, "", "P-09 1 days")

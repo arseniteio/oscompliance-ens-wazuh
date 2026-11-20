@@ -140,7 +140,7 @@ func TestChain(t *testing.T) {
 	if c := Chain(&fact.AuditWatchSnapshot{Auditd: fact.AuditdAbsent}, config, p03); !strings.Contains(c.Render("en"), "absent") {
 		t.Errorf("no auditd: %q", c)
 	}
-	if c := Chain(running, &fact.WazuhAgentConfig{Status: fact.SourceRead}, p03); !strings.Contains(c.Render("en"), "log_format audit") {
+	if c := Chain(running, &fact.WazuhAgentConfig{Status: fact.SourceRead}, p03); !strings.Contains(c.Render("en"), "auditd audit log") {
 		t.Errorf("no audit localfile: %q", c)
 	}
 }

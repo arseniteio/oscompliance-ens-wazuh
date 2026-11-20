@@ -474,7 +474,7 @@ func TestOnceJudgesACountByTheLevelTheCategoryNeeds(t *testing.T) {
 	if v := got["001 evidence EV-03"]; v.Status != verdict.Compliant || v.Tally == nil || *v.Tally.Level != 4 || !strings.Contains(v.Reason, "meets ALTO") {
 		t.Errorf("36 of 40 is L4 and meets ALTO: %s %q", v.Status, v.Reason)
 	}
-	if v := got["001 evidence EV-05"]; v.Status != verdict.NonCompliant || *v.Tally.Level != 2 || !strings.Contains(v.Reason, "needs L4") {
+	if v := got["001 evidence EV-05"]; v.Status != verdict.NonCompliant || *v.Tally.Level != 2 || !strings.Contains(v.Reason, "L4 required") {
 		t.Errorf("5 of 10 is L2, below ALTO: %s %q", v.Status, v.Reason)
 	}
 }

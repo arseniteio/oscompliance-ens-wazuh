@@ -224,7 +224,7 @@ func TestJudgeEV01(t *testing.T) {
 		{"shadow unreadable", shadowDenied, verdict.NotEvaluable, verdict.CauseCollection, []string{"permission denied"}},
 		{"incomplete pass", incomplete, verdict.NotEvaluable, verdict.CauseCollection, []string{"1 of 3"}},
 		{"duplicate UIDs, system ones included", inventory(root, account("toor", 0, "locked", 0), account("ana", 1001, "set", 0), account("bob", 1001, "set", 0)), verdict.NonCompliant, "", []string{"UID 0 (root, toor); UID 1001 (ana, bob)"}},
-		{"unique UIDs", inventory(root, account("daemon", 1, "locked", 0), account("ana", 1001, "set", 0)), verdict.Compliant, "", []string{"3 accounts, 1 with UID >= 1000"}},
+		{"unique UIDs", inventory(root, account("daemon", 1, "locked", 0), account("ana", 1001, "set", 0)), verdict.Compliant, "", []string{"3 accounts, 1 of people (UID from 1000"}},
 	}
 
 	for _, c := range cases {
@@ -351,17 +351,17 @@ func TestJudgeEV02(t *testing.T) {
 		{"no snapshot", EV02Input{}, verdict.NotEvaluable, verdict.CauseCollection, nil},
 		{"shadow unreadable", EV02Input{Current: shadowDenied}, verdict.NotEvaluable, verdict.CauseCollection, []string{"permission denied"}},
 		{"passwd implausible", EV02Input{Current: passwdBad}, verdict.NotEvaluable, verdict.CauseCollection, []string{"no entry with UID 0"}},
-		{"read without counter", EV02Input{Current: noCounter}, verdict.NotEvaluable, verdict.CauseEvidence, []string{"records_emitted"}},
+		{"read without counter", EV02Input{Current: noCounter}, verdict.NotEvaluable, verdict.CauseEvidence, []string{"how many records"}},
 		{"incomplete pass", EV02Input{Current: identitySnapshot("cur", 3), Records: []fact.IdentityRecord{root}}, verdict.NotEvaluable, verdict.CauseCollection, nil},
 		{"baseline", EV02Input{Current: identitySnapshot("cur", 2), Records: []fact.IdentityRecord{root, alice}}, verdict.Compliant, "", []string{"baseline", "2 accounts"}},
 		{"no changes", EV02Input{
 			Current: identitySnapshot("cur", 2), Records: []fact.IdentityRecord{root, alice},
 			Previous: identitySnapshot("prev", 2), PreviousRecords: []fact.IdentityRecord{root, alice},
-		}, verdict.Compliant, "", []string{"no changes since prev"}},
+		}, verdict.Compliant, "", []string{"no account changes since the previous pass"}},
 		{"changes", EV02Input{
 			Current: identitySnapshot("cur", 2), Records: []fact.IdentityRecord{root, bob},
 			Previous: identitySnapshot("prev", 2), PreviousRecords: []fact.IdentityRecord{root, alice},
-		}, verdict.Compliant, "", []string{"since prev", "created: bob", "deleted: alice"}},
+		}, verdict.Compliant, "", []string{"since the previous pass", "created: bob", "deleted: alice"}},
 	}
 
 	for _, c := range cases {
@@ -542,12 +542,12 @@ func TestJudgeEV04(t *testing.T) {
 		reasons []string
 	}{
 		{"configuration problem", badConfig, verdict.NotEvaluable, verdict.CauseConfiguration, []string{"P-05"}},
-		{"no identity table", noIdentity, verdict.NotEvaluable, verdict.CauseCollection, []string{"no complete identity pass"}},
+		{"no identity table", noIdentity, verdict.NotEvaluable, verdict.CauseCollection, []string{"no complete pass of the account inventory"}},
 		{"declared and still enabled past the deadline", declare(base(person("antonio", "set", "")), "antonio", "2026-10-01"), verdict.NonCompliant, "", []string{"antonio (21 days)", "1 days (P-05)"}},
 		{"declared, within the deadline", declare(base(person("antonio", "set", "")), "antonio", "2026-10-21"), verdict.Compliant, "", []string{"1 accounts"}},
 		{"declared and locked, no keys", declare(base(person("antonio", "locked", "")), "antonio", "2026-10-01"), verdict.Compliant, "", nil},
 		{"declared, locked but with a key", declare(base(withKeys(person("antonio", "locked", ""), 1)), "antonio", "2026-10-01"), verdict.NonCompliant, "", []string{"antonio (21 days)"}},
-		{"declared, locked, keys unknown", declare(base(keysUnknown(person("antonio", "locked", ""))), "antonio", "2026-10-01"), verdict.NotEvaluable, verdict.CauseEvidence, []string{"SSH keys unknown: antonio"}},
+		{"declared, locked, keys unknown", declare(base(keysUnknown(person("antonio", "locked", ""))), "antonio", "2026-10-01"), verdict.NotEvaluable, verdict.CauseEvidence, []string{"SSH keys that cannot be read: antonio"}},
 		{"keys unknown but within the deadline", declare(base(keysUnknown(person("antonio", "locked", ""))), "antonio", "2026-10-21"), verdict.Compliant, "", nil},
 		{"declared and no-login shell", declare(base(nologin), "ana", "2026-10-01"), verdict.Compliant, "", nil},
 		{"declared, account already deleted", declare(base(person("jperez", "set", "")), "antonio", "2026-07-31"), verdict.Compliant, "", []string{"0 accounts"}},
@@ -644,7 +644,7 @@ func TestJudgeEV06(t *testing.T) {
 		{"no group snapshot", EV06Input{Privileged: DefaultPrivilegedGroups}, verdict.NotEvaluable, verdict.CauseCollection, nil},
 		{"group file unread", unread, verdict.NotEvaluable, verdict.CauseCollection, []string{"denied"}},
 		{"incomplete group pass", incomplete, verdict.NotEvaluable, verdict.CauseCollection, []string{"1 of 2"}},
-		{"account list unavailable", noAccounts, verdict.NotEvaluable, verdict.CauseCollection, []string{"no complete identity pass"}},
+		{"account list unavailable", noAccounts, verdict.NotEvaluable, verdict.CauseCollection, []string{"no complete pass of the account inventory"}},
 		{"privileged member without admin identity", base(group("sudo", "ubuntu"), group("adm", "ubuntu")), verdict.NonCompliant, "", []string{"no separate admin identity: ubuntu (sudo)"}},
 		{"admin identity exists", base(group("sudo", "jperez")), verdict.Compliant, "", []string{"1 members"}},
 		{"admin account itself is not a finding", base(group("wheel", "jperez.adm")), verdict.Compliant, "", nil},

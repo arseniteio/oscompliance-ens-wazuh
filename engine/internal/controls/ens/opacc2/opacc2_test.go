@@ -80,7 +80,7 @@ func TestJudgeEV01(t *testing.T) {
 		"config":                        {config, want{verdict.NotEvaluable, verdict.CauseConfiguration, []string{"P-02"}}},
 		"P-07 not octal":                {badP07, want{verdict.NotEvaluable, verdict.CauseConfiguration, []string{"P-07"}}},
 		"no sweep":                      {base(Sweep{}, umasks("027")), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"file_sweep_snapshot"}}},
-		"no umask facts":                {base(sweep(), nil), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"umask_snapshot"}}},
+		"no umask facts":                {base(sweep(), nil), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"umask read"}}},
 		"clean":                         {base(sweep(), umasks("027", "077")), want{verdict.Compliant, "", []string{"2 umask declarations"}}},
 		"world-writable in scope":       {base(sweep(ww("/etc/shadow-", "0666", false, false)), umasks("027")), want{verdict.NonCompliant, "", []string{"/etc/shadow- (0666)"}}},
 		"outside scope ignored":         {base(sweep(ww("/tmp", "1777", true, true), ww("/etcetera/x", "0666", false, false)), umasks("027")), want{verdict.Compliant, "", nil}},
@@ -178,7 +178,7 @@ func TestJudgeEV05(t *testing.T) {
 	}{
 		"config":                         {config, want{verdict.NotEvaluable, verdict.CauseConfiguration, []string{"P-05"}}},
 		"no groups":                      {noGroups, want{verdict.NotEvaluable, verdict.CauseCollection, nil}},
-		"no sudoers facts":               {EV05Input{Accounts: accounts(), Groups: []string{"sudo"}}, want{verdict.NotEvaluable, verdict.CauseCollection, []string{"sudoers_snapshot"}}},
+		"no sudoers facts":               {EV05Input{Accounts: accounts(), Groups: []string{"sudo"}}, want{verdict.NotEvaluable, verdict.CauseCollection, []string{"read of the sudo rules"}}},
 		"sudoers unreadable":             {unreadable, want{verdict.NotEvaluable, verdict.CauseCollection, nil}},
 		"all declared":                   {base(sudoers(0, grant("user", "root"), grant("group", "sudo")), "ana", "bob"), want{verdict.Compliant, "", []string{"2 privileged accounts"}}},
 		"primary group member counts":    {base(sudoers(0), "ana"), want{verdict.NonCompliant, "", []string{"bob (group sudo)"}}},
@@ -213,7 +213,7 @@ func TestJudgeEV02(t *testing.T) {
 
 	slow := wazuhConfig(fact.FIMDirectory{Path: "/etc"})
 	slow.SyscheckFrequency = 7 * 86400
-	check(t, "scans too far apart", JudgeEV02(EV02Input{Config: slow, Window: 26 * time.Hour, Critical: critical}), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"longer than the window"}})
+	check(t, "scans too far apart", JudgeEV02(EV02Input{Config: slow, Window: 26 * time.Hour, Critical: critical}), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"longer than the evaluation window"}})
 	realtime := wazuhConfig(fact.FIMDirectory{Path: "/etc", Realtime: true})
 	realtime.SyscheckFrequency = 7 * 86400
 	check(t, "realtime", JudgeEV02(EV02Input{Config: realtime, Window: 26 * time.Hour, Critical: critical}), want{verdict.Compliant, "", nil})
@@ -259,11 +259,11 @@ func TestJudgeEV04(t *testing.T) {
 	check(t, "as declared", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | user:auditor:rx, g:auditors:r-x"}}), want{verdict.Compliant, "", []string{"1 resources"}})
 	check(t, "mode", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 0700 | | u:auditor:r-x,g:auditors:r-x"}}), want{verdict.NonCompliant, "", []string{"mode 0750, declared 0700"}})
 	check(t, "owner", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:root | u:auditor:r-x g:auditors:r-x"}}), want{verdict.NonCompliant, "", []string{"owner root:ops"}})
-	check(t, "undeclared entry", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | u:auditor:r-x"}}), want{verdict.NonCompliant, "", []string{"undeclared g:auditors:r-x"}})
-	check(t, "missing entry", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | | u:auditor:r-x g:auditors:r-x u:eva:rwx"}}), want{verdict.NonCompliant, "", []string{"lacks u:eva:rwx"}})
+	check(t, "undeclared entry", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | u:auditor:r-x"}}), want{verdict.NonCompliant, "", []string{"undeclared entries: g:auditors:r-x"}})
+	check(t, "missing entry", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | | u:auditor:r-x g:auditors:r-x u:eva:rwx"}}), want{verdict.NonCompliant, "", []string{"lacks declared entries: u:eva:rwx"}})
 	check(t, "path missing", JudgeEV04(EV04Input{ACLs: acls(fact.ACLRecord{Path: "/srv/x", Status: fact.SourceAbsent}), Rows: []string{"/srv/x | 750 | |"}}), want{verdict.NotEvaluable, verdict.CauseConfiguration, []string{"does not have: /srv/x"}})
 	check(t, "a missing path does not hide a deviation", JudgeEV04(EV04Input{ACLs: acls(datos, fact.ACLRecord{Path: "/srv/x", Status: fact.SourceAbsent}), Rows: []string{"/srv/datos | 0700 | |", "/srv/x | 750 | |"}}), want{verdict.NonCompliant, "", []string{"mode 0750"}})
-	check(t, "not sent", JudgeEV04(EV04Input{ACLs: acls(), Rows: []string{"/srv/y | 750 | |"}}), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"not in the paths"}})
+	check(t, "not sent", JudgeEV04(EV04Input{ACLs: acls(), Rows: []string{"/srv/y | 750 | |"}}), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"does not receive this path"}})
 	check(t, "no paths in the group configuration", JudgeEV04(EV04Input{ACLs: ACLs{Snapshot: &fact.ACLSnapshot{Status: fact.SourceAbsent}}, Rows: []string{"/srv/y | 750 | |"}}), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"group configuration"}})
 	check(t, "P-08 missing", JudgeEV04(EV04Input{RowsProblem: catalog.Says("param.not_set", "param", "P-08")}), want{verdict.NotEvaluable, verdict.CauseConfiguration, nil})
 }
@@ -292,6 +292,6 @@ func TestJudgeEV06(t *testing.T) {
 	check(t, "no auditd", JudgeEV06(stopped), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"auditd absent"}})
 	unread := base()
 	unread.Config = &fact.WazuhAgentConfig{Status: fact.SourceRead}
-	check(t, "audit log not read", JudgeEV06(unread), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"log_format audit"}})
+	check(t, "audit log not read", JudgeEV06(unread), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"auditd audit log"}})
 	check(t, "params", JudgeEV06(EV06Input{Problem: catalog.Says("param.not_set", "param", "P-06")}), want{verdict.NotEvaluable, verdict.CauseConfiguration, nil})
 }

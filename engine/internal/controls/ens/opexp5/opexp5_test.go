@@ -75,7 +75,7 @@ func TestRequests(t *testing.T) {
 	requests := ParseRegister(register)
 	required := []string{"peticion", "descripcion", "riesgo", "aprobado_por"}
 
-	check(t, "incomplete", JudgeEV03(requests, "web01", required, "RFC-", false, catalog.Message{}, now), verdict.NonCompliant, "", "102 (descripcion; number without the prefix RFC-)")
+	check(t, "incomplete", JudgeEV03(requests, "web01", required, "RFC-", false, catalog.Message{}, now), verdict.NonCompliant, "", "102 (descripcion; request number without the prefix RFC-)")
 	check(t, "impact at ALTA", JudgeEV03(requests[1:2], "web01", nil, "", true, catalog.Message{}, now), verdict.NonCompliant, "", "RFC-STD-1 (impacto_seguridad)")
 
 	check(t, "high risk", JudgeEV04(requests, "web01", []string{"amartinez"}, catalog.Message{}, now), verdict.NonCompliant, "", "102 (jgomez)")

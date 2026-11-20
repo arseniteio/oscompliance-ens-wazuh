@@ -73,7 +73,7 @@ func TestJudgeEV04(t *testing.T) {
 	check(t, "disconnected", JudgeEV04(&source.Reporting{Status: "disconnected", LastKeepAlive: now.Add(-time.Hour)}, false, 24, catalog.Message{}, now), verdict.NonCompliant, "", "agent disconnected")
 	check(t, "too long ago", JudgeEV04(&source.Reporting{Status: "active", LastKeepAlive: now.Add(-25 * time.Hour)}, false, 24, catalog.Message{}, now), verdict.NonCompliant, "", "no contact")
 	check(t, "not in monitoring", JudgeEV04(nil, false, 24, catalog.Message{}, now), verdict.NotEvaluable, verdict.CauseCollection, "monitoring")
-	check(t, "manager", JudgeEV04(nil, true, 24, catalog.Message{}, now), verdict.Compliant, "", "the manager")
+	check(t, "manager", JudgeEV04(nil, true, 24, catalog.Message{}, now), verdict.Compliant, "", "the Wazuh manager itself")
 }
 
 func TestJudgeEV05(t *testing.T) {

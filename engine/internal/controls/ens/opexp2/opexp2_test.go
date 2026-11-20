@@ -50,7 +50,7 @@ func TestBaseline(t *testing.T) {
 	check(t, "another policy", JudgeEV01(other), verdict.NonCompliant, "", "assessed: cis_debian12")
 
 	check(t, "score low", JudgeEV06(baseline(), 80, catalog.Message{}), verdict.NonCompliant, "", "below 80 %")
-	check(t, "score reached", JudgeEV06(baseline(), 40, catalog.Message{}), verdict.Compliant, "", "minimum 40 %")
+	check(t, "score reached", JudgeEV06(baseline(), 40, catalog.Message{}), verdict.Compliant, "", "reach the 40 % minimum")
 	check(t, "P-05 not set", JudgeEV06(baseline(), 0, catalog.Says("param.not_set", "param", "P-05")), verdict.NotEvaluable, verdict.CauseConfiguration, "P-05")
 }
 
@@ -83,7 +83,7 @@ func TestJudgeEV03(t *testing.T) {
 
 	check(t, "java not justified", JudgeEV03(l, []string{"sshd | 22", "wazuh-remoted | 1514"}, catalog.Message{}), verdict.NonCompliant, "", "java tcp/8080")
 	check(t, "unknown process by port", JudgeEV03(l, []string{"sshd | 22", "java |"}, catalog.Message{}), verdict.NonCompliant, "", "? tcp/1514")
-	check(t, "all justified", JudgeEV03(l, []string{"sshd | 22", "wazuh-remoted | 1514", "java"}, catalog.Message{}), verdict.Compliant, "", "3 listening sockets")
+	check(t, "all justified", JudgeEV03(l, []string{"sshd | 22", "wazuh-remoted | 1514", "java"}, catalog.Message{}), verdict.Compliant, "", "3 listening ports")
 	check(t, "incomplete", JudgeEV03(Listening{Snapshot: &fact.ListeningSnapshot{Status: fact.SourceRead, RecordsEmitted: 4}, Sockets: sockets}, nil, catalog.Message{}), verdict.NotEvaluable, verdict.CauseCollection, "3 of 4")
 }
 
@@ -130,7 +130,7 @@ func TestJudgeEV05(t *testing.T) {
 	reporting := map[string]bool{"pve01": false, "web01": true}
 
 	check(t, "physical", JudgeEV05(&fact.Virtualization{Status: fact.SourceRead}, "web01", nil, catalog.Message{}, reporting), verdict.Compliant, "", "not a virtual machine")
-	check(t, "host down", JudgeEV05(vm, "web01", rows, catalog.Message{}, reporting), verdict.NonCompliant, "", "host pve01 is not reporting")
+	check(t, "host down", JudgeEV05(vm, "web01", rows, catalog.Message{}, reporting), verdict.NonCompliant, "", "host pve01 does not report to Wazuh")
 	check(t, "cloud reference", JudgeEV05(vm, "DB01", rows, catalog.Message{}, reporting), verdict.Compliant, "", "managed by cuenta 1234")
 	check(t, "not declared", JudgeEV05(vm, "app01", rows, catalog.Message{}, reporting), verdict.NonCompliant, "", "not in P-06")
 	check(t, "no fact", JudgeEV05(nil, "web01", rows, catalog.Message{}, reporting), verdict.NotEvaluable, verdict.CauseCollection, "virtualization")
