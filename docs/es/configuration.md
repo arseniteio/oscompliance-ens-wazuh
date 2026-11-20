@@ -192,6 +192,7 @@ Hasta que se guarda una configuración, el motor y el plugin usan la configuraci
 | Tipo de sistema de cada máquina | elige su plantilla de parámetros integrada |
 | Control activado | un control desactivado es NOT_APPLICABLE en todas partes |
 | Parámetros del control | listados en cada [página de control](controls/README.md) |
+| Niveles por dimensión | C, I, T, A y D, BAJO, MEDIO o ALTO; un control se aplica al nivel más alto de sus dimensiones, y una dimensión sin nivel toma la categoría |
 | Ajustes de nivel | juzgan un control, o un control en una máquina, a un nivel inferior a la categoría |
 
 `levelAdjustments` baja el nivel al que se juzga un control:

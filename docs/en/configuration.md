@@ -213,6 +213,7 @@ Until a configuration is saved, the engine and the plugin use the catalog defaul
 | System type of each machine | picks its built-in parameter template |
 | Control enabled | a disabled control is NOT_APPLICABLE everywhere |
 | Control parameters | listed on each [control page](controls/README.md) |
+| Dimension levels | C, I, T, A and D, BAJO, MEDIO or ALTO; a control applies at the highest level of its dimensions, and a dimension without a level takes the category |
 | Level adjustments | judge one control, or one control on one machine, at a lower level than the category |
 
 `levelAdjustments` lowers the level a control is judged at:

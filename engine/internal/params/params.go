@@ -30,7 +30,12 @@ func invalid(code string, pairs ...any) error { return ValueError{catalog.Says(c
 
 type Config struct {
 	Global struct {
-		EnsLevel string `json:"ensLevel"`
+		EnsLevel             string `json:"ensLevel"`
+		ConfidentialityLevel string `json:"confidentialityLevel"`
+		IntegrityLevel       string `json:"integrityLevel"`
+		TraceabilityLevel    string `json:"traceabilityLevel"`
+		AuthenticityLevel    string `json:"authenticityLevel"`
+		AvailabilityLevel    string `json:"availabilityLevel"`
 	} `json:"global"`
 	Scope struct {
 		Mode          string   `json:"mode"`

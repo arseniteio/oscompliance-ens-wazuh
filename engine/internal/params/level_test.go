@@ -50,3 +50,19 @@ func TestAdjustmentAcceptsTheCategoryWord(t *testing.T) {
 		t.Errorf("got %+v", got)
 	}
 }
+
+func TestControlLevelTakesTheHighestOfItsDimensions(t *testing.T) {
+	c := adjusted("MEDIO")
+	c.Global.TraceabilityLevel = "ALTO"
+	c.Global.ConfidentialityLevel = "BAJO"
+
+	if got := c.ControlLevel("op.acc.1", "001"); got.Level != "ALTO" {
+		t.Errorf("op.acc.1 goes by T and A: %+v", got)
+	}
+	if got := c.ControlLevel("mp.eq.4", "001"); got.Level != "BAJO" {
+		t.Errorf("mp.eq.4 goes by C: %+v", got)
+	}
+	if got := c.ControlLevel("mp.info.6", "001"); got.Level != "MEDIO" {
+		t.Errorf("mp.info.6 goes by D, undeclared, so the category: %+v", got)
+	}
+}

@@ -27,9 +27,39 @@ func usableAdjustment(a LevelAdjustment, category string) bool {
 	return a.ControlID != "" && strings.TrimSpace(a.Reason) != "" && level != "" && levelRank[level] <= levelRank[category]
 }
 
+func (c *Config) dimensionLevel(dimension string) string {
+	declared := map[string]string{
+		"C": c.Global.ConfidentialityLevel,
+		"I": c.Global.IntegrityLevel,
+		"T": c.Global.TraceabilityLevel,
+		"A": c.Global.AuthenticityLevel,
+		"D": c.Global.AvailabilityLevel,
+	}[dimension]
+	if level := catalog.CategoryRank(declared); level != "" {
+		return level
+	}
+	return c.Level()
+}
+
+// A control applies at the highest level of the dimensions it protects; a dimension without a
+// declared level takes the system category, as the plugin does.
+func (c *Config) applicableLevel(controlID string) string {
+	control, known := catalog.LookupControl(controlID)
+	if !known || len(control.LevelDimension) == 0 {
+		return c.Level()
+	}
+	highest := ""
+	for _, dimension := range control.LevelDimension {
+		if level := c.dimensionLevel(dimension); levelRank[level] > levelRank[highest] {
+			highest = level
+		}
+	}
+	return highest
+}
+
 func (c *Config) ControlLevel(controlID, agentID string) ControlLevel {
 
-	category := c.Level()
+	category := c.applicableLevel(controlID)
 	var general *LevelAdjustment
 
 	for i, a := range c.LevelAdjustments {
