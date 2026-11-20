@@ -921,7 +921,7 @@
   "probe.not_written": "the agent could not write its probe to syslog: {error}",
   "probe.pending": "the newest probe has not had time to come back yet",
   "raw": "{text}",
-  "requirement.attested": "attested by document: {reference}",
+  "requirement.attested": "attested by document: {reference} ({links})",
   "requirement.compliant": "compliant evidence: {evidences}",
   "requirement.control_disabled": "control disabled in the configuration",
   "requirement.decision_gap": "not evidenced: {reason}",

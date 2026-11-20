@@ -167,3 +167,17 @@ func TestFromDecision(t *testing.T) {
 		}
 	}
 }
+
+func TestAttestedRequirementCarriesItsLinks(t *testing.T) {
+	doc := catalog.Requirement{ID: "doc", Levels: []string{"MEDIO"}}
+	links := []string{"https://intranet/eidas.pdf", `\\nas\politicas\eidas.pdf`}
+
+	got := EvaluateRequirement(doc, "MEDIO", true, nil, &Attestation{Reference: "Política eIDAS", Links: links})
+
+	if args := got.Message.Args; args["reference"] != "Política eIDAS" || len(args["links"].([]string)) != 2 {
+		t.Errorf("args %+v", args)
+	}
+	if !strings.Contains(got.Message.Render("es"), "https://intranet/eidas.pdf") {
+		t.Errorf("reason %q", got.Message.Render("es"))
+	}
+}

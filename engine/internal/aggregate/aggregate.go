@@ -74,7 +74,7 @@ func EvaluateRequirement(req catalog.Requirement, level string, controlEnabled b
 	if len(req.EvidenceIDs) == 0 {
 		if attestation != nil && attestation.Sufficient() {
 			out.Status, out.Evidenced, out.Attested = verdict.Compliant, true, true
-			out.says(catalog.Says("requirement.attested", "reference", attestation.Reference))
+			out.says(catalog.Says("requirement.attested", "reference", attestation.Reference, "links", attestation.Links))
 			return out
 		}
 		out.Status = verdict.NonCompliant
