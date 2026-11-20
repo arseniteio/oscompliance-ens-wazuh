@@ -434,3 +434,24 @@ func TestOnceWritesTalliesWithTheirLevel(t *testing.T) {
 		t.Errorf("organization tally counts compliant machines: %+v", tally)
 	}
 }
+
+func TestOnceJudgesAnAdjustedMachineAtItsLevel(t *testing.T) {
+	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": allCompliant(), "002": allCompliant()}}
+	sink := &fakeSink{}
+	policy := configWith(t, `{"global":{"ensLevel":"MEDIO"},"levelAdjustments":[{"controlId":"op.acc.1","agentId":"001","level":"BAJO","reason":"entorno de pruebas"}]}`)
+
+	if _, err := Once(context.Background(), fakeAgents{senders: []verdict.Agent{{ID: "001"}, {ID: "002"}}}, []evaluator.Evaluator{control}, policy, sink, cfg, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	got := index(sink.got)
+	if v := got["001 requirement op.acc.1.r1.1"]; v.Status != verdict.NotApplicable || v.ReasonCode != "requirement.out_of_adjusted_level" || !strings.Contains(v.Reason, "entorno de pruebas") {
+		t.Errorf("001 r1.1: %s %s %q", v.Status, v.ReasonCode, v.Reason)
+	}
+	if v := got["001 evidence EV-07"]; v.Status != verdict.NotApplicable || v.ReasonCode != "evidence.out_of_adjusted_level" {
+		t.Errorf("001 EV-07: %s %s", v.Status, v.ReasonCode)
+	}
+	if v := got["002 requirement op.acc.1.r1.1"]; v.Status == verdict.NotApplicable {
+		t.Errorf("002 keeps the category: %+v", v)
+	}
+}

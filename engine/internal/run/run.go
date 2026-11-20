@@ -157,7 +157,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 			for _, e := range control.Evidences {
 
 				r, judged := results[e.ID]
-				na, notApp := notApplicable(policy, control, e.ID)
+				na, notApp := notApplicable(policy, control, agent.ID, e.ID)
 
 				switch {
 				case notApp:
@@ -281,7 +281,7 @@ func judgedAgents(ctx context.Context, list Agents, since time.Time) ([]verdict.
 
 func aggregateVerdicts(policy params.Lister, control catalog.Control, agent verdict.Agent, evidences, decisions map[string]verdict.Judgement, base func(verdict.Agent, string) verdict.Verdict) []verdict.Verdict {
 
-	level := policy.Level()
+	level := controlLevel(policy, control.Control, agent.ID)
 	enabled := policy.ControlEnabled(control.Control)
 
 	rows, _ := policy.List(agent.ID, control.Control, "P-ATT")
@@ -297,7 +297,11 @@ func aggregateVerdicts(policy params.Lister, control catalog.Control, agent verd
 			att = &a
 		}
 
-		r := aggregate.EvaluateRequirement(req, level, enabled, evidences, att)
+		r := aggregate.EvaluateRequirement(req, level.Level, enabled, evidences, att)
+		if level.Adjusted != nil && r.Message.Code == "requirement.out_of_level" {
+			r.Message = catalog.Says("requirement.out_of_adjusted_level", "levels", req.Levels, "level", level.Level, "reason", level.Adjusted.Reason)
+			r.Reason = r.Message.Render("en")
+		}
 
 		if d, ok := decisions[req.ID]; ok && r.Status != verdict.NotApplicable {
 			r = aggregate.FromDecision(req.ID, d)
@@ -344,18 +348,33 @@ func countCompliant(reqs []aggregate.Requirement) int {
 	return n
 }
 
-func notApplicable(policy params.Lister, control catalog.Control, evidenceID string) (verdict.Judgement, bool) {
+func notApplicable(policy params.Lister, control catalog.Control, agentID, evidenceID string) (verdict.Judgement, bool) {
 
 	if !policy.ControlEnabled(control.Control) {
 		return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.control_disabled", "control", control.Control)), true
 	}
 
-	level := policy.Level()
+	level := controlLevel(policy, control.Control, agentID)
 	evidence, known := control.Evidence(evidenceID)
 
-	if level == "" || !known || evidence.AppliesAt(level) {
+	if level.Level == "" || !known || evidence.AppliesAt(level.Level) {
 		return verdict.Judgement{}, false
 	}
 
-	return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.out_of_level", "evidence", evidenceID, "levels", evidence.Levels, "level", catalog.CategoryLabel(level))), true
+	if level.Adjusted != nil {
+		return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.out_of_adjusted_level", "evidence", evidenceID, "levels", evidence.Levels, "level", level.Level, "reason", level.Adjusted.Reason)), true
+	}
+
+	return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.out_of_level", "evidence", evidenceID, "levels", evidence.Levels, "level", catalog.CategoryLabel(level.Level))), true
+}
+
+type levelAdjuster interface {
+	ControlLevel(controlID, agentID string) params.ControlLevel
+}
+
+func controlLevel(policy params.Lister, controlID, agentID string) params.ControlLevel {
+	if adjuster, ok := policy.(levelAdjuster); ok {
+		return adjuster.ControlLevel(controlID, agentID)
+	}
+	return params.ControlLevel{Level: policy.Level()}
 }

@@ -63,6 +63,8 @@ type Config struct {
 		} `json:"controls"`
 	} `json:"agents"`
 
+	LevelAdjustments []LevelAdjustment `json:"levelAdjustments"`
+
 	Maturity struct {
 		Assessments []maturity.Assessment `json:"assessments"`
 		Scales      maturity.Scales       `json:"scales"`
