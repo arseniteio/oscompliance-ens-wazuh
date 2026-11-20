@@ -16,7 +16,7 @@ shared" or "the authentication log reaches Wazuh".
 | `COMPLIANT` | Measured and correct. |
 | `NON_COMPLIANT` | Measured and wrong. The reason names what failed: the account, the file, the port. |
 | `NOT_EVALUABLE` | Could not be measured. Always carries a cause. |
-| `NOT_APPLICABLE` | Does not apply at the configured ENS level, the control is disabled, or the machine is out of the control's scope. |
+| `NOT_APPLICABLE` | Does not apply at the configured system category, the control is disabled, or the machine is out of the control's scope. |
 
 | Cause | Meaning | Fixed by |
 |---|---|---|
@@ -24,12 +24,17 @@ shared" or "the authentication log reaches Wazuh".
 | `COLLECTION` | A source did not arrive: no agent pass in the window, a file unreadable, a log that does not reach Wazuh, auditd not running. | Fixing the machine or its Wazuh agent. |
 | `EVIDENCE` | The data arrived but cannot decide this case, for example an account whose state depends on keys an `AuthorizedKeysCommand` hides. | Reviewing the case by hand, or changing the system so it can be measured. |
 
+A `CONFIGURATION` reason names the machine. When the gap is a parameter it
+also names the parameter and either states that it has no value or gives the
+value in force and where it comes from: the machine, a template, a profile or
+the organisation. A list shows five items and counts the rest.
+
 ## Requirement
 
 A requirement is one point of Annex II, such as op.acc.1.4 "account life
 cycle". Its status comes from its evidences:
 
-1. Not required at the configured level, or the control disabled:
+1. Not required at the configured system category, or the control disabled:
    `NOT_APPLICABLE`, out of the score.
 2. No technical evidence: `COMPLIANT`, `attested`, when an attestation row
    (P-ATT: `requisito | referencia | enlace | fecha | responsable`) has a
@@ -62,6 +67,29 @@ applicability on machines with no external service.
 `coverage` is the share of applicable requirements that were measured, as
 opposed to failed for lack of proof. A control at 60 with coverage 100 is a
 measured 60; at coverage 40 most of the gap is configuration or collection.
+
+## Tallies
+
+An evidence that judges a set of items carries `tally`: the items that meet
+it, the items judged and the percentage, rounded down. mp.info.6 counts copies
+in EV-01 (done), EV-02 (within their interval) and EV-03 (kept for their
+retention). The status does not change: 36 good copies out of 40 is still
+`NON_COMPLIANT`, with `tally.percent` 90.
+
+The `organization` verdict of each judged control also carries `tally`: the
+machines whose control is `COMPLIANT` out of those it applies to.
+
+`tally.level` maps the percentage to L0 to L5 with a scale in
+`configuration.maturity.scales`:
+
+```json
+{ "controlId": "mp.info.6", "agentId": "001", "thresholds": [50, 70, 80, 90, 98] }
+```
+
+`thresholds` holds the minimum percentage for L1 to L5, in rising order. A
+scale with `agentId` applies to that machine and takes precedence over the
+scale of the control. Without a scale there is no `level`. The engine ships no
+scale.
 
 ## Maturity
 

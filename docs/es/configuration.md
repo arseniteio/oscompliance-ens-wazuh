@@ -187,7 +187,7 @@ Hasta que se guarda una configuración, el motor y el plugin usan la configuraci
 
 | Ajuste | Efecto |
 |---|---|
-| Categoría ENS | BAJO, MEDIO o ALTO; los requisitos fuera de ella son NOT_APPLICABLE |
+| Categoría del sistema | BÁSICO, MEDIO o ALTO (se guarda como `BAJO`, `MEDIO` o `ALTO`; el motor también lee `BÁSICO`); los requisitos fuera de ella son NOT_APPLICABLE |
 | Alcance | los grupos de Wazuh auditados |
 | Tipo de sistema de cada máquina | elige su plantilla de parámetros integrada |
 | Control activado | un control desactivado es NOT_APPLICABLE en todas partes |

@@ -208,7 +208,7 @@ Until a configuration is saved, the engine and the plugin use the catalog defaul
 
 | Setting | Effect |
 |---|---|
-| ENS category | BAJO, MEDIO or ALTO; requirements outside it are NOT_APPLICABLE |
+| System category | BÁSICO, MEDIO or ALTO (stored as `BAJO`, `MEDIO` or `ALTO`; the engine also reads `BÁSICO`); requirements outside it are NOT_APPLICABLE |
 | Scope | the Wazuh groups audited |
 | System type of each machine | picks its built-in parameter template |
 | Control enabled | a disabled control is NOT_APPLICABLE everywhere |

@@ -15,7 +15,7 @@ Una evidencia es un hecho medible sobre una máquina, como «ningún UID está c
 | `COMPLIANT` | Medido y correcto. |
 | `NON_COMPLIANT` | Medido e incorrecto. El motivo nombra lo que falla: la cuenta, el fichero, el puerto. |
 | `NOT_EVALUABLE` | No se ha podido medir. Siempre lleva una causa. |
-| `NOT_APPLICABLE` | No se aplica al nivel ENS configurado, el control está desactivado o la máquina está fuera del alcance del control. |
+| `NOT_APPLICABLE` | No se aplica a la categoría del sistema configurada, el control está desactivado o la máquina está fuera del alcance del control. |
 
 | Causa | Significado | Se arregla |
 |---|---|---|
@@ -23,11 +23,13 @@ Una evidencia es un hecho medible sobre una máquina, como «ningún UID está c
 | `COLLECTION` | No ha llegado una fuente: ninguna pasada del agente en la ventana, un fichero ilegible, un registro que no llega a Wazuh, auditd parado. | Arreglando la máquina o su agente de Wazuh. |
 | `EVIDENCE` | Los datos han llegado pero no pueden decidir este caso, por ejemplo una cuenta cuyo estado depende de claves que oculta un `AuthorizedKeysCommand`. | Revisando el caso a mano o cambiando el sistema para que se pueda medir. |
 
+Un motivo `CONFIGURATION` nombra la máquina. Si lo que falta es un parámetro, nombra también el parámetro y dice que no tiene valor o da el valor vigente y de dónde sale: la máquina, una plantilla, un perfil o la organización. Una lista muestra cinco elementos y cuenta el resto.
+
 ## Requisito
 
 Un requisito es un punto del Anexo II, como op.acc.1.4 «ciclo de vida de las cuentas». Su estado sale de sus evidencias:
 
-1. No exigido en el nivel configurado, o control desactivado: `NOT_APPLICABLE`, fuera de la puntuación.
+1. No exigido en la categoría del sistema configurada, o control desactivado: `NOT_APPLICABLE`, fuera de la puntuación.
 2. Sin evidencia técnica: `COMPLIANT`, `attested`, cuando una fila de atestación (P-ATT: `requisito | referencia | enlace | fecha | responsable`) tiene una referencia y un enlace utilizable (`http(s)://`, `file://`, `\\host` o una ruta absoluta). Si no, `NON_COMPLIANT`, no evidenciado. Un documento nunca cubre un requisito que tiene evidencia técnica.
 3. Alguna evidencia `NON_COMPLIANT`: `NON_COMPLIANT`, evidenciado.
 4. Alguna evidencia `NOT_EVALUABLE`, o ninguna aplicable: `NON_COMPLIANT`, no evidenciado (`evidenced: false`), con cada carencia y su causa.
@@ -47,6 +49,20 @@ Algunos controles deciden un requisito directamente donde la norma pide elegir: 
 | `NOT_APPLICABLE` | no se aplica nada |
 
 `score` es la proporción de requisitos aplicables que se cumplen, de 0 a 100. `coverage` es la proporción de requisitos aplicables que se han medido, frente a los fallados por falta de prueba. Un control con 60 y cobertura 100 es un 60 medido; con cobertura 40, la mayor parte de la diferencia es configuración o recogida.
+
+## Recuentos
+
+Una evidencia que juzga un conjunto de elementos lleva `tally`: los elementos que la cumplen, los juzgados y el porcentaje, redondeado hacia abajo. mp.info.6 cuenta copias en EV-01 (hechas), EV-02 (dentro de su intervalo) y EV-03 (conservadas su retención). El estado no cambia: 36 copias correctas de 40 sigue siendo `NON_COMPLIANT`, con `tally.percent` 90.
+
+El veredicto `organization` de cada control juzgado también lleva `tally`: las máquinas cuyo control es `COMPLIANT` sobre aquellas a las que se aplica.
+
+`tally.level` traduce el porcentaje a L0-L5 con una escala de `configuration.maturity.scales`:
+
+```json
+{ "controlId": "mp.info.6", "agentId": "001", "thresholds": [50, 70, 80, 90, 98] }
+```
+
+`thresholds` contiene el porcentaje mínimo de L1 a L5, en orden creciente. Una escala con `agentId` se aplica a esa máquina y prevalece sobre la del control. Sin escala no hay `level`. El motor no trae ninguna escala.
 
 ## Madurez
 
