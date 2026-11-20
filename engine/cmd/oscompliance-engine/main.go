@@ -252,6 +252,7 @@ func runMain() error {
 			loaded.UseHostFacts(profileHosts(ctx, facts, profiles, time.Now().Add(-*lookback)))
 			policy, current = loaded, loaded
 			cfg.Assessments = loaded.Maturity.Assessments
+			cfg.Scales = loaded.Maturity.Scales
 			groups.run(ctx, loaded, time.Now())
 		}
 

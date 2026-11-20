@@ -65,6 +65,7 @@ type Config struct {
 
 	Maturity struct {
 		Assessments []maturity.Assessment `json:"assessments"`
+		Scales      maturity.Scales       `json:"scales"`
 	} `json:"maturity"`
 
 	inventoryTypes map[string]string

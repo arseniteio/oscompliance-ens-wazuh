@@ -48,6 +48,57 @@ func (a Assessment) Valid() bool {
 	return strings.TrimSpace(a.Measure) != "" && inRange(a.Level) && inRange(a.Target)
 }
 
+type Scale struct {
+	Control    string `json:"controlId"`
+	Agent      string `json:"agentId"`
+	Thresholds []int  `json:"thresholds"`
+}
+
+func (s Scale) Valid() bool {
+	if strings.TrimSpace(s.Control) == "" || len(s.Thresholds) != MaxLevel {
+		return false
+	}
+	previous := 0
+	for _, t := range s.Thresholds {
+		if t < previous || t > 100 {
+			return false
+		}
+		previous = t
+	}
+	return true
+}
+
+func (s Scale) Level(percent int) int {
+	level := 0
+	for i, threshold := range s.Thresholds {
+		if percent >= threshold {
+			level = i + 1
+		}
+	}
+	return level
+}
+
+type Scales []Scale
+
+func (ss Scales) For(control, agent string) (Scale, bool) {
+	var general *Scale
+	for i, s := range ss {
+		if s.Control != control || !s.Valid() {
+			continue
+		}
+		if s.Agent == agent && agent != "" {
+			return s, true
+		}
+		if s.Agent == "" && general == nil {
+			general = &ss[i]
+		}
+	}
+	if general == nil {
+		return Scale{}, false
+	}
+	return *general, true
+}
+
 func Incoherent(accredited, assessed *int) bool {
 	// A declared L3 or higher needs a practice the evidence sees repeating; on L0 or L1 it is
 	// reported, not corrected.

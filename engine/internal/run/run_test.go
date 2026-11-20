@@ -400,3 +400,37 @@ func TestOnceWithoutHistoryWritesNoMaturity(t *testing.T) {
 		}
 	}
 }
+
+func TestOnceWritesTalliesWithTheirLevel(t *testing.T) {
+	counted := allCompliant()
+	counted["EV-03"] = evaluator.Result{Judgement: verdict.Judgement{Status: verdict.NonCompliant}.Counting(36, 40)}
+	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": counted, "002": allCompliant()}}
+	sink := &fakeSink{}
+	withScales := cfg
+	withScales.WorkingDays = func(context.Context, string, time.Time) (map[string]int, error) { return map[string]int{}, nil }
+	withScales.Scales = maturity.Scales{
+		{Control: "op.acc.1", Thresholds: []int{0, 25, 50, 75, 95}},
+		{Control: "op.acc.1", Agent: "001", Thresholds: []int{10, 20, 30, 40, 50}},
+	}
+
+	if _, err := Once(context.Background(), fakeAgents{senders: []verdict.Agent{{ID: "001"}, {ID: "002"}}}, []evaluator.Evaluator{control}, noParams{level: "MEDIO"}, sink, withScales, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	got := index(sink.got)
+	if tally := got["001 evidence EV-03"].Tally; tally == nil || tally.Percent != 90 || tally.Level == nil || *tally.Level != 5 {
+		t.Errorf("001 EV-03 uses the machine scale: %+v", tally)
+	}
+	if tally := got["002 evidence EV-03"].Tally; tally != nil {
+		t.Errorf("an evidence without a count has no tally: %+v", tally)
+	}
+	var measure verdict.Verdict
+	for _, v := range sink.got {
+		if v.Scope == verdict.ScopeOrganization && v.Control == "op.acc.1" {
+			measure = v
+		}
+	}
+	if tally := measure.Tally; tally == nil || tally.Met != 0 || tally.Total != 2 || *tally.Level != 1 {
+		t.Errorf("organization tally counts compliant machines: %+v", tally)
+	}
+}

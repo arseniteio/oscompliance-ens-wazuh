@@ -95,3 +95,49 @@ func TestAssessmentValid(t *testing.T) {
 		t.Error("an assessment needs a measure and levels from 0 to 5")
 	}
 }
+
+func TestScaleLevel(t *testing.T) {
+
+	s := Scale{Control: "mp.info.6", Thresholds: []int{20, 40, 60, 80, 95}}
+
+	for percent, want := range map[int]int{0: 0, 19: 0, 20: 1, 59: 2, 90: 4, 95: 5, 100: 5} {
+		if got := s.Level(percent); got != want {
+			t.Errorf("%d %%: L%d, want L%d", percent, got, want)
+		}
+	}
+}
+
+func TestScaleValid(t *testing.T) {
+
+	for name, c := range map[string]struct {
+		scale Scale
+		want  bool
+	}{
+		"five rising thresholds": {Scale{Control: "mp.info.6", Thresholds: []int{10, 20, 30, 40, 50}}, true},
+		"no control":             {Scale{Thresholds: []int{10, 20, 30, 40, 50}}, false},
+		"four thresholds":        {Scale{Control: "mp.info.6", Thresholds: []int{10, 20, 30, 40}}, false},
+		"falling":                {Scale{Control: "mp.info.6", Thresholds: []int{10, 30, 20, 40, 50}}, false},
+		"over 100":               {Scale{Control: "mp.info.6", Thresholds: []int{10, 20, 30, 40, 101}}, false},
+	} {
+		if got := c.scale.Valid(); got != c.want {
+			t.Errorf("%s: %v, want %v", name, got, c.want)
+		}
+	}
+}
+
+func TestMachineScaleWinsOverControlScale(t *testing.T) {
+
+	general := Scale{Control: "mp.info.6", Thresholds: []int{10, 20, 30, 40, 50}}
+	web01 := Scale{Control: "mp.info.6", Agent: "001", Thresholds: []int{50, 60, 70, 80, 90}}
+	scales := Scales{general, web01, {Control: "mp.info.6", Agent: "002", Thresholds: []int{1}}}
+
+	if got, _ := scales.For("mp.info.6", "001"); got.Agent != "001" {
+		t.Errorf("001 got %+v", got)
+	}
+	if got, ok := scales.For("mp.info.6", "002"); !ok || got.Agent != "" {
+		t.Errorf("an invalid machine scale falls back to the control scale, got %+v", got)
+	}
+	if _, ok := scales.For("op.acc.1", "001"); ok {
+		t.Error("no scale for op.acc.1")
+	}
+}

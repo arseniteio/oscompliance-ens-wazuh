@@ -28,19 +28,43 @@ func accredit(v *verdict.Verdict, workingDaysBefore int) {
 type levels struct {
 	mu        sync.Mutex
 	byControl map[string][]int
+	machines  map[string]*verdict.Tally
 }
 
 func newLevels() *levels {
-	return &levels{byControl: map[string][]int{}}
+	return &levels{byControl: map[string][]int{}, machines: map[string]*verdict.Tally{}}
 }
 
-func (l *levels) add(control string, m *verdict.Maturity) {
-	if m == nil || m.Accredited == nil {
+func (l *levels) add(control string, v verdict.Verdict) {
+	if v.Status == verdict.NotApplicable {
 		return
 	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.byControl[control] = append(l.byControl[control], *m.Accredited)
+	t, ok := l.machines[control]
+	if !ok {
+		t = &verdict.Tally{}
+		l.machines[control] = t
+	}
+	t.Total++
+	if v.Status == verdict.Compliant {
+		t.Met++
+	}
+	if v.Maturity != nil && v.Maturity.Accredited != nil {
+		l.byControl[control] = append(l.byControl[control], *v.Maturity.Accredited)
+	}
+}
+
+func scored(t *verdict.Tally, scales maturity.Scales, control, agentID string) *verdict.TallyResult {
+	if t == nil || t.Total <= 0 {
+		return nil
+	}
+	out := &verdict.TallyResult{Met: t.Met, Total: t.Total, Percent: t.Percent()}
+	if scale, ok := scales.For(control, agentID); ok {
+		level := scale.Level(out.Percent)
+		out.Level = &level
+	}
+	return out
 }
 
 func organizationBase(now time.Time, engineVersion string) verdict.Verdict {
@@ -56,7 +80,7 @@ func organizationBase(now time.Time, engineVersion string) verdict.Verdict {
 	}
 }
 
-func organizationVerdicts(controls []evaluator.Evaluator, judged *levels, assessments []maturity.Assessment, base verdict.Verdict) []verdict.Verdict {
+func organizationVerdicts(controls []evaluator.Evaluator, judged *levels, assessments []maturity.Assessment, scales maturity.Scales, base verdict.Verdict) []verdict.Verdict {
 
 	// One verdict per judged control with the lowest level of its machines and the declared
 	// assessment, one per assessed measure the engine does not judge, and one for the ENS.
@@ -82,6 +106,7 @@ func organizationVerdicts(controls []evaluator.Evaluator, judged *levels, assess
 		level, _ := maturity.Organization(perMachine)
 		m := measureVerdict(base, id, &level, declared[id])
 		m.Maturity.Machines = len(perMachine)
+		m.Tally = scored(judged.machines[id], scales, id, "")
 		out = append(out, m)
 		measures = append(measures, maturity.Measure{ID: id, Accredited: &level, Assessed: declared[id].Level, Target: declared[id].Target})
 	}

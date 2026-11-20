@@ -69,3 +69,27 @@ func TestRestores(t *testing.T) {
 		t.Errorf("got %v", rows)
 	}
 }
+
+func TestJudgesCountCopies(t *testing.T) {
+
+	read, _, _ := Read(&snapshot, copies)
+	empty := map[string]fact.BackupSource{"/srv/copias/diaria": {Status: fact.SourceRead, Newest: "2026-11-01T02:00:00Z", Files: 3}, "git:/etc": read["git:/etc"]}
+
+	for name, c := range map[string]struct {
+		got        verdict.Judgement
+		met, total int
+	}{
+		"done":      {JudgeEV01(copies, read), 2, 2},
+		"empty":     {JudgeEV01(copies, empty), 1, 2},
+		"late":      {JudgeEV02(copies, read, 24, 2, now), 1, 2},
+		"retention": {JudgeEV03(copies, read, 30, now), 0, 2},
+	} {
+		if c.got.Tally == nil || c.got.Tally.Met != c.met || c.got.Tally.Total != c.total {
+			t.Errorf("%s: tally %+v, want %d of %d", name, c.got.Tally, c.met, c.total)
+		}
+	}
+
+	if gap := JudgeEV02(copies, read, 0, 0, now); gap.Tally != nil {
+		t.Errorf("a configuration gap counts nothing: %+v", gap.Tally)
+	}
+}

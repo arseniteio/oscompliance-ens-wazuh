@@ -46,6 +46,8 @@ type Config struct {
 	WorkingDays func(ctx context.Context, control string, now time.Time) (map[string]int, error)
 
 	Assessments []maturity.Assessment
+
+	Scales maturity.Scales
 }
 
 func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator, policy params.Lister, sink Sink, cfg Config, now time.Time) (int, error) {
@@ -170,6 +172,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 				v := base(agent, verdict.ScopeEvidence)
 				v.Evidence, v.Status, v.Cause, v.RunID = e.ID, r.Judgement.Status, r.Judgement.Cause, r.RunID
 				v.Explained(r.Judgement.Message, r.Judgement.Reason)
+				v.Tally = scored(r.Judgement.Tally, cfg.Scales, control.Control, agent.ID)
 				store(v)
 			}
 
@@ -179,7 +182,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 				}
 				if v.Scope == verdict.ScopeControl && history != nil {
 					accredit(&v, history[agent.ID])
-					levels.add(control.Control, v.Maturity)
+					levels.add(control.Control, v)
 				}
 				store(v)
 			}
@@ -210,7 +213,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 	wg.Wait()
 
 	if cfg.WorkingDays != nil {
-		for _, v := range organizationVerdicts(controls, levels, cfg.Assessments, organizationBase(now, cfg.EngineVersion)) {
+		for _, v := range organizationVerdicts(controls, levels, cfg.Assessments, cfg.Scales, organizationBase(now, cfg.EngineVersion)) {
 			store(v)
 		}
 	}

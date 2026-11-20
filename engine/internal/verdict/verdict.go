@@ -41,6 +41,24 @@ type Judgement struct {
 	Cause   Cause
 	Reason  string
 	Message catalog.Message
+	Tally   *Tally
+}
+
+type Tally struct {
+	Met   int
+	Total int
+}
+
+func (j Judgement) Counting(met, total int) Judgement {
+	if total > 0 {
+		j.Tally = &Tally{Met: met, Total: total}
+	}
+	return j
+}
+
+func (t Tally) Percent() int {
+	// Floor, not round: 89.6 % must not reach a 90 % threshold of the maturity scale.
+	return t.Met * 100 / t.Total
 }
 
 func Explain(status Status, cause Cause, m catalog.Message) Judgement {
@@ -77,6 +95,15 @@ type Verdict struct {
 	UnmeasuredRequirements []string `json:"unmeasured_requirements,omitempty"`
 
 	Maturity *Maturity `json:"maturity,omitempty"`
+
+	Tally *TallyResult `json:"tally,omitempty"`
+}
+
+type TallyResult struct {
+	Met     int  `json:"met"`
+	Total   int  `json:"total"`
+	Percent int  `json:"percent"`
+	Level   *int `json:"level,omitempty"`
 }
 
 type Maturity struct {
