@@ -931,7 +931,7 @@
   "requirement.evidence_cause": "{evidence} ({cause})",
   "requirement.no_attestation": "no demostrado: no hay evidencia técnica ni atestación P-ATT con referencia y enlace válido",
   "requirement.non_compliant": "no cumple: {evidences}",
-  "requirement.none_applies": "no demostrado: no aplica ninguna de {evidences}",
+  "requirement.none_applies": "no aplica ninguna de sus evidencias: {evidences}",
   "requirement.not_evidenced": "no demostrado: {evidences}",
   "requirement.out_of_adjusted_level": "rige en {levels}; nivel ajustado {level}: {reason}",
   "requirement.out_of_level": "rige en {levels}; categoría del sistema {level}",

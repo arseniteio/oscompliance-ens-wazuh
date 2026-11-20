@@ -32,8 +32,9 @@ Un requisito es un punto del Anexo II, como op.acc.1.4 «ciclo de vida de las cu
 1. No exigido en la categoría del sistema configurada, o control desactivado: `NOT_APPLICABLE`, fuera de la puntuación.
 2. Sin evidencia técnica: `COMPLIANT`, `attested`, cuando una fila de atestación (P-ATT: `requisito | referencia | enlace | fecha | responsable`) tiene una referencia y un enlace utilizable (`http(s)://`, `file://`, `\\host` o una ruta absoluta). Si no, `NON_COMPLIANT`, no evidenciado. Un documento nunca cubre un requisito que tiene evidencia técnica.
 3. Alguna evidencia `NON_COMPLIANT`: `NON_COMPLIANT`, evidenciado.
-4. Alguna evidencia `NOT_EVALUABLE`, o ninguna aplicable: `NON_COMPLIANT`, no evidenciado (`evidenced: false`), con cada carencia y su causa.
-5. Si no, `COMPLIANT`.
+4. Alguna evidencia `NOT_EVALUABLE`: `NON_COMPLIANT`, no evidenciado (`evidenced: false`), con cada carencia y su causa.
+5. Todas las evidencias `NOT_APPLICABLE`: `NOT_APPLICABLE`, fuera de la puntuación.
+6. Si no, `COMPLIANT`.
 
 `NOT_EVALUABLE` nunca llega a un requisito. Un auditor ve un requisito como cumplido o no; `evidenced` distingue un fallo medido de una prueba que falta.
 

@@ -115,8 +115,7 @@ func EvaluateRequirement(req catalog.Requirement, level string, controlEnabled b
 		out.Status, out.Evidenced = verdict.Compliant, true
 		out.says(catalog.Says("requirement.compliant", "evidences", compliant))
 	default:
-
-		out.Status = verdict.NonCompliant
+		out.Status = verdict.NotApplicable
 		out.says(catalog.Says("requirement.none_applies", "evidences", req.EvidenceIDs))
 	}
 

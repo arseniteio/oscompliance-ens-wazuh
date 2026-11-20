@@ -42,9 +42,10 @@ cycle". Its status comes from its evidences:
    absolute path). Otherwise `NON_COMPLIANT`, not evidenced. A document never
    covers a requirement that has technical evidence.
 3. Any evidence `NON_COMPLIANT`: `NON_COMPLIANT`, evidenced.
-4. Any evidence `NOT_EVALUABLE`, or none applicable: `NON_COMPLIANT`, not
-   evidenced (`evidenced: false`), listing each gap and its cause.
-5. Otherwise `COMPLIANT`.
+4. Any evidence `NOT_EVALUABLE`: `NON_COMPLIANT`, not evidenced
+   (`evidenced: false`), listing each gap and its cause.
+5. Every evidence `NOT_APPLICABLE`: `NOT_APPLICABLE`, out of the score.
+6. Otherwise `COMPLIANT`.
 
 `NOT_EVALUABLE` never reaches a requirement. An auditor sees a requirement as
 compliant or not; `evidenced` tells a measured failure from a missing proof.

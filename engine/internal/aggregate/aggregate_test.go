@@ -40,7 +40,7 @@ func TestEvaluateRequirement(t *testing.T) {
 		{"a gap is not evidenced", base, "MEDIO", true, map[string]verdict.Judgement{"EV-01": ok, "EV-02": gap}, nil, verdict.NonCompliant, false, false, "EV-02 (CONFIGURATION)"},
 		{"missing verdict counts as a collection gap", base, "MEDIO", true, map[string]verdict.Judgement{"EV-01": ok}, nil, verdict.NonCompliant, false, false, "EV-02 (COLLECTION)"},
 		{"not applicable evidence is skipped", base, "MEDIO", true, map[string]verdict.Judgement{"EV-01": ok, "EV-02": excluded}, nil, verdict.Compliant, true, false, ""},
-		{"all evidences not applicable", base, "MEDIO", true, map[string]verdict.Judgement{"EV-01": excluded, "EV-02": excluded}, nil, verdict.NonCompliant, false, false, "applies"},
+		{"all evidences not applicable", base, "MEDIO", true, map[string]verdict.Judgement{"EV-01": excluded, "EV-02": excluded}, nil, verdict.NotApplicable, false, false, "applies"},
 		{"reinforcement at BAJO", r1, "BAJO", true, nil, nil, verdict.NotApplicable, false, false, "Refuerzo R1"},
 		{"reinforcement at MEDIO", r1, "MEDIO", true, map[string]verdict.Judgement{"EV-07": ok}, nil, verdict.Compliant, true, false, ""},
 		{"no level: nothing ruled out", r1, "", true, map[string]verdict.Judgement{"EV-07": ok}, nil, verdict.Compliant, true, false, ""},
