@@ -80,6 +80,19 @@ func (s Scale) Level(percent int) int {
 
 type Scales []Scale
 
+// Until the consultant's template sets other values, each level is a fifth of the items and
+// L5 needs all of them: 36 of 40 copies (90 %) is L4.
+var DefaultScale = Scale{Thresholds: []int{20, 40, 60, 80, 100}}
+
+// The CCN CMM reading of the ENS: a measure at L2 meets a BÁSICO system, L3 a MEDIO one and L4
+// an ALTO one.
+var requiredByLevel = map[string]int{"BAJO": 2, "MEDIO": 3, "ALTO": 4}
+
+func Required(level string) (int, bool) {
+	required, ok := requiredByLevel[level]
+	return required, ok
+}
+
 func (ss Scales) For(control, agent string) (Scale, bool) {
 	var general *Scale
 	for i, s := range ss {
@@ -94,7 +107,7 @@ func (ss Scales) For(control, agent string) (Scale, bool) {
 		}
 	}
 	if general == nil {
-		return Scale{}, false
+		return DefaultScale, false
 	}
 	return *general, true
 }

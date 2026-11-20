@@ -97,7 +97,7 @@ func JudgeEV01(copies []Copy, read map[string]fact.BackupSource) verdict.Judgeme
 		}
 	}
 	if len(failed) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.copies_failed", "met", len(done), "total", len(copies), "list", failed)).Counting(len(done), len(copies))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.copies_failed", "list", failed)).Counting(len(done), len(copies))
 	}
 	return verdict.Explain(verdict.Compliant, "", catalog.Says("mpinfo6.copies_done", "count", len(done), "list", done)).Counting(len(done), len(copies))
 }
@@ -129,7 +129,7 @@ func JudgeEV02(copies []Copy, read map[string]fact.BackupSource, hours, margin i
 		}
 	}
 	if len(late) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.copies_late", "met", len(fresh), "total", len(copies), "list", late)).Counting(len(fresh), len(copies))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.copies_late", "list", late)).Counting(len(fresh), len(copies))
 	}
 	return verdict.Explain(verdict.Compliant, "", catalog.Says("mpinfo6.copies_fresh", "list", fresh)).Counting(len(fresh), len(copies))
 }
@@ -164,7 +164,7 @@ func JudgeEV03(copies []Copy, read map[string]fact.BackupSource, days int, now t
 		}
 	}
 	if len(short) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.retention_short", "met", len(kept), "total", len(copies), "list", short)).Counting(len(kept), len(copies))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("mpinfo6.retention_short", "list", short)).Counting(len(kept), len(copies))
 	}
 	return verdict.Explain(verdict.Compliant, "", catalog.Says("mpinfo6.retention_kept", "list", kept)).Counting(len(kept), len(copies))
 }

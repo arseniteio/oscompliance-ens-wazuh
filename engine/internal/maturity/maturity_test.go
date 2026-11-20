@@ -141,3 +141,14 @@ func TestMachineScaleWinsOverControlScale(t *testing.T) {
 		t.Error("no scale for op.acc.1")
 	}
 }
+
+func TestDefaultScaleAndRequiredLevels(t *testing.T) {
+	if got, configured := (Scales{}).For("mp.info.6", "001"); configured || got.Level(90) != 4 || got.Level(100) != 5 || got.Level(79) != 3 {
+		t.Errorf("default scale: %+v", got)
+	}
+	for level, want := range map[string]int{"BAJO": 2, "MEDIO": 3, "ALTO": 4} {
+		if got, ok := Required(level); !ok || got != want {
+			t.Errorf("%s needs L%d, got L%d", level, want, got)
+		}
+	}
+}

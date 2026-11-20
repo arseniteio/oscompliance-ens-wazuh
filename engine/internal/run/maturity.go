@@ -60,10 +60,36 @@ func scored(t *verdict.Tally, scales maturity.Scales, control, agentID string) *
 		return nil
 	}
 	out := &verdict.TallyResult{Met: t.Met, Total: t.Total, Percent: t.Percent()}
-	if scale, ok := scales.For(control, agentID); ok {
-		level := scale.Level(out.Percent)
-		out.Level = &level
+	scale, _ := scales.For(control, agentID)
+	level := scale.Level(out.Percent)
+	out.Level = &level
+	return out
+}
+
+func judgedByLevel(j verdict.Judgement, tally *verdict.TallyResult, controlLevel string) verdict.Judgement {
+
+	// A count is not all or nothing: the share of items that meet the evidence gives a CMM
+	// level, and that level meets the control when it reaches the one its category asks for.
+
+	required, known := maturity.Required(controlLevel)
+	if tally == nil || tally.Level == nil || !known || (j.Status != verdict.Compliant && j.Status != verdict.NonCompliant) {
+		return j
 	}
+
+	detail := j.Message
+	if detail.IsZero() {
+		detail = catalog.Raw(j.Reason)
+	}
+	args := []any{"met", tally.Met, "total", tally.Total, "percent", tally.Percent, "level", *tally.Level,
+		"required", required, "category", catalog.CategoryLabel(controlLevel), "detail", detail}
+
+	out := j
+	if *tally.Level >= required {
+		out = verdict.Explain(verdict.Compliant, "", catalog.Says("tally.meets_level", args...))
+	} else {
+		out = verdict.Explain(verdict.NonCompliant, "", catalog.Says("tally.below_level", args...))
+	}
+	out.Tally = j.Tally
 	return out
 }
 

@@ -421,6 +421,9 @@ func TestOnceWritesTalliesWithTheirLevel(t *testing.T) {
 	if tally := got["001 evidence EV-03"].Tally; tally == nil || tally.Percent != 90 || tally.Level == nil || *tally.Level != 5 {
 		t.Errorf("001 EV-03 uses the machine scale: %+v", tally)
 	}
+	if v := got["001 evidence EV-03"]; v.Status != verdict.Compliant || v.ReasonCode != "tally.meets_level" {
+		t.Errorf("001 EV-03 at L5 meets MEDIO: %s %s", v.Status, v.ReasonCode)
+	}
 	if tally := got["002 evidence EV-03"].Tally; tally != nil {
 		t.Errorf("an evidence without a count has no tally: %+v", tally)
 	}
@@ -453,5 +456,25 @@ func TestOnceJudgesAnAdjustedMachineAtItsLevel(t *testing.T) {
 	}
 	if v := got["002 requirement op.acc.1.r1.1"]; v.Status == verdict.NotApplicable {
 		t.Errorf("002 keeps the category: %+v", v)
+	}
+}
+
+func TestOnceJudgesACountByTheLevelTheCategoryNeeds(t *testing.T) {
+	counted := allCompliant()
+	counted["EV-03"] = evaluator.Result{Judgement: verdict.Judgement{Status: verdict.NonCompliant}.Counting(36, 40)}
+	counted["EV-05"] = evaluator.Result{Judgement: verdict.Judgement{Status: verdict.NonCompliant}.Counting(5, 10)}
+	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": counted}}
+	sink := &fakeSink{}
+
+	if _, err := Once(context.Background(), fakeAgents{senders: []verdict.Agent{{ID: "001"}}}, []evaluator.Evaluator{control}, noParams{level: "ALTO"}, sink, cfg, time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	got := index(sink.got)
+	if v := got["001 evidence EV-03"]; v.Status != verdict.Compliant || v.Tally == nil || *v.Tally.Level != 4 || !strings.Contains(v.Reason, "meets ALTO") {
+		t.Errorf("36 of 40 is L4 and meets ALTO: %s %q", v.Status, v.Reason)
+	}
+	if v := got["001 evidence EV-05"]; v.Status != verdict.NonCompliant || *v.Tally.Level != 2 || !strings.Contains(v.Reason, "needs L4") {
+		t.Errorf("5 of 10 is L2, below ALTO: %s %q", v.Status, v.Reason)
 	}
 }

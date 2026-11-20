@@ -167,12 +167,14 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 				}
 
 				r.Judgement = explainConfiguration(policy, control.Control, agent, r.Judgement)
+				tally := scored(r.Judgement.Tally, cfg.Scales, control.Control, agent.ID)
+				r.Judgement = judgedByLevel(r.Judgement, tally, controlLevel(policy, control.Control, agent.ID).Level)
 				evidences[e.ID] = r.Judgement
 
 				v := base(agent, verdict.ScopeEvidence)
 				v.Evidence, v.Status, v.Cause, v.RunID = e.ID, r.Judgement.Status, r.Judgement.Cause, r.RunID
 				v.Explained(r.Judgement.Message, r.Judgement.Reason)
-				v.Tally = scored(r.Judgement.Tally, cfg.Scales, control.Control, agent.ID)
+				v.Tally = tally
 				store(v)
 			}
 
