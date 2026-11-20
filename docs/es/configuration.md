@@ -192,6 +192,15 @@ Hasta que se guarda una configuración, el motor y el plugin usan la configuraci
 | Tipo de sistema de cada máquina | elige su plantilla de parámetros integrada |
 | Control activado | un control desactivado es NOT_APPLICABLE en todas partes |
 | Parámetros del control | listados en cada [página de control](controls/README.md) |
+| Ajustes de nivel | juzgan un control, o un control en una máquina, a un nivel inferior a la categoría |
+
+`levelAdjustments` baja el nivel al que se juzga un control:
+
+```json
+{ "controlId": "op.acc.1", "agentId": "001", "level": "BAJO", "reason": "entorno de pruebas, análisis de riesgos de 2026-11" }
+```
+
+`agentId` es opcional; un ajuste de máquina prevalece sobre el del control. `reason` es obligatorio. Se ignora un ajuste por encima de la categoría, sin motivo o con un nivel desconocido. Los requisitos y evidencias fuera del nivel ajustado son NOT_APPLICABLE y su motivo cita el ajuste.
 
 Cada parámetro tiene una clase que decide de dónde sale su valor:
 

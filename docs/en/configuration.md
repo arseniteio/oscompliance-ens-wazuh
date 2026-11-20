@@ -213,6 +213,15 @@ Until a configuration is saved, the engine and the plugin use the catalog defaul
 | System type of each machine | picks its built-in parameter template |
 | Control enabled | a disabled control is NOT_APPLICABLE everywhere |
 | Control parameters | listed on each [control page](controls/README.md) |
+| Level adjustments | judge one control, or one control on one machine, at a lower level than the category |
+
+`levelAdjustments` lowers the level a control is judged at:
+
+```json
+{ "controlId": "op.acc.1", "agentId": "001", "level": "BAJO", "reason": "test environment, risk analysis of 2026-11" }
+```
+
+`agentId` is optional; an adjustment for a machine takes precedence over the one for the control. `reason` is required. An adjustment above the category, without a reason or with an unknown level is ignored. Requirements and evidences outside the adjusted level are NOT_APPLICABLE and their reason quotes the adjustment.
 
 Every parameter has a class that decides where its value comes from:
 
