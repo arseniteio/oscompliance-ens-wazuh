@@ -66,7 +66,7 @@ func EvaluateRequirement(req catalog.Requirement, level string, controlEnabled b
 		if req.ApplicabilityReason != "" {
 			out.says(catalog.Says("requirement.declared_out_of_level", "reason", req.ApplicabilityReason))
 		} else {
-			out.says(catalog.Says("requirement.out_of_level", "levels", req.Levels, "level", level))
+			out.says(catalog.Says("requirement.out_of_level", "levels", req.Levels, "level", catalog.CategoryLabel(level)))
 		}
 		return out
 	}

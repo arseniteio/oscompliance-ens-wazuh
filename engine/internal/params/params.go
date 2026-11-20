@@ -128,7 +128,7 @@ func (c *Config) Excludes(controlID string, groups []string) bool {
 }
 
 func (c *Config) Level() string {
-	return c.Global.EnsLevel
+	return catalog.CategoryRank(c.Global.EnsLevel)
 }
 
 func (c *Config) ControlEnabled(controlID string) bool {

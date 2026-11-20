@@ -357,5 +357,5 @@ func notApplicable(policy params.Lister, control catalog.Control, evidenceID str
 		return verdict.Judgement{}, false
 	}
 
-	return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.out_of_level", "evidence", evidenceID, "levels", evidence.Levels, "level", level)), true
+	return verdict.Explain(verdict.NotApplicable, "", catalog.Says("evidence.out_of_level", "evidence", evidenceID, "levels", evidence.Levels, "level", catalog.CategoryLabel(level))), true
 }
