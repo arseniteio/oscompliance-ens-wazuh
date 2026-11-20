@@ -852,3 +852,13 @@ type forbidRoot struct{ noParams }
 func (forbidRoot) Matcher(string, string, string) (params.Matcher, error) {
 	return params.ListMatcher("root"), nil
 }
+
+func TestJudgeEV07CountsListedAccounts(t *testing.T) {
+	in := EV07Input{Authorized: []string{"jperez"}, Inventory: inventory(account("jperez", 1001, "locked", 1), account("mgarcia", 1002, "set", 0))}
+
+	got := JudgeEV07(in)
+
+	if got.Tally == nil || got.Tally.Met != 1 || got.Tally.Total != 2 {
+		t.Errorf("%s %q tally %+v", got.Status, got.Reason, got.Tally)
+	}
+}

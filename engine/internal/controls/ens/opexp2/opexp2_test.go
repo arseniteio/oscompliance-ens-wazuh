@@ -135,3 +135,12 @@ func TestJudgeEV05(t *testing.T) {
 	check(t, "not declared", JudgeEV05(vm, "app01", rows, catalog.Message{}, reporting), verdict.NonCompliant, "", "not in P-06")
 	check(t, "no fact", JudgeEV05(nil, "web01", rows, catalog.Message{}, reporting), verdict.NotEvaluable, verdict.CauseCollection, "virtualization")
 }
+
+func TestJudgeEV03CountsSockets(t *testing.T) {
+	sockets := []fact.ListeningSocket{{Protocol: "tcp", Port: 22, Process: "sshd"}, {Protocol: "tcp", Port: 8080, Process: "java"}, {Protocol: "tcp6", Port: 8080, Process: "java"}}
+	l := Listening{Snapshot: &fact.ListeningSnapshot{Status: fact.SourceRead, RecordsEmitted: 3}, Sockets: sockets}
+
+	if got := JudgeEV03(l, []string{"sshd | 22"}, catalog.Message{}).Tally; got == nil || got.Met != 1 || got.Total != 3 {
+		t.Errorf("tally %+v", got)
+	}
+}

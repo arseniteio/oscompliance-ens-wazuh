@@ -109,9 +109,9 @@ func JudgeEV06(b Baseline, minScore int, scoreProblem catalog.Message) verdict.J
 		}
 	}
 	if len(low) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp2.score_below", "policies", scores(low), "min", minScore))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp2.score_below", "policies", scores(low), "min", minScore)).Counting(len(found)-len(low), len(found))
 	}
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp2.score_reached", "policies", scores(found), "min", minScore))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp2.score_reached", "policies", scores(found), "min", minScore)).Counting(len(found), len(found))
 }
 
 type Accounts struct {
@@ -201,6 +201,7 @@ func JudgeEV03(l Listening, rows []string, problem catalog.Message) verdict.Judg
 	}
 
 	var extra []string
+	unjustified := 0
 	for _, sock := range l.Sockets {
 		ok := slices.ContainsFunc(justified, func(s service) bool {
 			if sock.Process == "" {
@@ -211,6 +212,7 @@ func JudgeEV03(l Listening, rows []string, problem catalog.Message) verdict.Judg
 		if ok {
 			continue
 		}
+		unjustified++
 		process := sock.Process
 		if process == "" {
 			process = "?"
@@ -222,9 +224,9 @@ func JudgeEV03(l Listening, rows []string, problem catalog.Message) verdict.Judg
 	slices.Sort(extra)
 
 	if len(extra) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp2.unjustified_services", "list", extra))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp2.unjustified_services", "list", extra)).Counting(len(l.Sockets)-unjustified, len(l.Sockets))
 	}
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp2.services_justified", "count", len(l.Sockets)))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp2.services_justified", "count", len(l.Sockets))).Counting(len(l.Sockets), len(l.Sockets))
 }
 
 type Defaults struct {

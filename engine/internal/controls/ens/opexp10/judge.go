@@ -121,9 +121,9 @@ func JudgeEV02(k Keys, stores []Store, problem catalog.Message) verdict.Judgemen
 	}
 	slices.Sort(outside)
 	if len(outside) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.keys_outside", "list", outside))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.keys_outside", "list", outside)).Counting(len(k.Keys)-len(outside), len(k.Keys))
 	}
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.keys_inside", "count", len(k.Keys)))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.keys_inside", "count", len(k.Keys))).Counting(len(k.Keys), len(k.Keys))
 }
 
 func authorised(name string, algorithms []string) bool {
@@ -292,9 +292,9 @@ func JudgeEV07(k Keys, noticeDays int, problem catalog.Message, now time.Time) v
 	slices.Sort(bad)
 	slices.Sort(soon)
 	if len(bad) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.certificates_bad", "list", bad))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.certificates_bad", "list", bad)).Counting(len(k.Certificates)-len(bad), len(k.Certificates))
 	}
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.certificates_good", "count", len(k.Certificates), "soon", soon))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.certificates_good", "count", len(k.Certificates), "soon", soon)).Counting(len(k.Certificates), len(k.Certificates))
 }
 
 func JudgeEV08(k Keys, stores []Store, problem catalog.Message) verdict.Judgement {
@@ -323,7 +323,7 @@ func JudgeEV08(k Keys, stores []Store, problem catalog.Message) verdict.Judgemen
 	}
 	slices.Sort(open)
 	if len(open) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.keys_open", "list", open))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opexp10.keys_open", "list", open)).Counting(len(k.Keys)-len(open), len(k.Keys))
 	}
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.keys_protected", "count", len(k.Keys)))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opexp10.keys_protected", "count", len(k.Keys))).Counting(len(k.Keys), len(k.Keys))
 }

@@ -364,7 +364,7 @@ func JudgeEV04(in EV04Input) verdict.Judgement {
 	}
 
 	if len(overdue) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev04.overdue", "days", in.DeadlineDays, "accounts", overdue))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev04.overdue", "days", in.DeadlineDays, "accounts", overdue)).Counting(measured-len(overdue)-len(unknown), measured)
 	}
 
 	if len(unknown) > 0 {
@@ -375,7 +375,7 @@ func JudgeEV04(in EV04Input) verdict.Judgement {
 		return notEvaluable(verdict.CauseConfiguration, catalog.Says("opacc1.ev04.no_dates"))
 	}
 
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev04.in_time", "accounts", measured, "days", in.DeadlineDays))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev04.in_time", "accounts", measured, "days", in.DeadlineDays)).Counting(measured, measured)
 }
 
 func offboardingDate(account fact.IdentityRecord, declared map[string]time.Time) (time.Time, bool) {
@@ -602,14 +602,14 @@ func JudgeEV07(in EV07Input) verdict.Judgement {
 	}
 
 	if len(missing) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev07.unlisted", "accounts", missing))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev07.unlisted", "accounts", missing)).Counting(active-len(missing), active)
 	}
 
 	if len(unknown) > 0 {
 		return notEvaluable(verdict.CauseEvidence, catalog.Says("opacc1.ev07.keys_unknown", "accounts", unknown))
 	}
 
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev07.listed", "accounts", active))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev07.listed", "accounts", active)).Counting(active, active)
 }
 
 type EV08Input struct {
@@ -672,7 +672,7 @@ func JudgeEV08(in EV08Input) verdict.Judgement {
 	}
 
 	if len(violations) > 0 {
-		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev08.early", "days", in.RetentionDays, "accounts", violations))
+		return verdict.Explain(verdict.NonCompliant, "", catalog.Says("opacc1.ev08.early", "days", in.RetentionDays, "accounts", violations)).Counting(checked-len(violations), checked)
 	}
 
 	if len(unknown) > 0 {
@@ -683,7 +683,7 @@ func JudgeEV08(in EV08Input) verdict.Judgement {
 		return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev08.none"))
 	}
 
-	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev08.kept", "accounts", checked, "days", in.RetentionDays))
+	return verdict.Explain(verdict.Compliant, "", catalog.Says("opacc1.ev08.kept", "accounts", checked, "days", in.RetentionDays)).Counting(checked, checked)
 }
 
 func retentionStart(account history.Account, declared map[string]time.Time) (time.Time, bool) {

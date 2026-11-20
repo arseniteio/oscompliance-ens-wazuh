@@ -78,3 +78,13 @@ func TestAccesses(t *testing.T) {
 	check(t, "generated", JudgeEV05(true, accesses, accounts, catalog.Message{}), verdict.NonCompliant, "", "ssh-keygen (root)")
 	check(t, "generation machine", JudgeEV05(Operation([]string{"web01 | generacion | HSM"}, "web01"), accesses, accounts, catalog.Message{}), verdict.Compliant, "", "")
 }
+
+func TestJudgeEV07CountsCertificates(t *testing.T) {
+	k := keys(nil, []fact.CertificateRecord{
+		{Path: "/etc/ssl/a.crt", NotAfter: "2026-01-01T00:00:00Z", KeyAlgo: "ECDSA", KeyBits: 256, Signature: "ECDSA-SHA256"},
+		{Path: "/etc/ssl/b.crt", NotAfter: "2028-06-01T00:00:00Z", KeyAlgo: "RSA", KeyBits: 4096, Signature: "SHA256-RSA"},
+	})
+	if got := JudgeEV07(k, 30, catalog.Message{}, now).Tally; got == nil || got.Met != 1 || got.Total != 2 {
+		t.Errorf("tally %+v", got)
+	}
+}
