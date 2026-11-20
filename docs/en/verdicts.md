@@ -74,8 +74,8 @@ measured 60; at coverage 40 most of the gap is configuration or collection.
 An evidence that judges a set of items carries `tally`: the items that meet
 it, the items judged and the percentage, rounded down. mp.info.6 counts copies
 in EV-01 (done), EV-02 (within their interval) and EV-03 (kept for their
-retention). The status does not change: 36 good copies out of 40 is still
-`NON_COMPLIANT`, with `tally.percent` 90.
+retention), op.acc.1 counts accounts, op.exp.2 packages and op.exp.10
+certificates and keys.
 
 The `organization` verdict of each judged control also carries `tally`: the
 machines whose control is `COMPLIANT` out of those it applies to.
@@ -89,8 +89,13 @@ machines whose control is `COMPLIANT` out of those it applies to.
 
 `thresholds` holds the minimum percentage for L1 to L5, in rising order. A
 scale with `agentId` applies to that machine and takes precedence over the
-scale of the control. Without a scale there is no `level`. The engine ships no
-scale.
+scale of the control. Without a scale the engine uses 20, 40, 60, 80 and 100.
+
+The level decides the status of a counted evidence. L2 meets a BÁSICO system,
+L3 a MEDIO one and L4 an ALTO one, at the level the control is judged at. 36
+good copies out of 40 is 90 %, L4: `COMPLIANT` on an ALTO system, with the
+four failed copies still listed in the reason. NOT_EVALUABLE and
+NOT_APPLICABLE judgements keep their status.
 
 ## Maturity
 

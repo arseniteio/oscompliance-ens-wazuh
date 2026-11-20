@@ -53,7 +53,7 @@ Algunos controles deciden un requisito directamente donde la norma pide elegir: 
 
 ## Recuentos
 
-Una evidencia que juzga un conjunto de elementos lleva `tally`: los elementos que la cumplen, los juzgados y el porcentaje, redondeado hacia abajo. mp.info.6 cuenta copias en EV-01 (hechas), EV-02 (dentro de su intervalo) y EV-03 (conservadas su retención). El estado no cambia: 36 copias correctas de 40 sigue siendo `NON_COMPLIANT`, con `tally.percent` 90.
+Una evidencia que juzga un conjunto de elementos lleva `tally`: los elementos que la cumplen, los juzgados y el porcentaje, redondeado hacia abajo. mp.info.6 cuenta copias en EV-01 (hechas), EV-02 (dentro de su intervalo) y EV-03 (conservadas su retención). op.acc.1 cuenta cuentas, op.exp.2 paquetes y op.exp.10 certificados y claves.
 
 El veredicto `organization` de cada control juzgado también lleva `tally`: las máquinas cuyo control es `COMPLIANT` sobre aquellas a las que se aplica.
 
@@ -63,7 +63,9 @@ El veredicto `organization` de cada control juzgado también lleva `tally`: las 
 { "controlId": "mp.info.6", "agentId": "001", "thresholds": [50, 70, 80, 90, 98] }
 ```
 
-`thresholds` contiene el porcentaje mínimo de L1 a L5, en orden creciente. Una escala con `agentId` se aplica a esa máquina y prevalece sobre la del control. Sin escala no hay `level`. El motor no trae ninguna escala.
+`thresholds` contiene el porcentaje mínimo de L1 a L5, en orden creciente. Una escala con `agentId` se aplica a esa máquina y prevalece sobre la del control. Sin escala, el motor usa 20, 40, 60, 80 y 100.
+
+El nivel decide el estado de una evidencia con recuento. L2 cumple en un sistema BÁSICO, L3 en uno MEDIO y L4 en uno ALTO, al nivel al que se juzga el control. 36 copias correctas de 40 es un 90 %, L4: `COMPLIANT` en un sistema ALTO, y el motivo sigue listando las cuatro copias fallidas. Los juicios NOT_EVALUABLE y NOT_APPLICABLE conservan su estado.
 
 ## Madurez
 
