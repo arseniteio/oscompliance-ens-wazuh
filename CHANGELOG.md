@@ -9,6 +9,8 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - Verdicts carry `tally` when a judgement counts items: mp.info.6 EV-01, EV-02 and EV-03 count copies, and the `organization` verdict of each judged control counts the machines whose control is COMPLIANT.
 - `configuration.maturity.scales` maps a tally percentage to a level L0 to L5, per control or per machine. No scale ships with the engine.
 - The engine reads `BÁSICO` as the system category of rank 1.
+- `configuration.levelAdjustments` lowers the level of a control, for all machines or for one, with a required reason.
+- An attested requirement carries the links of its attestation in `reason_args.links`.
 
 ### Changed
 
