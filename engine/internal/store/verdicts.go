@@ -65,6 +65,12 @@ var mapping = map[string]any{
 				"global_accredited": integer(),
 				"global_assessed":   integer(),
 			}},
+			"tally": map[string]any{"properties": map[string]any{
+				"met":     integer(),
+				"total":   integer(),
+				"percent": integer(),
+				"level":   integer(),
+			}},
 		},
 	},
 }
