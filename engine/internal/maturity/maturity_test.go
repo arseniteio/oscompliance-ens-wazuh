@@ -3,6 +3,8 @@ package maturity
 import (
 	"slices"
 	"testing"
+
+	"github.com/arseniteio/oscompliance-ens-wazuh/catalog"
 )
 
 func level(l int) *int { return &l }
@@ -143,12 +145,25 @@ func TestMachineScaleWinsOverControlScale(t *testing.T) {
 }
 
 func TestDefaultScaleAndRequiredLevels(t *testing.T) {
-	if got, configured := (Scales{}).For("mp.info.6", "001"); configured || got.Level(90) != 4 || got.Level(100) != 5 || got.Level(79) != 3 {
+	if got, configured := (Scales{}).For("mp.info.6", "001"); configured || got.Level(90) != 4 || got.Level(100) != 5 || got.Level(79) != 2 || got.Level(80) != 3 {
 		t.Errorf("default scale: %+v", got)
 	}
 	for level, want := range map[string]int{"BAJO": 2, "MEDIO": 3, "ALTO": 4} {
 		if got, ok := Required(level); !ok || got != want {
 			t.Errorf("%s needs L%d, got L%d", level, want, got)
+		}
+	}
+}
+
+func TestJudgeFollowsTheSharedCases(t *testing.T) {
+	for _, c := range catalog.Maturity().Cases {
+		scale := DefaultScale
+		if len(c.Scale) > 0 {
+			scale = Scale{Control: "x", Thresholds: c.Scale}
+		}
+		got, ok := Judge(c.Percent, scale, c.Level)
+		if !ok || got.Level != c.ExpectLevel || string(got.Status) != c.ExpectStatus {
+			t.Errorf("%d %% at %s: L%d %s, want L%d %s", c.Percent, c.Level, got.Level, got.Status, c.ExpectLevel, c.ExpectStatus)
 		}
 	}
 }

@@ -13,8 +13,9 @@ func TestMappingCoversEveryVerdictField(t *testing.T) {
 		Evidenced: new(bool), Score: &one, Coverage: &one, ApplicableRequirements: &one, MeasuredRequirements: &one,
 		UnmeasuredRequirements: []string{"r"}, ReasonArgs: map[string]any{"a": 1}, Cause: verdict.CauseCollection,
 		Reason: "x", ReasonCode: "x", RunID: "x", Requirement: "r", Evidence: "e", Attested: true,
-		Maturity: &verdict.Maturity{Accredited: &one},
-		Tally:    &verdict.TallyResult{Met: 1, Total: 1, Percent: 100, Level: &level},
+		Maturity:   &verdict.Maturity{Accredited: &one},
+		Tally:      &verdict.TallyResult{Met: 1, Total: 1, Percent: 100, Level: &level},
+		Compliance: &verdict.ComplianceResult{Percent: 90, Level: 4, Required: 3, Category: "MEDIO"},
 	}
 	raw, err := json.Marshal(v)
 	if err != nil {

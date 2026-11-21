@@ -178,7 +178,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 				store(v)
 			}
 
-			for _, v := range aggregateVerdicts(policy, control, agent, evidences, decisions, base) {
+			for _, v := range aggregateVerdicts(policy, cfg.Scales, control, agent, evidences, decisions, base) {
 				if out && v.Scope == verdict.ScopeControl {
 					v.Explained(why, "")
 				}
@@ -281,7 +281,7 @@ func judgedAgents(ctx context.Context, list Agents, since time.Time) ([]verdict.
 	return agents, nil
 }
 
-func aggregateVerdicts(policy params.Lister, control catalog.Control, agent verdict.Agent, evidences, decisions map[string]verdict.Judgement, base func(verdict.Agent, string) verdict.Verdict) []verdict.Verdict {
+func aggregateVerdicts(policy params.Lister, scales maturity.Scales, control catalog.Control, agent verdict.Agent, evidences, decisions map[string]verdict.Judgement, base func(verdict.Agent, string) verdict.Verdict) []verdict.Verdict {
 
 	level := controlLevel(policy, control.Control, agent.ID)
 	enabled := policy.ControlEnabled(control.Control)
@@ -335,6 +335,11 @@ func aggregateVerdicts(policy params.Lister, control catalog.Control, agent verd
 		v.Coverage, v.ApplicableRequirements, v.MeasuredRequirements = &coverage, &applicable, &measured
 		v.UnmeasuredRequirements = c.Unmeasured
 		v.Explained(catalog.Says("control.summary", "compliant", countCompliant(reqs), "applicable", applicable, "measured", measured), "")
+		judgeControlByLevel(&v, scales, control.Control, agent.ID, level.Level)
+		if c := v.Compliance; c != nil {
+			v.Explained(catalog.Says("control.compliance", "compliant", countCompliant(reqs), "applicable", applicable, "measured", measured,
+				"percent", c.Percent, "level", c.Level, "required", c.Required, "category", c.Category), "")
+		}
 	}
 
 	return append(out, v)

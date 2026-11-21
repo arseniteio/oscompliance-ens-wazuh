@@ -97,6 +97,15 @@ type Verdict struct {
 	Maturity *Maturity `json:"maturity,omitempty"`
 
 	Tally *TallyResult `json:"tally,omitempty"`
+
+	Compliance *ComplianceResult `json:"compliance,omitempty"`
+}
+
+type ComplianceResult struct {
+	Percent  int    `json:"percent"`
+	Level    int    `json:"level"`
+	Required int    `json:"required"`
+	Category string `json:"category"`
 }
 
 type TallyResult struct {

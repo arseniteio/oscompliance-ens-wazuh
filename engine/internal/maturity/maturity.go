@@ -3,6 +3,9 @@ package maturity
 import (
 	"slices"
 	"strings"
+
+	"github.com/arseniteio/oscompliance-ens-wazuh/catalog"
+	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/verdict"
 )
 
 const (
@@ -80,17 +83,38 @@ func (s Scale) Level(percent int) int {
 
 type Scales []Scale
 
-// Until the consultant's template sets other values, each level is a fifth of the items and
-// L5 needs all of them: 36 of 40 copies (90 %) is L4.
-var DefaultScale = Scale{Thresholds: []int{20, 40, 60, 80, 100}}
+// The CCN table (CCN-STIC 844) until the configuration sets another scale: 36 of 40 copies
+// (90 %) is L4.
+var DefaultScale = Scale{Thresholds: catalog.Maturity().DefaultScale()}
 
-// The CCN CMM reading of the ENS: a measure at L2 meets a BÁSICO system, L3 a MEDIO one and L4
-// an ALTO one.
-var requiredByLevel = map[string]int{"BAJO": 2, "MEDIO": 3, "ALTO": 4}
-
+// CCN-STIC 808: a measure at L2 meets a BÁSICO system, L3 a MEDIO one and L4 an ALTO one.
 func Required(level string) (int, bool) {
-	required, ok := requiredByLevel[level]
+	required, ok := catalog.Maturity().Required[level]
 	return required, ok
+}
+
+type Compliance struct {
+	Percent  int
+	Level    int
+	Required int
+	Status   verdict.Status
+}
+
+func Judge(percent int, scale Scale, controlLevel string) (Compliance, bool) {
+	required, known := Required(controlLevel)
+	if !known {
+		return Compliance{}, false
+	}
+	c := Compliance{Percent: percent, Level: scale.Level(percent), Required: required}
+	switch {
+	case percent <= 0:
+		c.Status = verdict.NonCompliant
+	case c.Level >= required:
+		c.Status = verdict.Compliant
+	default:
+		c.Status = verdict.Partial
+	}
+	return c, true
 }
 
 func (ss Scales) For(control, agent string) (Scale, bool) {

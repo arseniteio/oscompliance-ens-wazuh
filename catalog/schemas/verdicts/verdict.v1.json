@@ -262,6 +262,37 @@
           "maximum": 5
         }
       }
+    },
+    "compliance": {
+      "description": "Control scope: the CMM level of the compliance percentage on the maturity scale (CCN-STIC 844 unless maturity.scales sets one) and the level the control's level requires (CCN-STIC 808: L2 BÁSICO, L3 MEDIO, L4 ALTO). The status follows it: COMPLIANT at or above the required level, PARTIAL below it, NON_COMPLIANT at 0 %.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "percent",
+        "level",
+        "required",
+        "category"
+      ],
+      "properties": {
+        "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "required": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "category": {
+          "type": "string"
+        }
+      }
     }
   },
   "additionalProperties": false,

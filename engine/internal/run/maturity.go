@@ -183,3 +183,20 @@ func summaryVerdict(base verdict.Verdict, s maturity.Summary) verdict.Verdict {
 	}
 	return v
 }
+
+func judgeControlByLevel(v *verdict.Verdict, scales maturity.Scales, control, agentID, controlLevel string) {
+
+	// The ENS valuation of a measure is its CMM level: 7 of 8 requirements (87 %) is L3 and meets
+	// a MEDIO system, so the control is COMPLIANT there instead of PARTIAL.
+
+	if v.Score == nil {
+		return
+	}
+	scale, _ := scales.For(control, agentID)
+	c, known := maturity.Judge(*v.Score, scale, controlLevel)
+	if !known {
+		return
+	}
+	v.Status = c.Status
+	v.Compliance = &verdict.ComplianceResult{Percent: c.Percent, Level: c.Level, Required: c.Required, Category: catalog.CategoryLabel(controlLevel)}
+}

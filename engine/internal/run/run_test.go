@@ -433,7 +433,7 @@ func TestOnceWritesTalliesWithTheirLevel(t *testing.T) {
 			measure = v
 		}
 	}
-	if tally := measure.Tally; tally == nil || tally.Met != 0 || tally.Total != 2 || *tally.Level != 1 {
+	if tally := measure.Tally; tally == nil || tally.Met != 2 || tally.Total != 2 || *tally.Level != 5 {
 		t.Errorf("organization tally counts compliant machines: %+v", tally)
 	}
 }

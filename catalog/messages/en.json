@@ -26,6 +26,7 @@
   "configuration.source_template": "template {id}",
   "configuration.value": "\"{value}\"",
   "configuration.value_more": "\"{value}\" and {more} more",
+  "control.compliance": "{compliant} of {applicable} applicable requirements compliant ({percent} %): maturity L{level}, L{required} required at {category}; measured: {measured}",
   "control.disabled": "control disabled in the configuration",
   "control.none_applies": "no requirement applies",
   "control.summary": "applicable requirements compliant: {compliant} of {applicable}; measured: {measured}",
