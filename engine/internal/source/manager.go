@@ -55,12 +55,25 @@ type Integration struct {
 
 var ErrNoManagerAPI = errors.New("the engine has no Wazuh API to read the manager (-wazuh-api)")
 
-type managerCache struct {
+type freshCache[T any] struct {
 	mu    sync.Mutex
-	read  func(ctx context.Context) (*Manager, error)
+	read  func(ctx context.Context) (T, error)
 	at    time.Time
-	value *Manager
+	value T
 	err   error
+}
+
+func (c *freshCache[T]) get(ctx context.Context) (T, error) {
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if time.Since(c.at) < managerFresh {
+		return c.value, c.err
+	}
+	c.value, c.err = c.read(ctx)
+	c.at = time.Now()
+	return c.value, c.err
 }
 
 const managerFresh = 5 * time.Minute
@@ -70,18 +83,8 @@ func (s *Source) UseManager(read func(ctx context.Context) (*Manager, error)) {
 }
 
 func (s *Source) Manager(ctx context.Context) (*Manager, error) {
-
-	c := &s.manager
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	if c.read == nil {
+	if s.manager.read == nil {
 		return nil, ErrNoManagerAPI
 	}
-	if time.Since(c.at) < managerFresh {
-		return c.value, c.err
-	}
-	c.value, c.err = c.read(ctx)
-	c.at = time.Now()
-	return c.value, c.err
+	return s.manager.get(ctx)
 }

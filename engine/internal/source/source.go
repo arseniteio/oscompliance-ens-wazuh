@@ -26,8 +26,8 @@ type Source struct {
 	states     string
 	pass       passState
 
-	managerInventory func(ctx context.Context) (*Inventory, error)
-	manager          managerCache
+	managerInventory freshCache[*Inventory]
+	manager          freshCache[*Manager]
 	managerNetwork   func(ctx context.Context, tools []string) (*Network, error)
 	networks         networkCache
 	vulnerabilities  vulnerabilityCache

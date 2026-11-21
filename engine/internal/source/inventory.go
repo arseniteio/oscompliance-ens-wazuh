@@ -112,8 +112,8 @@ func (s *Source) Inventories(ctx context.Context) (map[string]*Inventory, error)
 		}
 	}
 
-	if s.managerInventory != nil {
-		inv, err := s.managerInventory(ctx)
+	if s.managerInventory.read != nil {
+		inv, err := s.managerInventory.get(ctx)
 		if err != nil {
 			slog.Warn("manager inventory", "error", err)
 		} else if inv != nil {
@@ -125,7 +125,7 @@ func (s *Source) Inventories(ctx context.Context) (map[string]*Inventory, error)
 }
 
 func (s *Source) UseManagerInventory(read func(ctx context.Context) (*Inventory, error)) {
-	s.managerInventory = read
+	s.managerInventory.read = read
 }
 
 func (s *Source) inventoryIndex(kind string) string {

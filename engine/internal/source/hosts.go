@@ -70,8 +70,8 @@ func (s *Source) HostInventories(ctx context.Context, exact, prefixes []string) 
 		}
 	}
 
-	if s.managerInventory != nil {
-		inv, err := s.managerInventory(ctx)
+	if s.managerInventory.read != nil {
+		inv, err := s.managerInventory.get(ctx)
 		switch {
 		case err != nil:
 			slog.Warn("manager inventory", "error", err)

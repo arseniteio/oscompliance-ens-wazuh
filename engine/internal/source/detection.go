@@ -106,8 +106,8 @@ func (s *Source) PackageCounts(ctx context.Context) (map[string]int, error) {
 		return nil, err
 	}
 
-	if s.managerInventory != nil {
-		inv, err := s.managerInventory(ctx)
+	if s.managerInventory.read != nil {
+		inv, err := s.managerInventory.get(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("manager inventory: %w", err)
 		}
