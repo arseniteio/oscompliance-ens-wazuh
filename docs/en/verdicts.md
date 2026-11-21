@@ -69,7 +69,7 @@ required and the category.
 | `NON_COMPLIANT` | 0 % |
 | `NOT_APPLICABLE` | nothing applies |
 
-7 of 8 requirements is 87 %, L3: `COMPLIANT` on a MEDIO control.
+6 of 8 requirements is 75 %, L3: `COMPLIANT` on a MEDIO control.
 `coverage` is the share of applicable requirements that were measured, as
 opposed to failed for lack of proof. A control at 60 with coverage 100 is a
 measured 60; at coverage 40 most of the gap is configuration or collection.

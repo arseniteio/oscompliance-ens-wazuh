@@ -51,7 +51,7 @@ Un control se juzga por su nivel CMM, no a todo o nada. `score` es la proporció
 | `NON_COMPLIANT` | 0 % |
 | `NOT_APPLICABLE` | no se aplica nada |
 
-7 de 8 requisitos es un 87 %, L3: `COMPLIANT` en un control de nivel MEDIO.
+6 de 8 requisitos es un 75 %, L3: `COMPLIANT` en un control de nivel MEDIO.
 
 `coverage` es la proporción de requisitos aplicables que se han medido, frente a los fallados por falta de prueba. Un control con 60 y cobertura 100 es un 60 medido; con cobertura 40, la mayor parte de la diferencia es configuración o recogida.
 
