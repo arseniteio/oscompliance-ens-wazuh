@@ -9,6 +9,7 @@ type MaturityLevel struct {
 	Level   int    `json:"level"`
 	Name    string `json:"name"`
 	Percent int    `json:"percent"`
+	Meaning string `json:"meaning"`
 }
 
 type MaturityCase struct {

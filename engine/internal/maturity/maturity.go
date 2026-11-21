@@ -83,8 +83,8 @@ func (s Scale) Level(percent int) int {
 
 type Scales []Scale
 
-// The CCN table (CCN-STIC 844) until the configuration sets another scale: 36 of 40 copies
-// (90 %) is L4.
+// The CCN auditor table until the configuration sets another scale: 36 of 40 copies (90 %) is
+// L4, 60 % already meets MEDIO.
 var DefaultScale = Scale{Thresholds: catalog.Maturity().DefaultScale()}
 
 // CCN-STIC 808: a measure at L2 meets a BÁSICO system, L3 a MEDIO one and L4 an ALTO one.

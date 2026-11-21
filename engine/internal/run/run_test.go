@@ -120,7 +120,7 @@ func TestOnceWritesEveryScope(t *testing.T) {
 		t.Errorf("001 EV-01: %+v", v)
 	}
 
-	if v := got["001 control "]; v.Status != verdict.Partial || v.Score == nil || *v.Score != 75 {
+	if v := got["001 control "]; v.Status != verdict.Compliant || v.Score == nil || *v.Score != 75 || v.Compliance == nil || v.Compliance.Level != 3 {
 		t.Errorf("001 control: %+v", v)
 	}
 
