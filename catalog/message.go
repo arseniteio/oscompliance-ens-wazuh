@@ -35,7 +35,9 @@ func (m Message) IsZero() bool { return m.Code == "" }
 
 var messages = map[string]map[string]string{}
 
-var placeholder = regexp.MustCompile(`\{([a-z_]+)\}`)
+// {name} renders the argument; {name#singular|plural} renders a count followed by the noun
+// phrase that agrees with it ("1 inicio de sesión", "3 inicios de sesión").
+var placeholder = regexp.MustCompile(`\{([a-z_]+)(?:#([^|{}]*)\|([^{}]*))?\}`)
 
 func loadMessages() {
 
@@ -66,7 +68,15 @@ func (m Message) Render(lang string) string {
 	}
 
 	return strings.TrimSpace(placeholder.ReplaceAllStringFunc(text, func(p string) string {
-		return renderArg(lang, m.Args[p[1:len(p)-1]])
+		parts := placeholder.FindStringSubmatch(p)
+		value := renderArg(lang, m.Args[parts[1]])
+		if !strings.Contains(p, "#") {
+			return value
+		}
+		if value == "1" {
+			return value + " " + parts[2]
+		}
+		return value + " " + parts[3]
 	}))
 }
 

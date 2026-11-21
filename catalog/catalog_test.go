@@ -167,3 +167,14 @@ func TestRender(t *testing.T) {
 		t.Errorf("English: %q", got)
 	}
 }
+
+func TestPluralPlaceholdersAgreeWithTheCount(t *testing.T) {
+	messages["es"]["test.plural"] = "{logins#inicio de sesión|inicios de sesión} en la ventana"
+	defer delete(messages["es"], "test.plural")
+
+	for count, want := range map[int]string{0: "0 inicios de sesión en la ventana", 1: "1 inicio de sesión en la ventana", 3: "3 inicios de sesión en la ventana"} {
+		if got := Says("test.plural", "logins", count).Render("es"); got != want {
+			t.Errorf("%d: %q, want %q", count, got, want)
+		}
+	}
+}
