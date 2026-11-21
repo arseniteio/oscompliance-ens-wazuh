@@ -24,7 +24,7 @@ func TestAuditLog(t *testing.T) {
 
 	running := &fact.AuditWatchSnapshot{Auditd: fact.AuditdRunning, Loaded: []string{"/etc/ssh"}}
 	full := &fact.WazuhAgentConfig{Status: fact.SourceRead, Localfiles: []fact.AgentLocalfile{{Location: "/var/log/audit/audit.log", Format: "audit"}, {Location: "journald", Format: "journald"}}}
-	check(t, "complete", JudgeEV01(running, full), verdict.Compliant, "", "1 watches")
+	check(t, "complete", JudgeEV01(running, full), verdict.Compliant, "", "1 watch")
 	check(t, "no auditd", JudgeEV01(&fact.AuditWatchSnapshot{Auditd: fact.AuditdAbsent}, full), verdict.NonCompliant, "", "auditd absent")
 
 	check(t, "fields", JudgeEV03(10, map[string]int{"usuario": 10, "objeto": 7, "tipo": 10, "resultado": 10}), verdict.NonCompliant, "", "objeto 7/10")
@@ -61,7 +61,7 @@ func TestIndexer(t *testing.T) {
 	check(t, "forever", JudgeEV07(0, false, wanted, catalog.Message{}), verdict.Compliant, "", "no indexer retention policy (ISM)")
 
 	days := ShortestFrequency([]string{"alertas | NAS | diaria | sí", "archives | cinta | 7 | sí"})
-	check(t, "snapshot", JudgeEV09(now.Add(-2*time.Hour), days, catalog.Message{}, now), verdict.Compliant, "", "P-09 1 days")
+	check(t, "snapshot", JudgeEV09(now.Add(-2*time.Hour), days, catalog.Message{}, now), verdict.Compliant, "", "P-09 1 day")
 	check(t, "no snapshot", JudgeEV09(time.Time{}, days, catalog.Message{}, now), verdict.NonCompliant, "", "no successful snapshot")
 }
 
@@ -74,7 +74,7 @@ func TestJudgeEV08(t *testing.T) {
 		{Path: "/var/log/audit", Status: fact.SourceRead, Mode: "0700", ACL: []string{"user:jgomez:r-x"}},
 	}
 	check(t, "open", JudgeEV08(s, records, []string{"/var/log/auth.log", "/var/log/syslog", "/var/log/audit"}, []string{"root"}, catalog.Message{}), verdict.NonCompliant, "", "/var/log/syslog (todos)")
-	check(t, "closed", JudgeEV08(s, records[:1], []string{"/var/log/auth.log"}, []string{"root"}, catalog.Message{}), verdict.Compliant, "", "1 log paths")
+	check(t, "closed", JudgeEV08(s, records[:1], []string{"/var/log/auth.log"}, []string{"root"}, catalog.Message{}), verdict.Compliant, "", "1 log path")
 }
 
 func TestManager(t *testing.T) {

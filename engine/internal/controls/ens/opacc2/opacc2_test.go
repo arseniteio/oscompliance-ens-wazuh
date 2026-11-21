@@ -89,7 +89,7 @@ func TestJudgeEV01(t *testing.T) {
 		"sticky allowed by P-03":        {sticky, want{verdict.Compliant, "", nil}},
 		"umask bitwise, not numeric":    {base(sweep(), umasks("032")), want{verdict.NonCompliant, "", []string{"umask 032"}}},
 		"weak umask":                    {base(sweep(), umasks("022")), want{verdict.NonCompliant, "", []string{"weaker than 027"}}},
-		"partial sweep, nothing found":  {partial, want{verdict.NotEvaluable, verdict.CauseCollection, []string{"2 directories"}}},
+		"partial sweep, nothing found":  {partial, want{verdict.NotEvaluable, verdict.CauseCollection, []string{"directories that could not be read: 2"}}},
 		"finding stands on a timeout":   {timedOut, want{verdict.NonCompliant, "", []string{"/etc/x"}}},
 		"symbolic umask":                {symbolic, want{verdict.NotEvaluable, verdict.CauseCollection, []string{"not octal"}}},
 		"no declaration":                {base(sweep(), umasks()), want{verdict.NotEvaluable, verdict.CauseCollection, []string{"no source declares"}}},
@@ -233,7 +233,7 @@ func TestJudgeEV03(t *testing.T) {
 		return EV03Input{Accounts: accounts(), Sudoers: s, Elevations: e, Log: reaches, Groups: []string{"sudo"}}
 	}
 
-	check(t, "admin sudo", JudgeEV03(base(source.Elevation{From: "ana", To: "root", Method: "sudo"})), want{verdict.Compliant, "", []string{"1 elevations"}})
+	check(t, "admin sudo", JudgeEV03(base(source.Elevation{From: "ana", To: "root", Method: "sudo"})), want{verdict.Compliant, "", []string{"1 elevation"}})
 	check(t, "su to root by eva", JudgeEV03(base(source.Elevation{From: "eva", To: "root", Method: "su"})), want{verdict.NonCompliant, "", []string{"su by eva to root"}})
 	check(t, "lateral", JudgeEV03(base(source.Elevation{From: "eva", To: "ops1", Method: "su"})), want{verdict.Compliant, "", nil})
 	check(t, "refusal", JudgeEV03(base(source.Elevation{From: "eva", To: "root", Method: "sudo", Denied: true})), want{verdict.Compliant, "", []string{"1 refused"}})
@@ -256,7 +256,7 @@ func TestJudgeEV04(t *testing.T) {
 	}
 	datos := fact.ACLRecord{Path: "/srv/datos", Status: fact.SourceRead, Mode: "0750", Owner: "root:ops", ACL: []string{"g:auditors:r-x", "m::r-x", "u:auditor:r-x"}}
 
-	check(t, "as declared", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | user:auditor:rx, g:auditors:r-x"}}), want{verdict.Compliant, "", []string{"1 resources"}})
+	check(t, "as declared", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | user:auditor:rx, g:auditors:r-x"}}), want{verdict.Compliant, "", []string{"1 resource"}})
 	check(t, "mode", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 0700 | | u:auditor:r-x,g:auditors:r-x"}}), want{verdict.NonCompliant, "", []string{"mode 0750, declared 0700"}})
 	check(t, "owner", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:root | u:auditor:r-x g:auditors:r-x"}}), want{verdict.NonCompliant, "", []string{"owner root:ops"}})
 	check(t, "undeclared entry", JudgeEV04(EV04Input{ACLs: acls(datos), Rows: []string{"/srv/datos | 750 | root:ops | u:auditor:r-x"}}), want{verdict.NonCompliant, "", []string{"undeclared entries: g:auditors:r-x"}})
@@ -281,11 +281,11 @@ func TestJudgeEV06(t *testing.T) {
 		return EV06Input{Watches: watches, Config: config, Accesses: a, Accounts: accounts(), Rules: rules, Profiles: profiles}
 	}
 
-	check(t, "within", JudgeEV06(base(access("oscompliance_write", "1000", "/srv/datos/a.txt"))), want{verdict.Compliant, "", []string{"1 accesses"}})
+	check(t, "within", JudgeEV06(base(access("oscompliance_write", "1000", "/srv/datos/a.txt"))), want{verdict.Compliant, "", []string{"1 access"}})
 	check(t, "longest path wins", JudgeEV06(base(access("oscompliance_write", "1000", "/srv/datos/ro/b.txt"))), want{verdict.NonCompliant, "", []string{"escritura by ana (profile ops) on /srv/datos/ro/b.txt"}})
 	check(t, "no profile", JudgeEV06(base(access("oscompliance_exec", "1002", "/srv/datos/x"))), want{verdict.Compliant, "", []string{"1 by accounts without a P-09 profile"}})
 	check(t, "no person", JudgeEV06(base(access("oscompliance_read", "4294967295", "/srv/datos/x"))), want{verdict.NotEvaluable, verdict.CauseEvidence, []string{"no person"}})
-	check(t, "syscall without a path", JudgeEV06(base(access("oscompliance_attr", "4294967295", ""), access("oscompliance_write", "1000", "/srv/datos/a.txt"))), want{verdict.Compliant, "", []string{"1 accesses"}})
+	check(t, "syscall without a path", JudgeEV06(base(access("oscompliance_attr", "4294967295", ""), access("oscompliance_write", "1000", "/srv/datos/a.txt"))), want{verdict.Compliant, "", []string{"1 access"}})
 
 	stopped := base()
 	stopped.Watches = &fact.AuditWatchSnapshot{Auditd: fact.AuditdAbsent}

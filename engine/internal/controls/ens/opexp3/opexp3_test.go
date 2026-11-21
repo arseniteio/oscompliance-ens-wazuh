@@ -62,7 +62,7 @@ func TestJudgeEV03(t *testing.T) {
 	installed := []string{"nmap", "libpcap0.8", "tree"}
 
 	check(t, "unauthorised", JudgeEV03(installed, selection, []string{"tree"}, catalog.Message{}), verdict.NonCompliant, "", "without authorisation in P-01: nmap")
-	check(t, "dependency passes", JudgeEV03([]string{"libpcap0.8"}, selection, nil, catalog.Message{}), verdict.Compliant, "", "1 packages installed, 0 on request")
+	check(t, "dependency passes", JudgeEV03([]string{"libpcap0.8"}, selection, nil, catalog.Message{}), verdict.Compliant, "", "1 package installed, 0 on request")
 	check(t, "dnf", JudgeEV03(installed, &fact.PackageSelection{Manager: "dnf", Status: fact.SourceRead}, nil, catalog.Message{}), verdict.NotEvaluable, verdict.CauseCollection, "dnf")
 }
 
@@ -74,7 +74,7 @@ func TestJudgeEV04(t *testing.T) {
 	authorised := []string{"cron.service", "getty@.service", "ssh.service"}
 
 	check(t, "unauthorised", JudgeEV04(units, listening, sockets, authorised, catalog.Message{}), verdict.NonCompliant, "", "nginx.service, php")
-	check(t, "authorised", JudgeEV04(units, listening, sockets, append(authorised, "nginx.service", "php"), catalog.Message{}), verdict.Compliant, "", "4 services and 1 listening processes")
+	check(t, "authorised", JudgeEV04(units, listening, sockets, append(authorised, "nginx.service", "php"), catalog.Message{}), verdict.Compliant, "", "4 services and 1 listening process")
 	check(t, "does not use systemd", JudgeEV04(&fact.UnitSnapshot{Status: fact.SourceAbsent}, listening, sockets, []string{"php"}, catalog.Message{}), verdict.Compliant, "", "does not use systemd")
 }
 
@@ -108,5 +108,5 @@ func TestJudgeEV05(t *testing.T) {
 	requests := opexp5.ParseRegister([]string{"RFC-1 | 2026-10-28 | web01 | sshd | bajo | rsi | 2026-10-28 | 2026-10-29 10:00 | 2026-10-29 10:30 | implantada | | "})
 
 	check(t, "unauthorised", JudgeEV05(fim, []string{"/etc/ssh"}, nil, "web01", catalog.Message{}, now.Add(-26*time.Hour)), verdict.NonCompliant, "", "/etc/ssh/sshd_config")
-	check(t, "covered", JudgeEV05(fim, []string{"/etc/ssh"}, requests, "web01", catalog.Message{}, now.Add(-26*time.Hour)), verdict.Compliant, "", "1 edits")
+	check(t, "covered", JudgeEV05(fim, []string{"/etc/ssh"}, requests, "web01", catalog.Message{}, now.Add(-26*time.Hour)), verdict.Compliant, "", "1 edit")
 }

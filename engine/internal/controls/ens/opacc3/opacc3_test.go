@@ -116,7 +116,7 @@ func TestInventoryAndSecurity(t *testing.T) {
 		exec("001", "7777", "/usr/bin/git"),
 	}, p03, nil, names)
 
-	check(t, "unnamed uid", JudgeInventory(Input{AgentID: "001", Fleet: fleet}), verdict.NotEvaluable, verdict.CauseEvidence, "1 actions")
+	check(t, "unnamed uid", JudgeInventory(Input{AgentID: "001", Fleet: fleet}), verdict.NotEvaluable, verdict.CauseEvidence, "1 action")
 	check(t, "security", JudgeSecurity(Input{AgentID: "001", Fleet: fleet}), verdict.Compliant, "", "bob /var/log/audit/audit.log")
 
 	named := BuildFleet([]source.ActionCount{exec("001", "1000", "/usr/bin/git")}, p03, nil, names)

@@ -70,7 +70,7 @@ func TestJudges(t *testing.T) {
 
 	hours := []source.AlertHour{{Hour: time.Date(2026, 10, 27, 9, 0, 0, 0, time.UTC), Level: 10}, {Hour: time.Date(2026, 10, 20, 9, 0, 0, 0, time.UTC), Level: 12}}
 	check(t, "orphan", JudgeEV02(hours, classes, escalation, in, "web01", catalog.Message{}), verdict.NonCompliant, "", "2026-10-20 09:00 (critica, nivel 12)")
-	check(t, "reconciled", JudgeEV02(hours[:1], classes, escalation, in, "web01", catalog.Message{}), verdict.Compliant, "", "1 hours")
+	check(t, "reconciled", JudgeEV02(hours[:1], classes, escalation, in, "web01", catalog.Message{}), verdict.Compliant, "", "1 hour")
 
 	deadlines := []string{"alta | 4 | 48", "critica | 1 | 24"}
 	check(t, "late", JudgeEV03(in, deadlines, catalog.Message{}, now), verdict.NonCompliant, "", "INC-2 (contención)")
@@ -79,7 +79,7 @@ func TestJudges(t *testing.T) {
 	check(t, "not escalated", JudgeEV04(in, escalation, owners, catalog.Message{}), verdict.NonCompliant, "", "INC-2")
 
 	manager := &fact.WazuhAgentConfig{SealedDays: []string{"2026-10-27", "2026-10-28"}}
-	check(t, "sealed", JudgeEV05(in[:1], manager, now), verdict.Compliant, "", "1 incidents")
+	check(t, "sealed", JudgeEV05(in[:1], manager, now), verdict.Compliant, "", "1 incident")
 	check(t, "unsealed", JudgeEV05(in, manager, now), verdict.Compliant, "", "")
 
 	check(t, "containment", JudgeEV06(in, nil, now), verdict.NonCompliant, "", "INC-2")

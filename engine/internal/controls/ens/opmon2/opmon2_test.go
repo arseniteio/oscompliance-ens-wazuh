@@ -52,7 +52,7 @@ func TestJudges(t *testing.T) {
 	if len(period) != 2 {
 		t.Fatalf("period: %d", len(period))
 	}
-	check(t, "measured", JudgeEV03(period[:1], []string{"incidentes_por_tipo", "notificados_ccn_cert"}), verdict.Compliant, "", "1 incidents")
+	check(t, "measured", JudgeEV03(period[:1], []string{"incidentes_por_tipo", "notificados_ccn_cert"}), verdict.Compliant, "", "1 incident")
 	check(t, "lacking", JudgeEV03(period, []string{"incidentes_por_severidad", "tiempo_medio_contencion"}), verdict.NonCompliant, "", "INC-2")
 	check(t, "unknown", JudgeEV03(period, []string{"satisfaccion"}), verdict.NotEvaluable, verdict.CauseConfiguration, "")
 

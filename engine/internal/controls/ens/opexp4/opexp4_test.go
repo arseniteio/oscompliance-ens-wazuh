@@ -71,7 +71,7 @@ func TestMaintenance(t *testing.T) {
 
 	windows := []string{"* | sab 22:00-02:00; * 06:00-07:30", "web01 | * 12:00-13:00"}
 	check(t, "outside", JudgeEV07(tx, from, windows, "db01", catalog.Message{}), verdict.NonCompliant, "", "jgomez")
-	check(t, "own row", JudgeEV07(transactions(noon), from, windows, "WEB01", catalog.Message{}), verdict.Compliant, "", "1 transactions")
+	check(t, "own row", JudgeEV07(transactions(noon), from, windows, "WEB01", catalog.Message{}), verdict.Compliant, "", "1 transaction")
 	check(t, "no window", JudgeEV07(tx, from, []string{"web01 | * 12:00-13:00"}, "db01", catalog.Message{}), verdict.NotEvaluable, verdict.CauseConfiguration, "db01")
 
 	sunday := Window{Day: 6, Start: 22 * 60, End: 2 * 60}
@@ -80,7 +80,7 @@ func TestMaintenance(t *testing.T) {
 	}
 
 	snapshots := &fact.SnapshotList{Status: fact.SourceRead, Snapshots: []fact.Snapshot{{Tool: "lvm", Name: "pre", Created: "2026-10-24T20:00:00Z"}}}
-	check(t, "snapshot before", JudgeEV09(transactions(night), from, snapshots, 24, catalog.Message{}), verdict.Compliant, "", "each with a snapshot")
+	check(t, "snapshot before", JudgeEV09(transactions(night), from, snapshots, 24, catalog.Message{}), verdict.Compliant, "", "with a snapshot")
 	check(t, "no snapshot", JudgeEV09(tx, from, snapshots, 24, catalog.Message{}), verdict.NonCompliant, "", "jgomez")
 	if h, ok := ReversionHours([]string{"* | lvm | snapshot | 24", "db01 | zfs | snapshot | 6"}, "db01"); !ok || h != 6 {
 		t.Errorf("reversion hours: %d %v", h, ok)

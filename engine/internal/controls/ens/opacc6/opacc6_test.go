@@ -323,7 +323,7 @@ func TestJudgeEV07(t *testing.T) {
 	ssh := source.Login{Account: "ana", SourceIP: "10.0.0.5", Method: source.MethodSSHD}
 	console := source.Login{Account: "root", Method: source.MethodConsole}
 
-	check(t, "authorized", JudgeEV07(EV07Input{Logins: []source.Login{ssh, console}, Log: reaches, Channels: []string{"SSH"}}), verdict.Compliant, "", "ssh (1 logins)")
+	check(t, "authorized", JudgeEV07(EV07Input{Logins: []source.Login{ssh, console}, Log: reaches, Channels: []string{"SSH"}}), verdict.Compliant, "", "ssh (1 login)")
 	check(t, "not in P-07", JudgeEV07(EV07Input{Logins: []source.Login{ssh}, Log: reaches, Channels: []string{"rdp"}}), verdict.NonCompliant, "", "ssh by ana from 10.0.0.5 (1)")
 	check(t, "quiet but logging", JudgeEV07(EV07Input{Log: reaches, Channels: []string{"ssh"}}), verdict.Compliant, "", "no remote login")
 	check(t, "quiet and blind", JudgeEV07(EV07Input{Log: lost, Channels: []string{"ssh"}}), verdict.NotEvaluable, verdict.CauseCollection, "never reached")

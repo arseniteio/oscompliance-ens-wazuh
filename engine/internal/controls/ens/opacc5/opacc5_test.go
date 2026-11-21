@@ -130,7 +130,7 @@ func TestJudgeEV04(t *testing.T) {
 	old := append(accounts, source.ServiceAccount{Service: "sede", User: "old", LastSuccess: ago(day), LastChange: ago(120 * day)})
 	never := append(accounts, source.ServiceAccount{Service: "sede", User: "never", LastSuccess: ago(day)})
 
-	check(t, "fresh, gone skipped", JudgeEV04(EV04Input{Services: []Service{sede(10 * day)}, Accounts: accounts, Now: now, MaxAge: 90}), verdict.Compliant, "", "1 accounts")
+	check(t, "fresh, gone skipped", JudgeEV04(EV04Input{Services: []Service{sede(10 * day)}, Accounts: accounts, Now: now, MaxAge: 90}), verdict.Compliant, "", "1 account")
 	check(t, "old", JudgeEV04(EV04Input{Services: []Service{sede(10 * day)}, Accounts: old, Now: now, MaxAge: 90}), verdict.NonCompliant, "", "sede old (changed 120 days ago)")
 	check(t, "never changed, young index", JudgeEV04(EV04Input{Services: []Service{sede(10 * day)}, Accounts: never, Now: now, MaxAge: 90}), verdict.NotEvaluable, verdict.CauseEvidence, "never")
 	check(t, "never changed, old index", JudgeEV04(EV04Input{Services: []Service{sede(200 * day)}, Accounts: never, Now: now, MaxAge: 90}), verdict.NonCompliant, "", "no change in the 200 days")
@@ -188,7 +188,7 @@ func TestJudgeEV07(t *testing.T) {
 
 	services := []Service{sede(day)}
 	check(t, "R2 used", JudgeEV07(EV07Input{Services: services, Methods: []source.MethodCount{{Service: "sede", Factors: "otp+password", Count: 9}}, Mechanism: "R2"}), verdict.Compliant, "", "9 successful logins")
-	check(t, "password alone under R2", JudgeEV07(EV07Input{Services: services, Methods: []source.MethodCount{{Service: "sede", Factors: "otp+password", Count: 9}, {Service: "sede", Factors: "password", Count: 1}}, Mechanism: "R2"}), verdict.NonCompliant, "", "sede password (R1, 1 logins)")
+	check(t, "password alone under R2", JudgeEV07(EV07Input{Services: services, Methods: []source.MethodCount{{Service: "sede", Factors: "otp+password", Count: 9}, {Service: "sede", Factors: "password", Count: 1}}, Mechanism: "R2"}), verdict.NonCompliant, "", "sede password (R1, 1 login)")
 	check(t, "no factors", JudgeEV07(EV07Input{Services: services, Methods: []source.MethodCount{{Service: "sede", Count: 2}}, Mechanism: "R2"}), verdict.NotEvaluable, verdict.CauseEvidence, "")
 	check(t, "no logins", JudgeEV07(EV07Input{Services: services, Mechanism: "R2"}), verdict.NotEvaluable, verdict.CauseCollection, "")
 }

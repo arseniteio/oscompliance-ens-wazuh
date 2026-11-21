@@ -127,7 +127,7 @@ func TestJudgeEV04(t *testing.T) {
 		return source.AuditAccess{Key: "oscompliance_perm", Success: "yes", AUID: auid, Path: path}
 	}
 
-	check(t, "competent", JudgeEV04([]source.AuditAccess{change("1000", "/srv/x")}, accounts(), []string{"ana"}, catalog.Message{}, catalog.Message{}), verdict.Compliant, "", "1 rights changes")
+	check(t, "competent", JudgeEV04([]source.AuditAccess{change("1000", "/srv/x")}, accounts(), []string{"ana"}, catalog.Message{}, catalog.Message{}), verdict.Compliant, "", "1 rights change")
 	check(t, "not competent", JudgeEV04([]source.AuditAccess{change("1000", "/etc/group")}, accounts(), []string{"rsec"}, catalog.Message{}, catalog.Message{}), verdict.NonCompliant, "", "ana changed /etc/group")
 	check(t, "blind", JudgeEV04(nil, accounts(), []string{"rsec"}, catalog.Message{}, catalog.Says("chain.auditd", "state", catalog.Says("auditd.absent"), "error", "")), verdict.NotEvaluable, verdict.CauseCollection, "auditd absent")
 	check(t, "P-02", JudgeEV04(nil, accounts(), nil, catalog.Says("param.not_set", "param", "P-02"), catalog.Message{}), verdict.NotEvaluable, verdict.CauseConfiguration, "P-02")
@@ -151,7 +151,7 @@ func TestJudgeEV06(t *testing.T) {
 	reaches := passes.AuthLog{Known: true, Reaches: true}
 	login := source.Login{Account: "jgomez", SourceIP: "10.0.0.9", Method: source.MethodSSHD}
 
-	check(t, "authorised with note", JudgeEV06([]source.Login{login}, []string{"jgomez | VPN"}, catalog.Message{}, reaches), verdict.Compliant, "", "1 remote logins")
+	check(t, "authorised with note", JudgeEV06([]source.Login{login}, []string{"jgomez | VPN"}, catalog.Message{}, reaches), verdict.Compliant, "", "1 remote login")
 	check(t, "not authorised", JudgeEV06([]source.Login{login}, []string{"ana"}, catalog.Message{}, reaches), verdict.NonCompliant, "", "jgomez from 10.0.0.9")
 	check(t, "quiet and blind", JudgeEV06(nil, []string{"ana"}, catalog.Message{}, passes.AuthLog{Detail: catalog.Says("gap.no_fact", "fact", "auth_log_probe")}), verdict.NotEvaluable, verdict.CauseCollection, "auth_log_probe")
 }
@@ -163,7 +163,7 @@ func TestJudgeEV07(t *testing.T) {
 		return source.AuditAccess{Key: "oscompliance_read", Success: "yes", AUID: auid, Path: path}
 	}
 
-	check(t, "secondary group counts", JudgeEV07([]source.AuditAccess{read("1000", "/datos/rrhh/nominas.pdf")}, accounts(), resources, catalog.Message{}, catalog.Message{}), verdict.Compliant, "", "1 accesses")
+	check(t, "secondary group counts", JudgeEV07([]source.AuditAccess{read("1000", "/datos/rrhh/nominas.pdf")}, accounts(), resources, catalog.Message{}, catalog.Message{}), verdict.Compliant, "", "1 access")
 	check(t, "longest resource wins", JudgeEV07([]source.AuditAccess{read("1000", "/datos/rrhh/direccion/plan.pdf")}, accounts(), resources, catalog.Message{}, catalog.Message{}), verdict.NonCompliant, "", "ana on /datos/rrhh/direccion/plan.pdf")
 	check(t, "blind", JudgeEV07(nil, accounts(), resources, catalog.Message{}, catalog.Says("chain.unwatched", "path", "/datos/rrhh")), verdict.NotEvaluable, verdict.CauseCollection, "not watched")
 }
