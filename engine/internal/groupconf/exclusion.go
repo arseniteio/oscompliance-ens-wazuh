@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"time"
 
 	"github.com/arseniteio/oscompliance-ens-wazuh/catalog"
+	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/wazuhapi"
 )
 
 type GroupMaker interface {
@@ -42,7 +44,11 @@ func CreateGroups(ctx context.Context, api GroupMaker, groups []string, apply bo
 		}
 
 		if apply {
-			if err := api.CreateGroup(ctx, group); err != nil {
+			err := api.CreateGroup(ctx, group)
+			if denied(err) {
+				return changes, fmt.Errorf("group %s: the engine API user may not create groups; run catalog/wazuh/engine-users.sh to grant group:create: %w", group, err)
+			}
+			if err != nil {
 				errs = append(errs, fmt.Errorf("group %s: %w", group, err))
 				continue
 			}
@@ -51,4 +57,9 @@ func CreateGroups(ctx context.Context, api GroupMaker, groups []string, apply bo
 	}
 
 	return changes, errors.Join(errs...)
+}
+
+func denied(err error) bool {
+	var apiErr *wazuhapi.Error
+	return errors.As(err, &apiErr) && apiErr.Status == http.StatusForbidden
 }

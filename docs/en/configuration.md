@@ -154,8 +154,10 @@ On each group sync the engine also creates the groups of the ENS scope that do n
 
 With the option on in Power ENS (`scope.controlGroups`), the engine creates one
 Wazuh group per control, `ens-excluir-<control>`, on its next group sync. It
-needs `-wazuh-api`, `-sync-apply` and `group:create` in its API role. To take a
-machine out of a control, add it to that group. Turning the option off ignores
+needs `-wazuh-api`, `-sync-apply` and `group:create` in its API role. Without
+`group:create` the sync stops at the first group with one error; run
+`catalog/wazuh/engine-users.sh` again to update the role. To take a machine out
+of a control, add it to that group. Turning the option off ignores
 the groups and deletes none of them. See [verdicts](verdicts.md).
 
 ## Agent

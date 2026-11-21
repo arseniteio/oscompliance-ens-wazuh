@@ -143,7 +143,7 @@ En cada sincronización de grupos, el motor también crea los grupos del alcance
 
 ## Grupos por control
 
-Con la opción activada en Power ENS (`scope.controlGroups`), el motor crea un grupo de Wazuh por control, `ens-excluir-<control>`, en su siguiente sincronización de grupos. Necesita `-wazuh-api`, `-sync-apply` y `group:create` en su rol de API. Para sacar una máquina de un control, añádela a ese grupo. Al desactivar la opción, los grupos se ignoran y no se borra ninguno. Consulta [Veredictos](verdicts.md).
+Con la opción activada en Power ENS (`scope.controlGroups`), el motor crea un grupo de Wazuh por control, `ens-excluir-<control>`, en su siguiente sincronización de grupos. Necesita `-wazuh-api`, `-sync-apply` y `group:create` en su rol de API. Sin `group:create`, la sincronización se detiene en el primer grupo con un único error; vuelve a ejecutar `catalog/wazuh/engine-users.sh` para actualizar el rol. Para sacar una máquina de un control, añádela a ese grupo. Al desactivar la opción, los grupos se ignoran y no se borra ninguno. Consulta [Veredictos](verdicts.md).
 
 ## Agente
 

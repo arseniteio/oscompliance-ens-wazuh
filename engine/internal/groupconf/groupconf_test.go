@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"net/http"
 	"slices"
 	"strings"
 	"testing"
@@ -211,11 +212,17 @@ type fakeMaker struct {
 	names   []string
 	created []string
 	failing string
+	denied  bool
+	tries   int
 }
 
 func (f *fakeMaker) GroupNames(context.Context) ([]string, error) { return f.names, nil }
 
 func (f *fakeMaker) CreateGroup(_ context.Context, name string) error {
+	f.tries++
+	if f.denied {
+		return &wazuhapi.Error{Status: http.StatusForbidden, Body: "Permission denied: Resource type: *:*"}
+	}
 	if name == f.failing {
 		return errors.New("forbidden")
 	}
@@ -240,6 +247,19 @@ func TestCreateExclusionGroups(t *testing.T) {
 	}
 	if len(changes) != 1 || !changes[0].Applied || changes[0].Group != "ens-excluir-op.acc.2" {
 		t.Errorf("changes %v", changes)
+	}
+}
+
+func TestCreateGroupsStopsAtTheFirstDenial(t *testing.T) {
+	controls := []catalog.Control{{Control: "op.acc.1"}, {Control: "op.acc.2"}, {Control: "op.acc.3"}}
+
+	api := &fakeMaker{denied: true}
+	changes, err := CreateExclusionGroups(context.Background(), api, controls, true, time.Now())
+	if err == nil || !strings.Contains(err.Error(), "group:create") {
+		t.Errorf("want one error naming the missing permission, got %v", err)
+	}
+	if api.tries != 1 || len(changes) != 0 {
+		t.Errorf("tries %d, changes %v", api.tries, changes)
 	}
 }
 
