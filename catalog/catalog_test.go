@@ -1,7 +1,6 @@
 package catalog
 
 import (
-	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -131,9 +130,12 @@ func TestCatalogConsistency(t *testing.T) {
 func TestMessagesAgree(t *testing.T) {
 
 	placeholders := func(s string) string {
-		found := regexp.MustCompile(`\{[a-z_]+\}`).FindAllString(s, -1)
+		var found []string
+		for _, m := range placeholder.FindAllStringSubmatch(s, -1) {
+			found = append(found, m[1])
+		}
 		slices.Sort(found)
-		return strings.Join(found, ",")
+		return strings.Join(slices.Compact(found), ",")
 	}
 
 	en, es := Messages("en"), Messages("es")
