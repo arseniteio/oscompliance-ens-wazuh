@@ -94,9 +94,10 @@ machines whose control is `COMPLIANT` out of those it applies to.
 
 `thresholds` holds the minimum percentage for L1 to L5, in rising order. A
 scale with `agentId` applies to that machine and takes precedence over the
-scale of the control. Without a scale the engine uses the CCN table
-([`catalog/maturity.json`](../../catalog/maturity.json), from CCN-STIC 844):
-10, 50, 80, 90 and 100. The required level per category comes from CCN-STIC
+scale of the control. Without a scale the engine uses the table
+provided by a CCN auditor
+([`catalog/maturity.json`](../../catalog/maturity.json)): 20, 40, 60, 80 and
+100, with the name and meaning of each level. The required level per category comes from CCN-STIC
 808 and lives in the same file, which Power ENS reads too: it applies the same
 rule to a selection of machines, where the fleet percentage is the average of
 its machines and a machine without a score counts as 0 %.
