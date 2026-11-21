@@ -19,7 +19,7 @@
   "configuration.gap": "configuration missing on {machine}: {detail}",
   "configuration.parameter_gap": "configuration missing on {machine}: {detail}",
   "configuration.parameter_unset": "configuration missing on {machine}: {param} has no value",
-  "configuration.parameter_value": "invalid configuration on {machine}: {param} = {value} ({source}); {detail}",
+  "configuration.parameter_value": "configuration missing on {machine}: {detail}; {param} set to {value} ({source})",
   "configuration.source_agent": "machine value",
   "configuration.source_organisation": "organisation value",
   "configuration.source_profile": "profile {id}",

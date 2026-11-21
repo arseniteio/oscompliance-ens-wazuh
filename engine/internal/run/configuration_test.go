@@ -47,7 +47,7 @@ func TestInvalidParameterShowsConfiguredValueAndSource(t *testing.T) {
 
 	got := explainConfiguration(policy, "op.acc.1", web01, configurationGap(detail)).Message.Render("es")
 
-	for _, want := range []string{"web01 (001)", "P-03 = «svc_.*(»", "valor de la organización", "missing closing )"} {
+	for _, want := range []string{"web01 (001)", "P-03 configurado: «svc_.*(»", "valor de la organización", "missing closing )"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("reason %q lacks %q", got, want)
 		}
