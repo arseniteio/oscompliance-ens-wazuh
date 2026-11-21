@@ -148,10 +148,12 @@ func TestOnceControlBeginFails(t *testing.T) {
 }
 
 type fakeScope struct {
-	outside, excluded string
+	outside, excluded, unknown string
 }
 
-func (f fakeScope) Evaluable(id string) bool { return id != f.outside }
+func (f fakeScope) Evaluable(id string) bool { return id != f.outside && id != f.unknown }
+
+func (f fakeScope) Unresolved(id string) bool { return id == f.unknown }
 
 func (f fakeScope) Excluded(_, id string) bool { return id == f.excluded }
 
@@ -212,6 +214,30 @@ func TestOnceJudgesOnlyEvaluableMachines(t *testing.T) {
 		if v.Agent.ID == "002" {
 			t.Fatalf("a verdict for a machine outside the scope: %+v", v)
 		}
+	}
+}
+
+func TestOnceSkipsAndReportsMachinesWithUnknownGroups(t *testing.T) {
+	agents := fakeAgents{senders: []verdict.Agent{{ID: "001"}, {ID: "002"}}}
+	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": allCompliant(), "002": allCompliant()}}
+	sink := &fakeSink{}
+
+	scoped := cfg
+	scoped.Scope = func(context.Context, time.Time) (Scope, error) { return fakeScope{unknown: "002"}, nil }
+
+	_, err := Once(context.Background(), agents, []evaluator.Evaluator{control}, noParams{}, sink, scoped, time.Now())
+	if err == nil || !strings.Contains(err.Error(), "002") {
+		t.Fatalf("want an error naming the machine with unknown groups, got %v", err)
+	}
+	judged := false
+	for _, v := range sink.got {
+		if v.Agent.ID == "002" {
+			t.Fatalf("a verdict for a machine whose groups are unknown: %+v", v)
+		}
+		judged = judged || v.Agent.ID == "001"
+	}
+	if !judged {
+		t.Error("the machine with known groups was not judged")
 	}
 }
 

@@ -125,6 +125,10 @@ func (c *Config) Evaluates(agentID string, groups []string) bool {
 	return true
 }
 
+func (c *Config) ScopesByGroup() bool {
+	return c.Scope.Mode == "group" || c.Scope.ControlGroups
+}
+
 func (c *Config) Excludes(controlID string, groups []string) bool {
 	if !c.Scope.ControlGroups {
 		return false

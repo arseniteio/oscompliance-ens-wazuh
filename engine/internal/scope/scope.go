@@ -17,7 +17,16 @@ func MachinesOf(config *params.Config, reporting map[string]source.Reporting) Ma
 }
 
 func (m Machines) Evaluable(agentID string) bool {
-	return m.config.Evaluates(agentID, m.reporting[agentID].Groups)
+	return !m.Unresolved(agentID) && m.config.Evaluates(agentID, m.reporting[agentID].Groups)
+}
+
+func (m Machines) Unresolved(agentID string) bool {
+	// Judging an agent whose groups are unknown could silently ignore its exclusion.
+	if agentID == source.ManagerID || !m.config.ScopesByGroup() {
+		return false
+	}
+	_, known := m.reporting[agentID]
+	return !known
 }
 
 func (m Machines) Excluded(controlID, agentID string) bool {

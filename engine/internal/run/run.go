@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -24,6 +25,7 @@ type Agents interface {
 
 type Scope interface {
 	Evaluable(agentID string) bool
+	Unresolved(agentID string) bool
 	Excluded(controlID, agentID string) bool
 }
 
@@ -60,23 +62,33 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 		return 0, err
 	}
 
+	var mu sync.Mutex
+	var errs []error
+	written := 0
+
 	excluded := func(string, string) bool { return false }
 	if cfg.Scope != nil {
 		scope, err := cfg.Scope(ctx, pass.LookbackStart)
 		if err != nil {
 			return 0, fmt.Errorf("scope: %w", err)
 		}
-		agents = slices.DeleteFunc(agents, func(a verdict.Agent) bool { return !scope.Evaluable(a.ID) })
+		var unresolved []string
+		agents = slices.DeleteFunc(agents, func(a verdict.Agent) bool {
+			if scope.Unresolved(a.ID) {
+				unresolved = append(unresolved, a.ID)
+				return true
+			}
+			return !scope.Evaluable(a.ID)
+		})
+		if len(unresolved) > 0 {
+			errs = append(errs, fmt.Errorf("scope: groups unknown, agents not judged: %s", strings.Join(unresolved, ",")))
+		}
 		excluded = scope.Excluded
 	}
 
 	if cfg.Plan != nil {
 		cfg.Plan(agents)
 	}
-
-	var mu sync.Mutex
-	var errs []error
-	written := 0
 
 	fail := func(err error) {
 		mu.Lock()
