@@ -184,6 +184,31 @@ func (c *Client) GroupAgents(ctx context.Context, group string) ([]Agent, error)
 	}
 }
 
+type AgentMembership struct {
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Group []string `json:"group"`
+}
+
+func (c *Client) AgentMemberships(ctx context.Context) ([]AgentMembership, error) {
+
+	var agents []AgentMembership
+
+	for offset := 0; ; offset += agentsPage {
+
+		var page []AgentMembership
+		total, err := c.items(ctx, "/agents?select=id,name,group", agentsPage, offset, &page)
+		if err != nil {
+			return nil, err
+		}
+
+		agents = append(agents, page...)
+		if len(page) < agentsPage || len(agents) >= total {
+			return agents, nil
+		}
+	}
+}
+
 func (c *Client) GroupNames(ctx context.Context) ([]string, error) {
 
 	var names []string

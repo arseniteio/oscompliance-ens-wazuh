@@ -136,13 +136,13 @@ func runMain() error {
 	}
 
 	var groups *groupSync
+	var api *wazuhapi.Client
 	if *apiURL != "" {
 		apiPassword := os.Getenv(apiPasswordEnv)
 		if apiPassword == "" {
 			return fmt.Errorf("$%s is not set", apiPasswordEnv)
 		}
-		api, err := wazuhapi.New(*apiURL, *apiUser, apiPassword, *apiCA, *apiServerName)
-		if err != nil {
+		if api, err = wazuhapi.New(*apiURL, *apiUser, apiPassword, *apiCA, *apiServerName); err != nil {
 			return err
 		}
 		history, err := store.NewConfigHistory(ctx, client, *configHistoryIndex)
@@ -209,11 +209,11 @@ func runMain() error {
 	cfg := run.Config{
 		Window: *window, Lookback: *lookback, EngineVersion: version,
 		Scope: func(ctx context.Context, since time.Time) (run.Scope, error) {
-			reporting, err := facts.FleetReporting(ctx, since)
+			memberships, err := groupMemberships(ctx, facts, api, since)
 			if err != nil {
 				return nil, err
 			}
-			machines := scope.MachinesOf(current, reporting)
+			machines := scope.MachinesOf(current, memberships)
 			facts.UseExclusions(machines.Excluded)
 			return machines, nil
 		},
@@ -374,6 +374,26 @@ func (g *groupSync) run(ctx context.Context, policy *params.Config, now time.Tim
 		changes, err = groupconf.PublishProfiles(ctx, g.api, policy.ProfileMembers(), g.apply, now)
 		g.record(ctx, changes, err)
 	}
+}
+
+// The Wazuh API answers with the groups an agent is in now; the monitoring
+// index only samples them every few minutes, so a fresh exclusion can be missing.
+func groupMemberships(ctx context.Context, facts *source.Source, api *wazuhapi.Client, since time.Time) (map[string]source.Reporting, error) {
+
+	if api == nil {
+		return facts.FleetReporting(ctx, since)
+	}
+
+	agents, err := api.AgentMemberships(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("group memberships: %w", err)
+	}
+
+	out := make(map[string]source.Reporting, len(agents))
+	for _, a := range agents {
+		out[a.ID] = source.Reporting{Name: a.Name, Groups: a.Group}
+	}
+	return out, nil
 }
 
 func requestedGroups(ctx context.Context, facts *source.Source, since time.Time) (map[string]string, error) {

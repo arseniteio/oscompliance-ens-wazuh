@@ -156,8 +156,13 @@ machine holds it, the system fails: the manager carries the
 ## Which machines are judged
 
 The machines of the ENS scope (`scope` in the Power ENS configuration): those
-of its groups, by default `ens`, read from `wazuh-monitoring-*`, and the
-manager, which is in no group. A machine outside the scope gets no verdict and
+of its groups, by default `ens`, and the manager, which is in no group. With
+`-wazuh-api` the engine reads each agent's groups from the Wazuh API at the
+start of every pass; without it, from the last sample in `wazuh-monitoring-*`,
+which can be some minutes behind a group change. If the groups cannot be read,
+the pass judges nothing. When the scope or an exclusion depends on groups, an
+agent whose groups are unknown is not judged in that pass and the pass ends
+with an error that names it. A machine outside the scope gets no verdict and
 counts for nothing in the controls that look at the whole fleet; it can still
 be named in a parameter, such as a pre-production host. When the configuration
 cannot be read the engine keeps the last scope it read, and judges nothing
