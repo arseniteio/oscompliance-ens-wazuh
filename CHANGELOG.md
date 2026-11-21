@@ -6,6 +6,9 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 ### Added
 
+- `catalog/maturity.json` holds the CCN maturity table (CCN-STIC 844 percentages, CCN-STIC 808 minimum per category) and the cases both the engine and Power ENS test their rule against.
+- Control verdicts carry `compliance`: percentage, CMM level, required level and category.
+
 - Verdicts carry `tally` when a judgement counts items: mp.info.6 EV-01, EV-02 and EV-03 count copies, and the `organization` verdict of each judged control counts the machines whose control is COMPLIANT.
 - `configuration.maturity.scales` maps a tally percentage to a level L0 to L5, per control or per machine. No scale ships with the engine.
 - The engine reads `BÁSICO` as the system category of rank 1.
@@ -15,6 +18,8 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 ### Changed
 
+- A control is judged by its CMM level: COMPLIANT when its level reaches the one its level requires (L2 BÁSICO, L3 MEDIO, L4 ALTO), PARTIAL below it, NON_COMPLIANT at 0 %. Before, only a control with every requirement met was COMPLIANT.
+- The default maturity scale is the CCN table, 10, 50, 80, 90 and 100 %, instead of 20, 40, 60, 80 and 100.
 - A NOT_EVALUABLE reason caused by CONFIGURATION names the machine, the parameter and its value in force and origin, or that it has no value.
 - Out-of-level reasons speak of the system category, BÁSICO, MEDIO or ALTO.
 - A counted evidence is COMPLIANT when its CMM level reaches the one its level asks for: L2 for BÁSICO, L3 for MEDIO, L4 for ALTO. The default scale is 20, 40, 60, 80 and 100 %.

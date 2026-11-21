@@ -42,14 +42,18 @@ Algunos controles deciden un requisito directamente donde la norma pide elegir: 
 
 ## Control
 
+Un control se juzga por su nivel CMM, no a todo o nada. `score` es la proporción de requisitos aplicables que se cumplen, de 0 a 100; la escala de madurez lo convierte en un nivel, y `compliance` lleva el porcentaje, el nivel, el nivel exigido y la categoría.
+
 | Estado | Cuándo |
 |---|---|
-| `COMPLIANT` | todos los requisitos aplicables se cumplen |
-| `NON_COMPLIANT` | ningún requisito aplicable se cumple |
-| `PARTIAL` | una mezcla |
+| `COMPLIANT` | el nivel llega al exigido: L2 en BÁSICO, L3 en MEDIO, L4 en ALTO |
+| `PARTIAL` | por debajo del nivel exigido, por encima del 0 % |
+| `NON_COMPLIANT` | 0 % |
 | `NOT_APPLICABLE` | no se aplica nada |
 
-`score` es la proporción de requisitos aplicables que se cumplen, de 0 a 100. `coverage` es la proporción de requisitos aplicables que se han medido, frente a los fallados por falta de prueba. Un control con 60 y cobertura 100 es un 60 medido; con cobertura 40, la mayor parte de la diferencia es configuración o recogida.
+7 de 8 requisitos es un 87 %, L3: `COMPLIANT` en un control de nivel MEDIO.
+
+`coverage` es la proporción de requisitos aplicables que se han medido, frente a los fallados por falta de prueba. Un control con 60 y cobertura 100 es un 60 medido; con cobertura 40, la mayor parte de la diferencia es configuración o recogida.
 
 ## Recuentos
 
@@ -63,7 +67,7 @@ El veredicto `organization` de cada control juzgado también lleva `tally`: las 
 { "controlId": "mp.info.6", "agentId": "001", "thresholds": [50, 70, 80, 90, 98] }
 ```
 
-`thresholds` contiene el porcentaje mínimo de L1 a L5, en orden creciente. Una escala con `agentId` se aplica a esa máquina y prevalece sobre la del control. Sin escala, el motor usa 20, 40, 60, 80 y 100.
+`thresholds` contiene el porcentaje mínimo de L1 a L5, en orden creciente. Una escala con `agentId` se aplica a esa máquina y prevalece sobre la del control. Sin escala, el motor usa la tabla del CCN ([`catalog/maturity.json`](../../catalog/maturity.json), de la CCN-STIC 844): 10, 50, 80, 90 y 100. El nivel exigido por categoría sale de la CCN-STIC 808 y está en el mismo fichero, que también lee Power ENS: aplica la misma regla a una selección de máquinas, donde el porcentaje de la flota es la media de sus máquinas y una máquina sin puntuación cuenta como 0 %.
 
 El nivel decide el estado de una evidencia con recuento. L2 cumple en un sistema BÁSICO, L3 en uno MEDIO y L4 en uno ALTO, al nivel al que se juzga el control. 36 copias correctas de 40 es un 90 %, L4: `COMPLIANT` en un sistema ALTO, y el motivo sigue listando las cuatro copias fallidas. Los juicios NOT_EVALUABLE y NOT_APPLICABLE conservan su estado.
 

@@ -57,14 +57,19 @@ applicability on machines with no external service.
 
 ## Control
 
+A control is judged by its CMM level, not all or nothing. `score` is the share
+of applicable requirements that comply, 0 to 100; the maturity scale turns it
+into a level, and `compliance` carries the percentage, the level, the level
+required and the category.
+
 | Status | When |
 |---|---|
-| `COMPLIANT` | every applicable requirement is compliant |
-| `NON_COMPLIANT` | every applicable requirement is non-compliant |
-| `PARTIAL` | a mix |
+| `COMPLIANT` | the level reaches the one required: L2 at BÁSICO, L3 at MEDIO, L4 at ALTO |
+| `PARTIAL` | below the required level, above 0 % |
+| `NON_COMPLIANT` | 0 % |
 | `NOT_APPLICABLE` | nothing applies |
 
-`score` is the share of applicable requirements that comply, 0 to 100.
+7 of 8 requirements is 87 %, L3: `COMPLIANT` on a MEDIO control.
 `coverage` is the share of applicable requirements that were measured, as
 opposed to failed for lack of proof. A control at 60 with coverage 100 is a
 measured 60; at coverage 40 most of the gap is configuration or collection.
@@ -89,7 +94,12 @@ machines whose control is `COMPLIANT` out of those it applies to.
 
 `thresholds` holds the minimum percentage for L1 to L5, in rising order. A
 scale with `agentId` applies to that machine and takes precedence over the
-scale of the control. Without a scale the engine uses 20, 40, 60, 80 and 100.
+scale of the control. Without a scale the engine uses the CCN table
+([`catalog/maturity.json`](../../catalog/maturity.json), from CCN-STIC 844):
+10, 50, 80, 90 and 100. The required level per category comes from CCN-STIC
+808 and lives in the same file, which Power ENS reads too: it applies the same
+rule to a selection of machines, where the fleet percentage is the average of
+its machines and a machine without a score counts as 0 %.
 
 The level decides the status of a counted evidence. L2 meets a BÁSICO system,
 L3 a MEDIO one and L4 an ALTO one, at the level the control is judged at. 36
