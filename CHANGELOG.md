@@ -27,6 +27,13 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - Count placeholders take a singular and a plural noun (`{count#copia|copias}`), so reasons read "1 inicio de sesión" and "3 inicios de sesión".
 - 100 reasons are rewritten in plain words: no internal fact names, configuration keys or run ids. Collection gaps name the fact type by its label, such as "el inventario de cuentas".
 
+### Fixed
+
+- With `-wazuh-api` the engine reads the scope groups of each agent from the Wazuh API at the start of every pass instead of the `wazuh-monitoring-*` sample, which can miss a group change made minutes before. A machine just added to `ens-excluir-<control>` was judged in that control.
+- When the scope or an exclusion depends on groups, an agent whose groups are unknown is not judged and the pass reports it. Before, it was judged as if it were in no exclusion group.
+- A group sync that the Wazuh API denies `group:create` stops at the first group with one error that names the permission and `engine-users.sh`, instead of one error per group.
+- The manager inventory is read from the Wazuh API once every five minutes and shared by every control, instead of once per control that asks for it.
+
 ## [2.0.1] - 2026-11-19
 
 ### Added
