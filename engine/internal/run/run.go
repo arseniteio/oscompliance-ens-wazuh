@@ -300,7 +300,7 @@ func aggregateVerdicts(policy params.Lister, control catalog.Control, agent verd
 		}
 
 		r := aggregate.EvaluateRequirement(req, level.Level, enabled, evidences, att)
-		if level.Adjusted != nil && r.Message.Code == "requirement.out_of_level" {
+		if level.Adjusted != nil && (r.Message.Code == "requirement.out_of_level" || r.Message.Code == "requirement.declared_out_of_level") {
 			r.Message = catalog.Says("requirement.out_of_adjusted_level", "levels", req.Levels, "level", level.Level, "reason", level.Adjusted.Reason)
 			r.Reason = r.Message.Render("en")
 		}

@@ -451,6 +451,9 @@ func TestOnceJudgesAnAdjustedMachineAtItsLevel(t *testing.T) {
 	if v := got["001 requirement op.acc.1.r1.1"]; v.Status != verdict.NotApplicable || v.ReasonCode != "requirement.out_of_adjusted_level" || !strings.Contains(v.Reason, "entorno de pruebas") {
 		t.Errorf("001 r1.1: %s %s %q", v.Status, v.ReasonCode, v.Reason)
 	}
+	if v := got["001 requirement op.acc.1.r1.3"]; v.ReasonCode != "requirement.out_of_adjusted_level" {
+		t.Errorf("001 r1.3 has its own applicability text, still the adjustment explains it: %s", v.ReasonCode)
+	}
 	if v := got["001 evidence EV-07"]; v.Status != verdict.NotApplicable || v.ReasonCode != "evidence.out_of_adjusted_level" {
 		t.Errorf("001 EV-07: %s %s", v.Status, v.ReasonCode)
 	}
