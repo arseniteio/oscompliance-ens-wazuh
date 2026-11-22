@@ -4,6 +4,8 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-22
+
 ### Added
 
 - `catalog/maturity.json` holds the CCN maturity table (percentages and meanings from a CCN auditor, CCN-STIC 808 minimum per category) and the cases both the engine and Power ENS test their rule against.
@@ -138,7 +140,8 @@ First release.
 - Packages for Linux amd64 and arm64 with a `SHA256SUMS` file.
 - Support for Wazuh 4.14.7, 4.14.8 and 4.14.9, installed from packages or on Docker.
 
-[Unreleased]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/arseniteio/oscompliance-ens-wazuh/compare/v1.1.0...v1.2.0
