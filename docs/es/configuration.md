@@ -145,6 +145,10 @@ En cada sincronización de grupos, el motor también crea los grupos del alcance
 
 Con la opción activada en Power ENS (`scope.controlGroups`), el motor crea un grupo de Wazuh por control, `ens-excluir-<control>`, en su siguiente sincronización de grupos. Necesita `-wazuh-api`, `-sync-apply` y `group:create` en su rol de API. Sin `group:create`, la sincronización se detiene en el primer grupo con un único error; vuelve a ejecutar `catalog/wazuh/engine-users.sh` para actualizar el rol. Para sacar una máquina de un control, añádela a ese grupo. Al desactivar la opción, los grupos se ignoran y no se borra ninguno. Consulta [Veredictos](verdicts.md).
 
+## Sistemas ENS
+
+El motor lee todos los sistemas ENS del índice de configuración en cada pasada: el documento `ACTIVE_CONFIGURATION` es el sistema `default`, y cada documento `SYSTEM_CONFIGURATION`, con `_id` `system-<id>`, es otro. Un identificador tiene de 1 a 40 letras minúsculas, cifras o guiones. Un sistema con un identificador no válido o repetido, sin configuración o con un alcance que no indica grupos ni máquinas se deja fuera con un error. La sincronización de grupos toma los grupos de alcance de todos los sistemas y escribe la configuración de grupo de cada máquina con los parámetros de su sistema; si no puede leer las pertenencias, no toca los grupos. Consulta [Veredictos](verdicts.md).
+
 ## Agente
 
 `/etc/oscompliance/agent.json` es opcional. Sin él, el agente usa los valores por defecto; con él, solo cambian las claves presentes. Una clave desconocida detiene el agente con un error. El fichero se lee en cada ejecución.

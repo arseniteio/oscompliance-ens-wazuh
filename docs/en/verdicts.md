@@ -179,6 +179,23 @@ An agent of the scope that stops sending keeps its verdicts as `NOT_EVALUABLE`
 by `COLLECTION` while Wazuh keeps it registered; it does not disappear from the
 report.
 
+## ENS systems
+
+An installation can hold several ENS systems, each with its own category,
+scope, parameters and maturity. The configuration saved in Power ENS before
+systems existed is the `default` system; every other one has its own
+`SYSTEM_CONFIGURATION` document. The engine judges each system in its own pass
+and writes its id in the `system` field of every verdict. Verdicts without the
+field belong to `default`. The organisation verdicts and the maturity count
+per system.
+
+Each machine belongs to one system. The systems other than `default` must name
+groups or machines in their scope; they claim their machines first, and
+`default` takes the rest of its own scope. A machine that two systems claim,
+because both name it or one of its groups, is judged in neither and the pass
+ends with an error that names it and the systems. The manager carries the
+measures every system relies on, so each system judges it.
+
 ## Time
 
 | Setting | Default | Meaning |

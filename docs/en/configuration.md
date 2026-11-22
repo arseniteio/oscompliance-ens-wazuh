@@ -160,6 +160,18 @@ needs `-wazuh-api`, `-sync-apply` and `group:create` in its API role. Without
 of a control, add it to that group. Turning the option off ignores
 the groups and deletes none of them. See [verdicts](verdicts.md).
 
+## ENS systems
+
+The engine reads every ENS system from the configuration index on each pass:
+the `ACTIVE_CONFIGURATION` document is the `default` system, and each
+`SYSTEM_CONFIGURATION` document, with `_id` `system-<id>`, is another one. An
+id has 1 to 40 lowercase letters, digits or hyphens. A system with an invalid
+id, a repeated id, no configuration or a scope that names neither groups nor
+machines is left out with an error. The group sync takes the scope groups of
+every system and writes each machine's group configuration with the parameters
+of its system; when the memberships cannot be read it leaves the groups alone.
+See [verdicts](verdicts.md).
+
 ## Agent
 
 `/etc/oscompliance/agent.json` is optional. Without it the agent uses the

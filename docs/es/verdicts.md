@@ -119,6 +119,12 @@ Con `scope.controlGroups` activado, una máquina del grupo de Wazuh `ens-excluir
 
 Un agente del alcance que deja de enviar mantiene sus veredictos como `NOT_EVALUABLE` por `COLLECTION` mientras Wazuh lo tenga registrado; no desaparece del informe.
 
+## Sistemas ENS
+
+Una instalación puede tener varios sistemas ENS, cada uno con su categoría, su alcance, sus parámetros y su madurez. La configuración guardada en Power ENS antes de que existieran los sistemas es el sistema `default`; cada uno de los demás tiene su propio documento `SYSTEM_CONFIGURATION`. El motor juzga cada sistema en su propia pasada y escribe su identificador en el campo `system` de cada veredicto. Los veredictos sin ese campo son de `default`. Los veredictos de organización y la madurez se cuentan por sistema.
+
+Cada máquina pertenece a un solo sistema. Los sistemas distintos de `default` tienen que indicar grupos o máquinas en su alcance; reclaman sus máquinas primero, y `default` se queda con el resto de su propio alcance. Una máquina que reclaman dos sistemas, porque ambos la nombran o nombran uno de sus grupos, no se juzga en ninguno, y la pasada termina con un error que la nombra junto a los sistemas. El manager soporta las medidas de las que dependen todos los sistemas, así que cada sistema lo juzga.
+
 ## Tiempo
 
 | Ajuste | Por defecto | Significado |
