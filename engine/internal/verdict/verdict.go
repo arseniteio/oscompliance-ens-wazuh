@@ -26,6 +26,8 @@ const (
 	AllMeasures       = "ENS"
 )
 
+const DefaultSystem = "default"
+
 type Cause string
 
 const (
@@ -70,6 +72,7 @@ const SchemaVersion = "1"
 type Verdict struct {
 	OSComplianceVerdict string         `json:"oscompliance_verdict"`
 	Timestamp           string         `json:"@timestamp"`
+	System              string         `json:"system,omitempty"`
 	Scope               string         `json:"scope"`
 	Control             string         `json:"control"`
 	Requirement         string         `json:"requirement,omitempty"`

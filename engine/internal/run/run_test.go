@@ -193,6 +193,25 @@ func TestOnceWritesExcludedMachinesAsNotApplicable(t *testing.T) {
 	}
 }
 
+func TestOnceWritesTheSystemInEveryVerdict(t *testing.T) {
+	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": allCompliant()}}
+
+	for _, tt := range []struct{ configured, want string }{{"", verdict.DefaultSystem}, {"pilot", "pilot"}} {
+		sink := &fakeSink{}
+		inSystem := cfg
+		inSystem.System = tt.configured
+
+		if _, err := Once(context.Background(), fakeAgents{senders: []verdict.Agent{{ID: "001"}}}, []evaluator.Evaluator{control}, noParams{}, sink, inSystem, time.Now()); err != nil {
+			t.Fatal(err)
+		}
+		for _, v := range sink.got {
+			if v.System != tt.want {
+				t.Fatalf("system %q configured: %s %s%s has system %q", tt.configured, v.Scope, v.Requirement, v.Evidence, v.System)
+			}
+		}
+	}
+}
+
 func TestOnceJudgesOnlyEvaluableMachines(t *testing.T) {
 	agents := fakeAgents{senders: []verdict.Agent{{ID: "000"}, {ID: "001"}, {ID: "002"}}}
 	control := &fakeControl{results: map[string]map[string]evaluator.Result{"000": allCompliant(), "001": allCompliant(), "002": allCompliant()}}
@@ -371,7 +390,7 @@ func TestOnceWritesMaturity(t *testing.T) {
 	sink := &fakeSink{}
 	three := 3
 	withMaturity := cfg
-	withMaturity.WorkingDays = func(context.Context, string, time.Time) (map[string]int, error) {
+	withMaturity.WorkingDays = func(context.Context, string, string, time.Time) (map[string]int, error) {
 		return map[string]int{"001": 29, "002": 3}, nil
 	}
 	withMaturity.Assessments = []maturity.Assessment{
@@ -433,7 +452,7 @@ func TestOnceWritesTalliesWithTheirLevel(t *testing.T) {
 	control := &fakeControl{results: map[string]map[string]evaluator.Result{"001": counted, "002": allCompliant()}}
 	sink := &fakeSink{}
 	withScales := cfg
-	withScales.WorkingDays = func(context.Context, string, time.Time) (map[string]int, error) { return map[string]int{}, nil }
+	withScales.WorkingDays = func(context.Context, string, string, time.Time) (map[string]int, error) { return map[string]int{}, nil }
 	withScales.Scales = maturity.Scales{
 		{Control: "op.acc.1", Thresholds: []int{0, 25, 50, 75, 95}},
 		{Control: "op.acc.1", Agent: "001", Thresholds: []int{10, 20, 30, 40, 50}},

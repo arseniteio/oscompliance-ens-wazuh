@@ -23,7 +23,7 @@ type Facts interface {
 }
 
 type Degrees interface {
-	ImplementationDegrees(ctx context.Context, since time.Time) (map[string]verdict.Degree, error)
+	ImplementationDegrees(ctx context.Context, system string, since time.Time) (map[string]verdict.Degree, error)
 }
 
 const control = "op.mon.2"
@@ -58,7 +58,7 @@ func (e *Evaluator) Begin(ctx context.Context, pass evaluator.Pass) error {
 		return fmt.Errorf("agent passes: %w", err)
 	}
 	// The verdicts of the previous passes: this pass writes its own only when it ends.
-	e.measured, e.degreesErr = e.degrees.ImplementationDegrees(ctx, pass.WindowStart)
+	e.measured, e.degreesErr = e.degrees.ImplementationDegrees(ctx, pass.System, pass.WindowStart)
 	return nil
 }
 

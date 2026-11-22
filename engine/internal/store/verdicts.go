@@ -20,6 +20,7 @@ var mapping = map[string]any{
 		"properties": map[string]any{
 			"oscompliance_verdict": kw(),
 			"@timestamp":           date(),
+			"system":               kw(),
 			"scope":                kw(),
 			"control":              kw(),
 			"requirement":          kw(),
@@ -139,6 +140,14 @@ func (s *Verdicts) Flush(ctx context.Context) error {
 }
 
 func DocumentID(v verdict.Verdict) string {
+	id := documentID(v)
+	if v.System == "" || v.System == verdict.DefaultSystem {
+		return id
+	}
+	return v.System + "/" + id
+}
+
+func documentID(v verdict.Verdict) string {
 
 	day := v.Timestamp
 	if len(day) >= 10 {
@@ -162,7 +171,18 @@ func DocumentID(v verdict.Verdict) string {
 	return strings.Join([]string{v.Agent.ID, v.Control, v.Evidence, pass}, "/")
 }
 
-func (s *Verdicts) WorkingDays(ctx context.Context, control string, now time.Time, days int) (map[string]int, error) {
+func ofSystem(system string) any {
+	if system == "" || system == verdict.DefaultSystem {
+		// Verdicts written before ENS systems existed carry no system field.
+		return map[string]any{"bool": map[string]any{"minimum_should_match": 1, "should": []any{
+			map[string]any{"term": map[string]any{"system": verdict.DefaultSystem}},
+			map[string]any{"bool": map[string]any{"must_not": []any{map[string]any{"exists": map[string]any{"field": "system"}}}}},
+		}}}
+	}
+	return map[string]any{"term": map[string]any{"system": system}}
+}
+
+func (s *Verdicts) WorkingDays(ctx context.Context, system, control string, now time.Time, days int) (map[string]int, error) {
 
 	// One control verdict is kept per machine and day, so each document counted is a day on
 	// which the control had at least one requirement met with evidence.
@@ -182,6 +202,7 @@ func (s *Verdicts) WorkingDays(ctx context.Context, control string, now time.Tim
 		query := map[string]any{
 			"size": 0,
 			"query": map[string]any{"bool": map[string]any{"filter": []any{
+				ofSystem(system),
 				map[string]any{"term": map[string]any{"scope": verdict.ScopeControl}},
 				map[string]any{"term": map[string]any{"control": control}},
 				map[string]any{"range": map[string]any{"@timestamp": map[string]any{
@@ -220,7 +241,7 @@ func (s *Verdicts) WorkingDays(ctx context.Context, control string, now time.Tim
 	}
 }
 
-func (s *Verdicts) ImplementationDegrees(ctx context.Context, since time.Time) (map[string]verdict.Degree, error) {
+func (s *Verdicts) ImplementationDegrees(ctx context.Context, system string, since time.Time) (map[string]verdict.Degree, error) {
 
 	out := map[string]verdict.Degree{}
 	var after any
@@ -234,8 +255,11 @@ func (s *Verdicts) ImplementationDegrees(ctx context.Context, since time.Time) (
 			composite["after"] = after
 		}
 		query := map[string]any{
-			"size":  0,
-			"query": map[string]any{"range": map[string]any{"@timestamp": map[string]any{"gte": since.UTC().Format(time.RFC3339)}}},
+			"size": 0,
+			"query": map[string]any{"bool": map[string]any{"filter": []any{
+				ofSystem(system),
+				map[string]any{"range": map[string]any{"@timestamp": map[string]any{"gte": since.UTC().Format(time.RFC3339)}}},
+			}}},
 			"aggs": map[string]any{"agents": map[string]any{
 				"composite": composite,
 				"aggs": map[string]any{

@@ -93,10 +93,11 @@ func judgedByLevel(j verdict.Judgement, tally *verdict.TallyResult, controlLevel
 	return out
 }
 
-func organizationBase(now time.Time, engineVersion string) verdict.Verdict {
+func organizationBase(system string, now time.Time, engineVersion string) verdict.Verdict {
 	stamp := now.UTC().Format(time.RFC3339)
 	return verdict.Verdict{
 		OSComplianceVerdict: verdict.SchemaVersion,
+		System:              system,
 		Timestamp:           stamp,
 		Scope:               verdict.ScopeOrganization,
 		Agent:               verdict.Agent{ID: verdict.OrganizationAgent},

@@ -9,6 +9,7 @@ import (
 )
 
 type Pass struct {
+	System        string
 	Now           time.Time
 	WindowStart   time.Time
 	LookbackStart time.Time

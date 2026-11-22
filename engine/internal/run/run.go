@@ -34,6 +34,8 @@ type Sink interface {
 }
 
 type Config struct {
+	System string
+
 	Window time.Duration
 
 	Lookback      time.Duration
@@ -45,7 +47,7 @@ type Config struct {
 
 	Flush func(ctx context.Context) error
 
-	WorkingDays func(ctx context.Context, control string, now time.Time) (map[string]int, error)
+	WorkingDays func(ctx context.Context, system, control string, now time.Time) (map[string]int, error)
 
 	Assessments []maturity.Assessment
 
@@ -54,7 +56,11 @@ type Config struct {
 
 func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator, policy params.Lister, sink Sink, cfg Config, now time.Time) (int, error) {
 
-	pass := evaluator.Pass{Now: now, WindowStart: now.Add(-cfg.Window), LookbackStart: now.Add(-cfg.Lookback)}
+	system := cfg.System
+	if system == "" {
+		system = verdict.DefaultSystem
+	}
+	pass := evaluator.Pass{System: system, Now: now, WindowStart: now.Add(-cfg.Window), LookbackStart: now.Add(-cfg.Lookback)}
 
 	agents, err := judgedAgents(ctx, agentList, pass.LookbackStart)
 
@@ -125,6 +131,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 		base := func(agent verdict.Agent, scope string) verdict.Verdict {
 			return verdict.Verdict{
 				OSComplianceVerdict: verdict.SchemaVersion,
+				System:              system,
 				Timestamp:           now.UTC().Format(time.RFC3339),
 				Scope:               scope,
 				Control:             control.Control,
@@ -138,7 +145,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 		var history map[string]int
 		if cfg.WorkingDays != nil {
 			var err error
-			if history, err = cfg.WorkingDays(ctx, control.Control, now); err != nil {
+			if history, err = cfg.WorkingDays(ctx, system, control.Control, now); err != nil {
 				fail(fmt.Errorf("%s: maturity history: %w", control.Control, err))
 			}
 		}
@@ -227,7 +234,7 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 	wg.Wait()
 
 	if cfg.WorkingDays != nil {
-		for _, v := range organizationVerdicts(controls, levels, cfg.Assessments, cfg.Scales, organizationBase(now, cfg.EngineVersion)) {
+		for _, v := range organizationVerdicts(controls, levels, cfg.Assessments, cfg.Scales, organizationBase(system, now, cfg.EngineVersion)) {
 			store(v)
 		}
 	}

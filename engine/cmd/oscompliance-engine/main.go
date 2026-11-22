@@ -222,8 +222,8 @@ func runMain() error {
 			hist.Plan(agents)
 		},
 		Flush: hist.Flush,
-		WorkingDays: func(ctx context.Context, control string, now time.Time) (map[string]int, error) {
-			return sink.WorkingDays(ctx, control, now, maturity.PeriodDays-1)
+		WorkingDays: func(ctx context.Context, system, control string, now time.Time) (map[string]int, error) {
+			return sink.WorkingDays(ctx, system, control, now, maturity.PeriodDays-1)
 		},
 	}
 

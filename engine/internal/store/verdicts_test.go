@@ -27,6 +27,21 @@ func TestDocumentID(t *testing.T) {
 	}
 }
 
+func TestDocumentIDOfASystem(t *testing.T) {
+	agent := verdict.Agent{ID: "001", Name: "a"}
+	control := verdict.Verdict{Scope: verdict.ScopeControl, Agent: agent, Control: "op.acc.1", Timestamp: "2026-10-22T15:20:00Z"}
+
+	control.System = verdict.DefaultSystem
+	if got := DocumentID(control); got != "001/op.acc.1/2026-10-22" {
+		t.Errorf("the default system changed the document id: %s", got)
+	}
+
+	control.System = "pilot"
+	if got := DocumentID(control); got != "pilot/001/op.acc.1/2026-10-22" {
+		t.Errorf("got %s", got)
+	}
+}
+
 func TestDegreeBucket(t *testing.T) {
 	raw := `{"key":{"agent":"001"},
 	  "controls":{"control":{"buckets":[
