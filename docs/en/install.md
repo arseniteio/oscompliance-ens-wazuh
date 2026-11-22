@@ -98,7 +98,7 @@ On a rerun without `OSC_INDEXER_URLS`, the script keeps the values of `/etc/osco
 Download the package of your architecture and its checksums on each server node where you install something and on every audited machine. `uname -m` tells the architecture: `x86_64` is amd64 and `aarch64` is arm64. The line of your package must end in `OK`. The commands below run from the package folder.
 
 ```bash
-v=2.0.1
+v=2.1.0
 url=https://github.com/arseniteio/oscompliance-ens-wazuh/releases/download/v$v
 curl -fLO "$url/oscompliance-ens-$v-linux-amd64.tar.gz" -O "$url/SHA256SUMS"
 sha256sum -c --ignore-missing SHA256SUMS
@@ -456,7 +456,7 @@ The indices `oscompliance-verdicts`, `oscompliance-identity-history`, `oscomplia
 Build the packages in this repository with Go 1.27.2 or later. The result is in `dist/`, with `install.sh` and `SHA256SUMS`.
 
 ```bash
-make dist VERSION=2.0.1
+make dist VERSION=2.1.0
 ```
 
 Build the plugin in the power-ens-wazuh repository with Docker, for the OpenSearch Dashboards version of your dashboard. The first build takes about 20 minutes. The result is `dist/powerEns-2.19.6.zip`.

@@ -35,7 +35,7 @@ The engine adds each machine to the `ens` group within 15 minutes, and the first
 To check the files before running anything, download the package and verify it. `install.sh` inside the package uses the files next to it.
 
 ```bash
-v=2.0.1
+v=2.1.0
 url=https://github.com/arseniteio/oscompliance-ens-wazuh/releases/download/v$v
 curl -fLO "$url/oscompliance-ens-$v-linux-amd64.tar.gz" -O "$url/SHA256SUMS"
 sha256sum -c --ignore-missing SHA256SUMS
@@ -91,7 +91,7 @@ make check
 Build the packages in `dist/`, with `install.sh` and `SHA256SUMS`. Go 1.27.2 or later is required.
 
 ```bash
-make dist VERSION=2.0.1
+make dist VERSION=2.1.0
 ```
 
 ## Security

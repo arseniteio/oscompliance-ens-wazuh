@@ -45,7 +45,7 @@ docker exec "$PROJECT-wazuh.dashboard-1" grep -m1 '"version"' /usr/share/wazuh-d
 Download the package of your architecture and its checksums on the host and on every audited machine, and the plugin files on the host, as in [section 1 of the package guide](install.md#1-get-the-packages). On Docker the plugin needs `dashboard.Dockerfile` instead of `deploy-plugin.sh`.
 
 ```bash
-v=2.0.1
+v=2.1.0
 url=https://github.com/arseniteio/power-ens-wazuh/releases/download/v$v
 curl -fLO "$url/dashboard.Dockerfile"
 ```
