@@ -47,7 +47,7 @@ packages of agent 000 are read through the API ([op.exp.1](op.exp.1.md)).
 |---|---|---|
 | P-01 event sources `fuente \| sistema \| ubicacion \| max_horas` | `sistema` an agent name or `*` | EV-02 |
 | P-02 correlation rules `conjunto \| minimo_reglas_correlacion` | | EV-03 |
-| P-03 hours without events | | EV-01 |
+| P-03 hours without events | per machine; the organisation value is the fallback | EV-01 |
 | P-04 anomalous behaviours `tipo \| indicador \| fuente \| reglas` | | EV-05 |
 | P-06 observatory `servicio \| proveedor \| alcance \| listas` | CDB list names | EV-07 |
 | P-05 network probe `producto \| ubicacion \| dias_maximos_sin_alerta` | | EV-06 |

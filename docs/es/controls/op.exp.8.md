@@ -56,7 +56,7 @@ Uno por pasada: `tool` (`chrony`, `timesyncd`, `none`), `status`, `synchronised`
 | P-09 copias de los registros `alcance \| destino \| frecuencia \| acceso_restringido` | `frecuencia` en días | EV-09 |
 | P-10 conjuntos de reglas desplegados `conjunto_reglas \| cobertura \| mapeo_attck` | `wazuh` o `propias` | EV-10 |
 | P-11 respuestas automáticas `accion \| disparador \| alcance \| reversion` | | EV-11 |
-| P-12 horas que una máquina puede estar en silencio | | EV-02, EV-04 |
+| P-12 horas que una máquina puede estar en silencio | por máquina; el valor de organización es el último recurso | EV-02, EV-04 |
 | P-13 registro de revisiones `fecha \| revisor \| alcance \| hallazgos` | | EV-05 |
 | P-14 rutas de los registros de actividad | plataforma; integradas por tipo de sistema | EV-08 |
 

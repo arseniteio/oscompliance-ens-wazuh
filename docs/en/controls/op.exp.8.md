@@ -64,7 +64,7 @@ files of `etc/rules`. Both are empty off the manager.
 | P-09 log backups `alcance \| destino \| frecuencia \| acceso_restringido` | `frecuencia` in days | EV-09 |
 | P-10 rule sets deployed `conjunto_reglas \| cobertura \| mapeo_attck` | `wazuh` or `propias` | EV-10 |
 | P-11 automatic responses `accion \| disparador \| alcance \| reversion` | | EV-11 |
-| P-12 hours a machine may stay silent | | EV-02, EV-04 |
+| P-12 hours a machine may stay silent | per machine; the organisation value is the fallback | EV-02, EV-04 |
 | P-13 register of log reviews `fecha \| revisor \| alcance \| hallazgos` | | EV-05 |
 | P-14 activity log paths | platform; built-in per system type | EV-08 |
 

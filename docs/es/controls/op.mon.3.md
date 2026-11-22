@@ -42,7 +42,7 @@ Wazuh deja el inventario del propio manager fuera de los índices de estado: los
 |---|---|---|
 | P-01 fuentes de eventos `fuente \| sistema \| ubicacion \| max_horas` | `sistema` un nombre de agente o `*` | EV-02 |
 | P-02 reglas de correlación `conjunto \| minimo_reglas_correlacion` | | EV-03 |
-| P-03 horas sin eventos | | EV-01 |
+| P-03 horas sin eventos | por máquina; el valor de organización es el último recurso | EV-01 |
 | P-04 comportamientos anómalos `tipo \| indicador \| fuente \| reglas` | | EV-05 |
 | P-06 observatorio `servicio \| proveedor \| alcance \| listas` | nombres de listas CDB | EV-07 |
 | P-05 sonda de red `producto \| ubicacion \| dias_maximos_sin_alerta` | | EV-06 |
