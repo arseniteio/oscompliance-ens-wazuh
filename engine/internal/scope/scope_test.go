@@ -45,15 +45,64 @@ func TestMachinesWithUnknownGroups(t *testing.T) {
 			config.Scope.GroupIDs, config.Scope.AgentIDs = []string{"ens"}, []string{"001", "002"}
 			m := MachinesOf(config, reporting)
 
-			if got := m.Unresolved("002"); got != tt.unresolved {
+			if got := m.Unresolved("002") != ""; got != tt.unresolved {
 				t.Errorf("unresolved = %v, want %v", got, tt.unresolved)
 			}
 			if tt.unresolved && m.Evaluable("002") {
 				t.Error("a machine with unknown groups is evaluable")
 			}
-			if m.Unresolved("001") || m.Unresolved(source.ManagerID) {
+			if m.Unresolved("001") != "" || m.Unresolved(source.ManagerID) != "" {
 				t.Error("a machine with known groups, or the manager, is unresolved")
 			}
 		})
+	}
+}
+
+func TestPartitionGivesEachMachineOneSystem(t *testing.T) {
+
+	config := func(mode string, groups, agents []string) *params.Config {
+		c := &params.Config{}
+		c.Scope.Mode, c.Scope.GroupIDs, c.Scope.AgentIDs = mode, groups, agents
+		return c
+	}
+	systems := []params.System{
+		{ID: "default", Config: config("all", nil, nil)},
+		{ID: "lab", Config: config("agent", nil, []string{"003", "004"})},
+		{ID: "pilot", Config: config("group", []string{"pilot"}, nil)},
+	}
+	reporting := map[string]source.Reporting{
+		"001": {Groups: []string{"ens"}},
+		"002": {Groups: []string{"ens", "pilot"}},
+		"003": {Groups: []string{"ens"}},
+		"004": {Groups: []string{"pilot"}},
+	}
+	p := PartitionOf(systems, reporting)
+
+	tests := []struct {
+		agent, judgedBy, unresolved string
+	}{
+		{agent: "001", judgedBy: "default"},
+		{agent: "002", judgedBy: "pilot"},
+		{agent: "003", judgedBy: "lab"},
+		{agent: "004", unresolved: "in the scope of systems lab, pilot"},
+		{agent: "005", unresolved: "groups unknown"},
+	}
+
+	for _, tt := range tests {
+		for _, s := range systems {
+			m := p.Machines(s.ID)
+			if got := m.Evaluable(tt.agent); got != (s.ID == tt.judgedBy) {
+				t.Errorf("agent %s evaluable in %s = %v", tt.agent, s.ID, got)
+			}
+			if got := m.Unresolved(tt.agent); got != tt.unresolved {
+				t.Errorf("agent %s unresolved in %s = %q, want %q", tt.agent, s.ID, got, tt.unresolved)
+			}
+		}
+	}
+
+	for _, s := range systems {
+		if !p.Machines(s.ID).Evaluable(source.ManagerID) {
+			t.Errorf("the manager is not judged in %s", s.ID)
+		}
 	}
 }

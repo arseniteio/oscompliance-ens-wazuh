@@ -25,7 +25,7 @@ type Agents interface {
 
 type Scope interface {
 	Evaluable(agentID string) bool
-	Unresolved(agentID string) bool
+	Unresolved(agentID string) string
 	Excluded(controlID, agentID string) bool
 }
 
@@ -80,14 +80,14 @@ func Once(ctx context.Context, agentList Agents, controls []evaluator.Evaluator,
 		}
 		var unresolved []string
 		agents = slices.DeleteFunc(agents, func(a verdict.Agent) bool {
-			if scope.Unresolved(a.ID) {
-				unresolved = append(unresolved, a.ID)
+			if why := scope.Unresolved(a.ID); why != "" {
+				unresolved = append(unresolved, a.ID+" ("+why+")")
 				return true
 			}
 			return !scope.Evaluable(a.ID)
 		})
 		if len(unresolved) > 0 {
-			errs = append(errs, fmt.Errorf("scope: groups unknown, agents not judged: %s", strings.Join(unresolved, ",")))
+			errs = append(errs, fmt.Errorf("scope: agents not judged: %s", strings.Join(unresolved, ", ")))
 		}
 		excluded = scope.Excluded
 	}

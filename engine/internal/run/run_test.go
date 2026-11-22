@@ -153,7 +153,12 @@ type fakeScope struct {
 
 func (f fakeScope) Evaluable(id string) bool { return id != f.outside && id != f.unknown }
 
-func (f fakeScope) Unresolved(id string) bool { return id == f.unknown }
+func (f fakeScope) Unresolved(id string) string {
+	if id == f.unknown {
+		return "groups unknown"
+	}
+	return ""
+}
 
 func (f fakeScope) Excluded(_, id string) bool { return id == f.excluded }
 
