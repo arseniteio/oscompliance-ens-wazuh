@@ -1,6 +1,7 @@
 package scope
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/params"
@@ -103,6 +104,30 @@ func TestPartitionGivesEachMachineOneSystem(t *testing.T) {
 	for _, s := range systems {
 		if !p.Machines(s.ID).Evaluable(source.ManagerID) {
 			t.Errorf("the manager is not judged in %s", s.ID)
+		}
+	}
+}
+
+func TestPartitionReadsTheParametersOfTheMachineSystem(t *testing.T) {
+
+	config := func(mode string, groups []string, value string) *params.Config {
+		var c params.Config
+		doc := `{"scope": {"mode": "` + mode + `"}, "controls": [{"controlId": "op.acc.3", "parameters": [{"id": "P-03", "value": ["` + value + `"]}]}]}`
+		if err := json.Unmarshal([]byte(doc), &c); err != nil {
+			t.Fatal(err)
+		}
+		c.Scope.GroupIDs = groups
+		return &c
+	}
+	p := PartitionOf([]params.System{
+		{ID: "default", Config: config("all", nil, "production")},
+		{ID: "pilot", Config: config("group", []string{"pilot"}, "pilot")},
+	}, map[string]source.Reporting{"001": {Groups: []string{"ens"}}, "002": {Groups: []string{"pilot"}}})
+
+	for agent, want := range map[string]string{"001": "production", "002": "pilot", "009": "production"} {
+		rows, err := p.List(agent, "op.acc.3", "P-03")
+		if err != nil || len(rows) != 1 || rows[0] != want {
+			t.Errorf("agent %s: %v %v, want %s", agent, rows, err, want)
 		}
 	}
 }

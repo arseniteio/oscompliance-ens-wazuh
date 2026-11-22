@@ -45,6 +45,16 @@ func (p Partition) Owner(agentID string) (string, []string) {
 	return "", nil
 }
 
+func (p Partition) List(agentID, controlID, paramID string) ([]string, error) {
+	// The Wazuh group configuration of a machine follows the parameters of its system; a
+	// machine of no system, or of two, takes those of the default system.
+	config := p.systems[0].Config
+	if owner, _ := p.Owner(agentID); owner != "" {
+		config = p.Machines(owner).system.Config
+	}
+	return config.List(agentID, controlID, paramID)
+}
+
 func (p Partition) unresolved(agentID string) string {
 	if agentID == source.ManagerID {
 		return ""
