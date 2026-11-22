@@ -5,8 +5,6 @@ import (
 	"slices"
 	"strings"
 	"unicode"
-
-	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/params"
 )
 
 type Machine struct {
@@ -60,6 +58,10 @@ var windows = platform{
 	windows:            true,
 }
 
+type Policy interface {
+	List(agentID, controlID, paramID string) ([]string, error)
+}
+
 func platformOf(osPlatform string) platform {
 	if strings.EqualFold(strings.TrimSpace(osPlatform), "windows") {
 		return windows
@@ -67,11 +69,11 @@ func platformOf(osPlatform string) platform {
 	return linux
 }
 
-func ForAgent(policy params.Lister, agentID, agentName, osPlatform string) Machine {
+func ForAgent(policy Policy, agentID, agentName, osPlatform string) Machine {
 
 	pl := platformOf(osPlatform)
 	m := Machine{Windows: pl.windows}
-	cells := func(policy params.Lister, agentID, controlID, paramID string, column int) []string {
+	cells := func(policy Policy, agentID, controlID, paramID string, column int) []string {
 		return pl.cells(policy, agentID, controlID, paramID, column)
 	}
 
@@ -135,7 +137,7 @@ func ForAgent(policy params.Lister, agentID, agentName, osPlatform string) Machi
 	return m
 }
 
-func (pl platform) indicators(policy params.Lister, agentID string) []string {
+func (pl platform) indicators(policy Policy, agentID string) []string {
 
 	rows, err := policy.List(agentID, "op.acc.3", "P-03")
 	if err != nil {
@@ -153,14 +155,14 @@ func (pl platform) indicators(policy params.Lister, agentID string) []string {
 	return out
 }
 
-func (pl platform) backupSources(policy params.Lister, agentID string) []string {
+func (pl platform) backupSources(policy Policy, agentID string) []string {
 	if pl.windows {
 		return append(pl.cells(policy, agentID, "op.exp.3", "P-07", 1), pl.cells(policy, agentID, "mp.info.6", "P-04", 1)...)
 	}
 	return append(Sources(policy, agentID, "op.exp.3", "P-07"), Sources(policy, agentID, "mp.info.6", "P-04")...)
 }
 
-func Sources(policy params.Lister, agentID, controlID, paramID string) []string {
+func Sources(policy Policy, agentID, controlID, paramID string) []string {
 
 	rows, err := policy.List(agentID, controlID, paramID)
 	if err != nil {
@@ -194,7 +196,7 @@ func (pl platform) isBinary(path string) bool {
 	return dir == "bin" || dir == "sbin"
 }
 
-func (pl platform) cells(policy params.Lister, agentID, controlID, paramID string, column int) []string {
+func (pl platform) cells(policy Policy, agentID, controlID, paramID string, column int) []string {
 
 	rows, err := policy.List(agentID, controlID, paramID)
 	if err != nil {

@@ -7,7 +7,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/params"
 	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/wazuhapi"
 )
 
@@ -26,7 +25,7 @@ type Change struct {
 	Agents  int       `json:"agents"`
 }
 
-func Sync(ctx context.Context, api API, policy params.Lister, groups []string, apply bool, now time.Time) ([]Change, error) {
+func Sync(ctx context.Context, api API, policy Policy, groups []string, apply bool, now time.Time) ([]Change, error) {
 
 	var changes []Change
 	var errs []error
@@ -47,7 +46,7 @@ func Sync(ctx context.Context, api API, policy params.Lister, groups []string, a
 	return changes, errors.Join(errs...)
 }
 
-func syncGroup(ctx context.Context, api API, policy params.Lister, group string, seen map[string]bool, apply bool, now time.Time) (*Change, error) {
+func syncGroup(ctx context.Context, api API, policy Policy, group string, seen map[string]bool, apply bool, now time.Time) (*Change, error) {
 
 	members, err := api.GroupAgents(ctx, group)
 	if err != nil {
