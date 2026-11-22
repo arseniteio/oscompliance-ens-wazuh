@@ -16,6 +16,9 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - An attested requirement carries the links of its attestation in `reason_args.links`.
 - op.acc.1 EV-04, EV-07 and EV-08, op.exp.2 EV-03 and EV-06 and op.exp.10 EV-02, EV-07 and EV-08 count their items.
 
+- An installation can hold several ENS systems. The `ACTIVE_CONFIGURATION` document is the `default` system and each `SYSTEM_CONFIGURATION` document another one; the engine judges each system in its own pass, gives each machine one system and judges the manager in all of them.
+- Verdicts carry `system`. The document ids of the `default` system do not change.
+
 ### Changed
 
 - A control is judged by its CMM level: COMPLIANT when its level reaches the one its level requires (L2 BÁSICO, L3 MEDIO, L4 ALTO), PARTIAL below it, NON_COMPLIANT at 0 %. Before, only a control with every requirement met was COMPLIANT.
@@ -26,6 +29,8 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - A control applies at the highest declared level of its dimensions, as in the plugin, instead of the system category alone.
 - Count placeholders take a singular and a plural noun (`{count#copia|copias}`), so reasons read "1 inicio de sesión" and "3 inicios de sesión".
 - 100 reasons are rewritten in plain words: no internal fact names, configuration keys or run ids. Collection gaps name the fact type by its label, such as "el inventario de cuentas".
+
+- op.mon.3 P-03 and op.exp.8 P-12 take a value per machine, with the organisation value as the fallback.
 
 ### Fixed
 
