@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	"github.com/arseniteio/oscompliance-ens-wazuh/engine/internal/evaluator"
@@ -56,5 +57,22 @@ func TestCatalogControlsAreTheJudgedOnes(t *testing.T) {
 
 	if len(got) != 1 || got[0].Control != "op.acc.1" {
 		t.Errorf("got %v", got)
+	}
+}
+
+func TestScopeGroupsNamesEachGroupOnce(t *testing.T) {
+
+	system := func(id string, groups ...string) params.System {
+		c := &params.Config{}
+		c.Scope.Mode, c.Scope.GroupIDs = "group", groups
+		return params.System{ID: id, Config: c}
+	}
+	all := &params.Config{}
+	all.Scope.Mode = "all"
+
+	got := scopeGroups([]params.System{{ID: "default", Config: all}, system("pilot", "pilot", "shared"), system("lab", "lab", "shared")})
+
+	if !slices.Equal(got, []string{"lab", "pilot", "shared"}) {
+		t.Errorf("groups %v", got)
 	}
 }

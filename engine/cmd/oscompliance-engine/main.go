@@ -6,8 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"maps"
 	"os"
 	"os/signal"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -205,18 +207,8 @@ func runMain() error {
 		groups.controls = catalogControls(controls)
 	}
 
-	var current *params.Config
 	cfg := run.Config{
 		Window: *window, Lookback: *lookback, EngineVersion: version,
-		Scope: func(ctx context.Context, since time.Time) (run.Scope, error) {
-			memberships, err := groupMemberships(ctx, facts, api, since)
-			if err != nil {
-				return nil, err
-			}
-			machines := scope.MachinesOf(current, memberships)
-			facts.UseExclusions(machines.Excluded)
-			return machines, nil
-		},
 		Plan: func(agents []verdict.Agent) {
 			facts.Plan(agents)
 			hist.Plan(agents)
@@ -227,36 +219,17 @@ func runMain() error {
 		},
 	}
 
+	var known []params.System
 	for {
 
-		var policy params.Lister
-		loaded, err := params.Load(ctx, client, *configIndex)
-		if errors.Is(err, params.ErrNotSaved) {
-			slog.Info("parameters", "using", "catalog default", "reason", err.Error())
-			loaded, err = params.Default(), nil
-		}
-		if err != nil {
-			slog.Warn("parameters", "error", err)
-			policy = params.Unavailable(err)
+		systems, loadErr := loadSystems(ctx, client, *configIndex, facts, profiles, time.Now().Add(-*lookback))
+		if loadErr != nil {
+			slog.Warn("parameters", "error", loadErr)
 		} else {
-			if platforms, err := facts.Platforms(ctx, time.Now().Add(-*lookback)); err != nil {
-				slog.Warn("inventory platforms", "error", err)
-			} else {
-				loaded.UseInventoryTypes(platforms)
-			}
-			custom, err := params.LoadProfiles(ctx, client, *configIndex)
-			if err != nil {
-				slog.Warn("profiles", "error", err)
-			}
-			loaded.UseProfiles(custom)
-			loaded.UseHostFacts(profileHosts(ctx, facts, profiles, time.Now().Add(-*lookback)))
-			policy, current = loaded, loaded
-			cfg.Assessments = loaded.Maturity.Assessments
-			cfg.Scales = loaded.Maturity.Scales
-			groups.run(ctx, loaded, time.Now())
+			known = systems
 		}
 
-		if current == nil {
+		if known == nil {
 			slog.Error("pass", "error", "the ENS scope has never been read: nothing to judge yet")
 			if *interval == 0 {
 				return errors.New("the ENS scope could not be read")
@@ -269,14 +242,15 @@ func runMain() error {
 			continue
 		}
 
-		start, before := time.Now(), client.Requests()
-		n, err := run.Once(ctx, facts, controls, policy, sink, cfg, time.Now())
-		took, requests := time.Since(start).Round(time.Millisecond), client.Requests()-before
-		if err != nil {
-			slog.Error("pass", "verdicts", n, "seconds", took.Seconds(), "requests", requests, "error", err)
-		} else {
-			slog.Info("pass", "verdicts", n, "seconds", took.Seconds(), "requests", requests)
+		if loadErr == nil && groups != nil {
+			memberships, err := groupMemberships(ctx, facts, api, time.Now().Add(-*lookback))
+			if err != nil {
+				slog.Warn("group configuration", "error", err)
+			}
+			groups.run(ctx, known, scope.PartitionOf(known, memberships), time.Now())
 		}
+
+		err := judgeSystems(ctx, client, known, loadErr, facts, api, controls, sink, cfg)
 
 		if *interval == 0 {
 			return err
@@ -288,6 +262,80 @@ func runMain() error {
 		case <-time.After(*interval):
 		}
 	}
+}
+
+func loadSystems(ctx context.Context, client *indexer.Client, index string, facts *source.Source, profiles *store.HostProfiles, since time.Time) ([]params.System, error) {
+
+	systems, problems, err := params.LoadSystems(ctx, client, index)
+	for _, p := range problems {
+		slog.Error("ENS system", "error", p)
+	}
+	if errors.Is(err, params.ErrNotSaved) {
+		slog.Info("parameters", "using", "catalog default", "reason", err.Error())
+		err = nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	platforms, err := facts.Platforms(ctx, since)
+	if err != nil {
+		slog.Warn("inventory platforms", "error", err)
+	}
+	custom, err := params.LoadProfiles(ctx, client, index)
+	if err != nil {
+		slog.Warn("profiles", "error", err)
+	}
+	hosts := profileHosts(ctx, facts, profiles, since)
+
+	for _, s := range systems {
+		if platforms != nil {
+			s.Config.UseInventoryTypes(platforms)
+		}
+		s.Config.UseProfiles(custom)
+		s.Config.UseHostFacts(hosts)
+	}
+	return systems, nil
+}
+
+func judgeSystems(ctx context.Context, client *indexer.Client, systems []params.System, loadErr error, facts *source.Source, api *wazuhapi.Client, controls []evaluator.Evaluator, sink *store.Verdicts, base run.Config) error {
+
+	memberships, err := groupMemberships(ctx, facts, api, time.Now().Add(-base.Lookback))
+	if err != nil {
+		err = fmt.Errorf("scope: %w", err)
+		slog.Error("pass", "verdicts", 0, "error", err)
+		return err
+	}
+	partition := scope.PartitionOf(systems, memberships)
+
+	var errs []error
+	for _, s := range systems {
+
+		var policy params.Lister = s.Config
+		if loadErr != nil {
+			policy = params.Unavailable(loadErr)
+		}
+
+		cfg := base
+		cfg.System, cfg.Assessments, cfg.Scales = s.ID, s.Config.Maturity.Assessments, s.Config.Maturity.Scales
+		cfg.Scope = func(context.Context, time.Time) (run.Scope, error) {
+			machines := partition.Machines(s.ID)
+			facts.UseExclusions(machines.Excluded)
+			return machines, nil
+		}
+
+		start, before := time.Now(), client.Requests()
+		n, err := run.Once(ctx, facts, controls, policy, sink, cfg, time.Now())
+		took, requests := time.Since(start).Round(time.Millisecond), client.Requests()-before
+		if err != nil {
+			slog.Error("pass", "system", s.ID, "verdicts", n, "seconds", took.Seconds(), "requests", requests, "error", err)
+			errs = append(errs, fmt.Errorf("system %s: %w", s.ID, err))
+			continue
+		}
+		slog.Info("pass", "system", s.ID, "verdicts", n, "seconds", took.Seconds(), "requests", requests)
+	}
+
+	return errors.Join(errs...)
 }
 
 func selectControls(all []evaluator.Evaluator, names string) ([]evaluator.Evaluator, error) {
@@ -336,19 +384,19 @@ type groupSync struct {
 	last     time.Time
 }
 
-func (g *groupSync) run(ctx context.Context, policy *params.Config, now time.Time) {
+func (g *groupSync) run(ctx context.Context, systems []params.System, partition scope.Partition, now time.Time) {
 
 	if g == nil || now.Sub(g.last) < g.every {
 		return
 	}
 	g.last = now
 
-	if policy.Scope.ControlGroups {
+	if slices.ContainsFunc(systems, func(s params.System) bool { return s.Config.Scope.ControlGroups }) {
 		changes, err := groupconf.CreateExclusionGroups(ctx, g.api, g.controls, g.apply, now)
 		g.record(ctx, changes, err)
 	}
 
-	groups := policy.Groups()
+	groups := scopeGroups(systems)
 	if len(groups) == 0 {
 		slog.Warn("group configuration", "error", "the ENS scope names no Wazuh group: the engine only configures a scope by group")
 		return
@@ -367,13 +415,29 @@ func (g *groupSync) run(ctx context.Context, policy *params.Config, now time.Tim
 		}
 	}
 
-	changes, err = groupconf.Sync(ctx, g.api, policy, groups, g.apply, now)
+	changes, err = groupconf.Sync(ctx, g.api, partition, groups, g.apply, now)
 	g.record(ctx, changes, err)
 
-	if g.profiles && policy.KnowsHosts() {
-		changes, err = groupconf.PublishProfiles(ctx, g.api, policy.ProfileMembers(), g.apply, now)
+	if hosts := systems[0].Config; g.profiles && hosts.KnowsHosts() {
+		changes, err = groupconf.PublishProfiles(ctx, g.api, hosts.ProfileMembers(), g.apply, now)
 		g.record(ctx, changes, err)
 	}
+}
+
+func scopeGroups(systems []params.System) []string {
+
+	owners := map[string]string{}
+	for _, s := range systems {
+		for _, group := range s.Config.Groups() {
+			if owner, taken := owners[group]; taken && owner != s.ID {
+				slog.Error("ENS system", "error", "two systems name the same scope group: its machines are not judged", "group", group, "systems", []string{owner, s.ID})
+				continue
+			}
+			owners[group] = s.ID
+		}
+	}
+
+	return slices.Sorted(maps.Keys(owners))
 }
 
 // The Wazuh API answers with the groups an agent is in now; the monitoring
