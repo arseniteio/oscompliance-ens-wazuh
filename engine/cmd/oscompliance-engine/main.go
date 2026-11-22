@@ -243,11 +243,13 @@ func runMain() error {
 		}
 
 		if loadErr == nil && groups != nil {
-			memberships, err := groupMemberships(ctx, facts, api, time.Now().Add(-*lookback))
-			if err != nil {
-				slog.Warn("group configuration", "error", err)
+			// Without the memberships the engine cannot tell which system's parameters a
+			// machine's group configuration follows, so it leaves the groups alone this pass.
+			if memberships, err := groupMemberships(ctx, facts, api, time.Now().Add(-*lookback)); err != nil {
+				slog.Error("group configuration", "error", err)
+			} else {
+				groups.run(ctx, known, scope.PartitionOf(known, memberships), time.Now())
 			}
-			groups.run(ctx, known, scope.PartitionOf(known, memberships), time.Now())
 		}
 
 		err := judgeSystems(ctx, client, known, loadErr, facts, api, controls, sink, cfg)
