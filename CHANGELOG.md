@@ -8,38 +8,25 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 ### Added
 
-- `catalog/maturity.json` holds the CCN maturity table (percentages and meanings from a CCN auditor, CCN-STIC 808 minimum per category) and the cases both the engine and Power ENS test their rule against.
-- Control verdicts carry `compliance`: percentage, CMM level, required level and category.
-
-- Verdicts carry `tally` when a judgement counts items: mp.info.6 EV-01, EV-02 and EV-03 count copies, and the `organization` verdict of each judged control counts the machines whose control is COMPLIANT.
-- `configuration.maturity.scales` maps a tally percentage to a level L0 to L5, per control or per machine. No scale ships with the engine.
-- The engine reads `BÁSICO` as the system category of rank 1.
-- `configuration.levelAdjustments` lowers the level of a control, for all machines or for one, with a required reason.
-- An attested requirement carries the links of its attestation in `reason_args.links`.
-- op.acc.1 EV-04, EV-07 and EV-08, op.exp.2 EV-03 and EV-06 and op.exp.10 EV-02, EV-07 and EV-08 count their items.
-
-- An installation can hold several ENS systems. The `ACTIVE_CONFIGURATION` document is the `default` system and each `SYSTEM_CONFIGURATION` document another one; the engine judges each system in its own pass, gives each machine one system and judges the manager in all of them.
-- Verdicts carry `system`. The document ids of the `default` system do not change.
+- Several ENS systems per installation. Each system has its own category, scope, parameters and maturity, and the engine judges each one in its own pass. A machine belongs to one system; the manager is judged in all of them. Verdicts record the system they belong to. An installation without additional systems is judged exactly as before.
+- Maturity-based judgement with the CCN auditor table. Controls and evidences that count items reach a CMM level from their percentage, and comply when that level meets the one the system category requires: L2 for "BÁSICO", L3 for "MEDIO" and L4 for "ALTO". The scale can be replaced per control or per machine.
+- Level adjustments: a control can be judged at a lower level, for every machine or for one, with a mandatory reason.
+- Evidences that count copies, accounts or machines report how many comply out of the total.
+- Attested requirements carry the links of their attestation.
 
 ### Changed
 
-- A control is judged by its CMM level: COMPLIANT when its level reaches the one its level requires (L2 BÁSICO, L3 MEDIO, L4 ALTO), PARTIAL below it, NON_COMPLIANT at 0 %. Before, only a control with every requirement met was COMPLIANT.
-- A NOT_EVALUABLE reason caused by CONFIGURATION names the machine, the parameter and its value in force and origin, or that it has no value.
-- Out-of-level reasons speak of the system category, BÁSICO, MEDIO or ALTO.
-- A counted evidence is COMPLIANT when its CMM level reaches the one its level asks for: L2 for BÁSICO, L3 for MEDIO, L4 for ALTO. The default scale is 20, 40, 60, 80 and 100 %.
-- A requirement whose evidences are all NOT_APPLICABLE is NOT_APPLICABLE instead of NON_COMPLIANT.
-- A control applies at the highest declared level of its dimensions, as in the plugin, instead of the system category alone.
-- Count placeholders take a singular and a plural noun (`{count#copia|copias}`), so reasons read "1 inicio de sesión" and "3 inicios de sesión".
-- 100 reasons are rewritten in plain words: no internal fact names, configuration keys or run ids. Collection gaps name the fact type by its label, such as "el inventario de cuentas".
-
-- op.mon.3 P-03 and op.exp.8 P-12 take a value per machine, with the organisation value as the fallback.
+- A control complies when it reaches the required maturity level, is partial below it and does not comply at 0 %. Before, a control complied only when every requirement was met.
+- A control applies at the highest level declared for its dimensions, as in Power ENS.
+- A requirement whose evidences do not apply is no longer reported as non-compliant.
+- Reasons are written in plain language. When a parameter is missing or wrong, the reason names the machine, the parameter and the value in force.
+- The silence tolerated before a machine counts as unmonitored can be set per machine.
 
 ### Fixed
 
-- With `-wazuh-api` the engine reads the scope groups of each agent from the Wazuh API at the start of every pass instead of the `wazuh-monitoring-*` sample, which can miss a group change made minutes before. A machine just added to `ens-excluir-<control>` was judged in that control.
-- When the scope or an exclusion depends on groups, an agent whose groups are unknown is not judged and the pass reports it. Before, it was judged as if it were in no exclusion group.
-- A group sync that the Wazuh API denies `group:create` stops at the first group with one error that names the permission and `engine-users.sh`, instead of one error per group.
-- The manager inventory is read from the Wazuh API once every five minutes and shared by every control, instead of once per control that asks for it.
+- A machine added to an exclusion group was still judged in that control for some minutes. With the Wazuh API the engine now reads group membership at the start of every pass, and it no longer judges a machine whose groups it cannot read.
+- When the engine user cannot create Wazuh groups, the group sync reports a single error that explains how to grant the permission.
+- Each pass makes fewer requests to the Wazuh manager API.
 
 ## [2.0.1] - 2026-11-19
 
