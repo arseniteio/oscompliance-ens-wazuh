@@ -29,8 +29,23 @@ var qemuPlaceholders = []string{"52:54:00:00:00:00", "52:54:00:00:00:01"}
 
 func ignored(flags, mac string) bool {
 	n, err := strconv.ParseUint(strings.TrimPrefix(flags, "0x"), 16, 32)
-	return err != nil || n&atfComplete == 0 || mac == unresolved || slices.Contains(qemuPlaceholders, mac) ||
+	return err != nil || n&atfComplete == 0 || NotAHost(mac)
+}
+
+// NotAHost tells a lowercase, colon-separated MAC that names no neighbour:
+// unresolved, broadcast, multicast or a QEMU placeholder.
+func NotAHost(mac string) bool {
+	return mac == unresolved || slices.Contains(qemuPlaceholders, mac) ||
 		mac == "ff:ff:ff:ff:ff:ff" || strings.HasPrefix(mac, "01:00:5e:") || strings.HasPrefix(mac, "33:33:")
+}
+
+func Sort(neighbours []fact.Neighbour) {
+	sort.Slice(neighbours, func(i, j int) bool {
+		if neighbours[i].IP != neighbours[j].IP {
+			return neighbours[i].IP < neighbours[j].IP
+		}
+		return neighbours[i].Interface < neighbours[j].Interface
+	})
 }
 
 func Collect(e *emit.Emitter, cfg Config) error {
@@ -66,11 +81,6 @@ func parse(table string) []fact.Neighbour {
 		out = append(out, fact.Neighbour{IP: ip, MAC: mac, Interface: device})
 	}
 
-	sort.Slice(out, func(i, j int) bool {
-		if out[i].IP != out[j].IP {
-			return out[i].IP < out[j].IP
-		}
-		return out[i].Interface < out[j].Interface
-	})
+	Sort(out)
 	return out
 }
