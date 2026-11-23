@@ -4,6 +4,10 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 ## [Unreleased]
 
+### Fixed
+
+- Windows facts now alert. Rule 119007 anchored its location at the start, and analysisd matches agent events against the agent name and address followed by the path, so the rule only matched in `wazuh-logtest`.
+
 ## [2.1.0] - 2026-11-22
 
 ### Added

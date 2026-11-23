@@ -1,6 +1,10 @@
 <!--
   Range 119000-119099. The location conditions keep out lines a local user
   could write to syslog or journald to forge a fact or a service event.
+  Never anchor a location with ^: for agent events analysisd matches it
+  against the agent name and address followed by the path, while
+  wazuh-logtest passes the bare path, so an anchored rule passes logtest and
+  never fires on a real agent.
 -->
 <group name="oscompliance,">
 
@@ -13,7 +17,7 @@
 
   <rule id="119007" level="0">
     <decoded_as>json</decoded_as>
-    <location type="pcre2">^C:\\ProgramData\\oscompliance\\facts\.ndjson$</location>
+    <location type="pcre2">C:\\ProgramData\\oscompliance\\facts\.ndjson$</location>
     <field name="oscompliance" type="pcre2">^1$</field>
     <description>OSCompliance fact envelope v1 from a Windows agent</description>
   </rule>
