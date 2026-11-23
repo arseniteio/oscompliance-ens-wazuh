@@ -10,6 +10,7 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - The `umask_snapshot` fact leaves out the sources read without any declaration. On a host with many `/etc/profile.d` scripts the line had more fields than the Wazuh JSON decoder accepts.
 - The Windows `config` collector reads the `secedit` export as plain lines. Windows PowerShell wrote each line as an object, and the account policy and user rights could not be read.
 - On a domain controller the `identity` and `groups` collectors query that controller by name instead of locating one through DNS, so they work when the domain SRV records are missing.
+- The Windows `listening` collector leaves out UDP sockets in the dynamic port range. They are client sockets, and the DNS server of a domain controller opened enough of them to fill the facts file and the Wazuh agent buffer.
 
 ## [2.1.0] - 2026-11-22
 

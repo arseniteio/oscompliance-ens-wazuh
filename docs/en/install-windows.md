@@ -59,7 +59,7 @@ The last command runs one collector and writes its fact at once.
 | `transactions` | package_transaction, transaction_snapshot | Windows Update history |
 | `packages` | package_selection | installed programs from the Uninstall registry keys and installed server features |
 | `units` | unit_snapshot | running services and automatic services that stopped with an error |
-| `listening` | listening_socket, listening_snapshot | listening TCP and UDP endpoints, their process and service |
+| `listening` | listening_socket, listening_snapshot | listening TCP endpoints and UDP endpoints outside the dynamic port range, their process and service |
 | `wazuh` | wazuh_agent_config | ossec.conf and the shared agent.conf |
 | `acl` | acl_record, acl_snapshot | owner and access rules of the `acl_paths` |
 | `audit` | audit_watch_snapshot | adds and removes the SACL entries of the read and change watches |
