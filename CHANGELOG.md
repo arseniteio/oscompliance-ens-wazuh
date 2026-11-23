@@ -7,6 +7,7 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 ### Fixed
 
 - Windows facts now alert. Rule 119007 anchored its location at the start, and analysisd matches agent events against the agent name and address followed by the path, so the rule only matched in `wazuh-logtest`.
+- The `umask_snapshot` fact leaves out the sources read without any declaration. On a host with many `/etc/profile.d` scripts the line had more fields than the Wazuh JSON decoder accepts.
 
 ## [2.1.0] - 2026-11-22
 

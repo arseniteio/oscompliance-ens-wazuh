@@ -38,7 +38,9 @@ func Collect(e *emit.Emitter, cfg Config) error {
 	snapshot := fact.UmaskSnapshot{Envelope: e.Envelope(fact.UmaskSnapshotFact), Sources: []fact.UmaskSource{}}
 
 	for _, path := range paths {
-		snapshot.Sources = append(snapshot.Sources, readUmask(path))
+		if src := readUmask(path); !silent(src) {
+			snapshot.Sources = append(snapshot.Sources, src)
+		}
 	}
 
 	return e.Emit(snapshot)
@@ -91,6 +93,13 @@ func readUmask(path string) fact.UmaskSource {
 	}
 
 	return src
+}
+
+// silent tells a file that was read and declares nothing. The engine has no use
+// for it, and on a host with many /etc/profile.d scripts it pushed the line
+// past the number of fields the Wazuh JSON decoder accepts.
+func silent(src fact.UmaskSource) bool {
+	return src.Status == fact.SourceRead && len(src.Umasks) == 0 && len(src.Uninterpretable) == 0
 }
 
 func leftPad(s string, n int) string {

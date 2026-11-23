@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/arseniteio/oscompliance-ens-wazuh/catalog/schemas/facts/umask_snapshot.v1.json",
   "title": "umask_snapshot v1",
-  "description": "The umask declared by every system-wide shell and login source, read in one pass. The engine takes the least restrictive declaration and compares it bit by bit with P-07.",
+  "description": "The umask declared by every system-wide shell and login source, read in one pass. The engine takes the least restrictive declaration and compares it bit by bit with P-07. A source read without any declaration is left out.",
   "type": "object",
   "required": [
     "sources"

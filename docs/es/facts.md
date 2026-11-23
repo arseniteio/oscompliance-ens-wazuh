@@ -550,7 +550,7 @@ La lectura del historial de apt detrás de los registros package_transaction de 
 
 ### umask_snapshot
 
-La umask declarada por cada fuente de shell e inicio de sesión de todo el sistema, leída en una pasada. El motor toma la declaración menos restrictiva y la compara bit a bit con P-07.
+La umask declarada por cada fuente de shell e inicio de sesión de todo el sistema, leída en una pasada. El motor toma la declaración menos restrictiva y la compara bit a bit con P-07. Una fuente leída sin ninguna declaración no se incluye.
 
 | Campo | Tipo | Significado |
 |---|---|---|

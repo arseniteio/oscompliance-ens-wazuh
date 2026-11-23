@@ -553,7 +553,7 @@ The read of apt history behind the package_transaction records of a pass.
 
 ### umask_snapshot
 
-The umask declared by every system-wide shell and login source, read in one pass. The engine takes the least restrictive declaration and compares it bit by bit with P-07.
+The umask declared by every system-wide shell and login source, read in one pass. The engine takes the least restrictive declaration and compares it bit by bit with P-07. A source read without any declaration is left out.
 
 | Field | Type | Meaning |
 |---|---|---|
