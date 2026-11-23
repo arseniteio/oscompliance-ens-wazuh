@@ -1,7 +1,8 @@
 $dc = (Get-CimInstance Win32_OperatingSystem).ProductType -eq 2
 if ($dc) {
   Import-Module ActiveDirectory
-  $groups = @(Get-ADGroup -Filter * -ResultSetSize 5000 -Properties member | ForEach-Object {
+  # Ask this domain controller by name: the DC locator needs the domain SRV records, and a DC with broken DNS has none.
+  $groups = @(Get-ADGroup -Server $env:COMPUTERNAME -Filter * -ResultSetSize 5000 -Properties member | ForEach-Object {
     [ordered]@{ name = $_.SamAccountName; sid = $_.SID.Value; members = @($_.member | ForEach-Object { ($_ -split '(?<!\\),')[0] -replace '^CN=' }) } })
 } else {
   $computer = $env:COMPUTERNAME

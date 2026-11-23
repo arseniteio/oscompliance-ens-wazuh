@@ -9,6 +9,7 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - Windows facts now alert. Rule 119007 anchored its location at the start, and analysisd matches agent events against the agent name and address followed by the path, so the rule only matched in `wazuh-logtest`.
 - The `umask_snapshot` fact leaves out the sources read without any declaration. On a host with many `/etc/profile.d` scripts the line had more fields than the Wazuh JSON decoder accepts.
 - The Windows `config` collector reads the `secedit` export as plain lines. Windows PowerShell wrote each line as an object, and the account policy and user rights could not be read.
+- On a domain controller the `identity` and `groups` collectors query that controller by name instead of locating one through DNS, so they work when the domain SRV records are missing.
 
 ## [2.1.0] - 2026-11-22
 

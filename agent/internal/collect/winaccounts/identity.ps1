@@ -2,8 +2,9 @@ function Iso($d) { if ($d) { ([datetime]$d).ToUniversalTime().ToString('o') } }
 $dc = (Get-CimInstance Win32_OperatingSystem).ProductType -eq 2
 if ($dc) {
   Import-Module ActiveDirectory
-  $maxAge = (Get-ADDefaultDomainPasswordPolicy).MaxPasswordAge.TotalDays
-  $users = @(Get-ADUser -Filter * -ResultSetSize 20000 -Properties pwdLastSet,PasswordLastSet,PasswordNeverExpires,PasswordNotRequired,AccountExpirationDate,LastLogonDate | ForEach-Object {
+  # Ask this domain controller by name: the DC locator needs the domain SRV records, and a DC with broken DNS has none.
+  $maxAge = (Get-ADDefaultDomainPasswordPolicy -Server $env:COMPUTERNAME).MaxPasswordAge.TotalDays
+  $users = @(Get-ADUser -Server $env:COMPUTERNAME -Filter * -ResultSetSize 20000 -Properties pwdLastSet,PasswordLastSet,PasswordNeverExpires,PasswordNotRequired,AccountExpirationDate,LastLogonDate | ForEach-Object {
     $days = $null
     if (-not $_.PasswordNeverExpires -and $maxAge -gt 0) { $days = [int]$maxAge }
     [ordered]@{ name = $_.SamAccountName; sid = $_.SID.Value; enabled = $_.Enabled; password_last_set = (Iso $_.PasswordLastSet)
