@@ -33,7 +33,8 @@ try {
   $secedit = @()
   $seceditError = ''
   & "$env:SystemRoot\System32\secedit.exe" /export /cfg $inf /areas SECURITYPOLICY USER_RIGHTS /quiet | Out-Null
-  if ($LASTEXITCODE -eq 0) { $secedit = @(Get-Content -LiteralPath $inf -Encoding Unicode) } else { $seceditError = "secedit exit $LASTEXITCODE" }
+  # Get-Content tags each line with PSPath and friends, and Windows PowerShell's ConvertTo-Json writes such a line as an object.
+  if ($LASTEXITCODE -eq 0) { $secedit = @([IO.File]::ReadAllLines($inf, [Text.Encoding]::Unicode)) } else { $seceditError = "secedit exit $LASTEXITCODE" }
 
   $csv = Join-Path $dir 'audit.csv'
   $auditpol = @()
