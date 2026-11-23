@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/arseniteio/oscompliance-ens-wazuh/catalog/schemas/facts/neighbour_snapshot.v1.json",
   "title": "neighbour_snapshot v1",
-  "description": "The machine's IPv4 neighbour table (/proc/net/arp): the hosts it has talked to on its links. Entries still being resolved are left out.",
+  "description": "The machine's IPv4 neighbour table (/proc/net/arp, or Get-NetNeighbor on Windows): the hosts it has talked to on its links. Entries still being resolved are left out.",
   "type": "object",
   "required": [
     "status",

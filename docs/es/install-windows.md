@@ -60,6 +60,7 @@ El último comando ejecuta un colector y escribe su hecho al momento.
 | `packages` | package_selection | programas instalados según las claves Uninstall del registro y características de servidor instaladas |
 | `units` | unit_snapshot | servicios en ejecución y servicios automáticos que se pararon con error |
 | `listening` | listening_socket, listening_snapshot | puertos TCP en escucha y puertos UDP fuera del rango dinámico, su proceso y su servicio |
+| `neighbours` | neighbour_snapshot | tabla de vecinos IPv4 (`Get-NetNeighbor`), sin entradas sin resolver, de difusión, de multidifusión ni de relleno de QEMU |
 | `wazuh` | wazuh_agent_config | ossec.conf y el agent.conf compartido |
 | `acl` | acl_record, acl_snapshot | propietario y reglas de acceso de las `acl_paths` |
 | `audit` | audit_watch_snapshot | añade y quita las entradas SACL de las vigilancias de lectura y de cambio |

@@ -381,7 +381,7 @@ The machine's defences against malicious code: antimalware products and whether 
 
 ### neighbour_snapshot
 
-The machine's IPv4 neighbour table (/proc/net/arp): the hosts it has talked to on its links. Entries still being resolved are left out.
+The machine's IPv4 neighbour table (/proc/net/arp, or Get-NetNeighbor on Windows): the hosts it has talked to on its links. Entries still being resolved are left out.
 
 | Field | Type | Meaning |
 |---|---|---|

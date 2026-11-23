@@ -46,7 +46,7 @@ Se leen de `ossec.conf` y del `agent.conf` compartido, y prevalece el último, i
 
 ### `neighbour_snapshot`
 
-Uno por pasada, de `/proc/net/arp`: `neighbours` con `ip`, `mac` e `interface`, y `status` (`ok`, `unreadable`). Se excluyen las entradas incompletas (MAC `00:00:00:00:00:00`). Solo se emite cuando cambia.
+Uno por pasada, de `/proc/net/arp` (`Get-NetNeighbor` en Windows): `neighbours` con `ip`, `mac` e `interface`, y `status` (`ok`, `unreadable`). Se excluyen las entradas incompletas (MAC `00:00:00:00:00:00`). Solo se emite cuando cambia.
 
 ## Parámetros
 

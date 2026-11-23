@@ -55,7 +55,7 @@ Wazuh merges them.
 
 ### `neighbour_snapshot`
 
-One per pass, from `/proc/net/arp`: `neighbours` with `ip`, `mac` and
+One per pass, from `/proc/net/arp` (`Get-NetNeighbor` on Windows): `neighbours` with `ip`, `mac` and
 `interface`, and `status` (`ok`, `unreadable`). Incomplete entries (MAC
 `00:00:00:00:00:00`) are left out. Emitted only when it changes.
 

@@ -378,7 +378,7 @@ Las defensas de la máquina contra el código dañino: productos antimalware y s
 
 ### neighbour_snapshot
 
-La tabla de vecinos IPv4 de la máquina (/proc/net/arp): los hosts con los que se ha comunicado en sus enlaces. Se excluyen las entradas aún en resolución.
+La tabla de vecinos IPv4 de la máquina (/proc/net/arp, o Get-NetNeighbor en Windows): los hosts con los que se ha comunicado en sus enlaces. Se excluyen las entradas aún en resolución.
 
 | Campo | Tipo | Significado |
 |---|---|---|

@@ -15,6 +15,7 @@ import (
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/windefender"
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/windevice"
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/winfirewall"
+	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/winneighbours"
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/winpackages"
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/winpolicy"
 	"github.com/arseniteio/oscompliance-ens-wazuh/agent/internal/collect/winservices"
@@ -25,7 +26,7 @@ import (
 	"github.com/arseniteio/oscompliance-ens-wazuh/catalog/fact"
 )
 
-var allCollectors = []string{"identity", "groups", "config", "listening", "services", "wazuh", "acl", "audit", "firewall", "packages", "units", "updates", "transactions", "malware", "timesync", "device"}
+var allCollectors = []string{"identity", "groups", "config", "listening", "neighbours", "services", "wazuh", "acl", "audit", "firewall", "packages", "units", "updates", "transactions", "malware", "timesync", "device"}
 
 func collectorsFor(e *emit.Emitter, opts options) map[string]func() error {
 
@@ -39,6 +40,7 @@ func collectorsFor(e *emit.Emitter, opts options) map[string]func() error {
 		"groups":       func() error { return winaccounts.CollectGroups(e, run) },
 		"config":       func() error { return winpolicy.Collect(e, run) },
 		"listening":    func() error { return winservices.CollectListening(e, run) },
+		"neighbours":   func() error { return winneighbours.Collect(e, run) },
 		"units":        func() error { return winservices.CollectUnits(e, run) },
 		"packages":     func() error { return winpackages.Collect(e, run) },
 		"firewall":     func() error { return winfirewall.Collect(e, run) },

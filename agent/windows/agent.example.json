@@ -2,7 +2,7 @@
   "output": "C:\\ProgramData\\oscompliance\\facts.ndjson",
   "host": "",
   "state": "C:\\ProgramData\\oscompliance\\state\\state.json",
-  "collectors": ["identity", "groups", "config", "listening", "services", "wazuh", "acl", "audit", "firewall", "packages", "units", "updates", "transactions", "malware", "timesync", "device"],
+  "collectors": ["identity", "groups", "config", "listening", "neighbours", "services", "wazuh", "acl", "audit", "firewall", "packages", "units", "updates", "transactions", "malware", "timesync", "device"],
   "audit_read_limit": 60,
   "paths": {
     "wazuh_shared_conf": "C:\\Program Files (x86)\\ossec-agent\\shared\\agent.conf",
