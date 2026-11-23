@@ -83,11 +83,12 @@ func (s Scale) Level(percent int) int {
 
 type Scales []Scale
 
-// The CCN auditor table until the configuration sets another scale: 36 of 40 copies (90 %) is
-// L4, 60 % already meets MEDIO.
+// DefaultScale is the CCN auditor table until the configuration sets another scale: 36 of 40
+// copies (90 %) is L4, 60 % already meets MEDIO.
 var DefaultScale = Scale{Thresholds: catalog.Maturity().DefaultScale()}
 
-// CCN-STIC 808: a measure at L2 meets a BÁSICO system, L3 a MEDIO one and L4 an ALTO one.
+// Required is the level a measure needs per CCN-STIC 808: L2 for a BÁSICO system, L3 for a MEDIO
+// one and L4 for an ALTO one.
 func Required(level string) (int, bool) {
 	required, ok := catalog.Maturity().Required[level]
 	return required, ok
