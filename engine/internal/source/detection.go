@@ -78,22 +78,32 @@ func detectionOf(b json.RawMessage) (Detection, error) {
 	return d, nil
 }
 
+// Wazuh records every Windows event log as location "EventChannel"; the
+// channel, which is what the agent's localfile names, is in data.win.system.channel.
+const eventChannel = "EventChannel"
+
 func (s *Source) LocationDetections(ctx context.Context, since time.Time) (map[string]map[string]time.Time, error) {
 
 	filter := []any{map[string]any{"range": map[string]any{"timestamp": map[string]any{"gte": since.UTC().Format(time.RFC3339)}}}}
 	sub := map[string]any{"last": map[string]any{"max": map[string]any{"field": "timestamp"}}}
+	sources := []any{terms("a", "agent.id"), terms("l", "location"), terms("c", "data.win.system.channel")}
 
 	out := map[string]map[string]time.Time{}
-	err := s.composite(ctx, filter, []any{terms("a", "agent.id"), terms("l", "location")}, sub, func(key map[string]any, b json.RawMessage) error {
+	err := s.composite(ctx, filter, sources, sub, func(key map[string]any, b json.RawMessage) error {
 		d, err := detectionOf(b)
 		id, location := keyString(key, "a"), keyString(key, "l")
+		if channel := keyString(key, "c"); location == eventChannel && channel != "" {
+			location = channel
+		}
 		if err != nil || id == "" || location == "" {
 			return err
 		}
 		if out[id] == nil {
 			out[id] = map[string]time.Time{}
 		}
-		out[id][location] = d.Last
+		if d.Last.After(out[id][location]) {
+			out[id][location] = d.Last
+		}
 		return nil
 	})
 	return out, err

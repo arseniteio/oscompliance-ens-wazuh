@@ -28,7 +28,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.7.3. Definición: [`catalog/con
 | API de Wazuh ([op.mon.1](op.mon.1.md)) | procesos, reglas, `global`, `alerts`, `integration`, `vulnerability-detection` | EV-01, EV-03, EV-04, EV-08, EV-09, EV-11 |
 | `wazuh-monitoring-*` | último keepalive | EV-01 |
 | hecho `wazuh_agent_config` | localfiles, SCA activado | EV-02, EV-04, EV-10 |
-| alertas por `location` | evento más reciente de cada registro de cada máquina, una semana atrás | EV-02 |
+| alertas por `location` | evento más reciente de cada registro de cada máquina, una semana atrás; un registro de eventos de Windows por su canal (`data.win.system.channel`) | EV-02 |
 | alertas de los grupos de detección de red ([op.mon.1](op.mon.1.md)) | | EV-06 |
 | alertas de resumen de SCA ([op.exp.2](op.exp.2.md)) | políticas con resultado | EV-04, EV-10 |
 | hecho `wazuh_agent_config` del manager ([op.exp.8](op.exp.8.md)) | listas CDB y cuándo cambiaron | EV-07 |

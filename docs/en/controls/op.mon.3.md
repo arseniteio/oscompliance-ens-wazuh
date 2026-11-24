@@ -32,7 +32,7 @@ Levels: BAJO, MEDIO, ALTO. Annex II section 4.7.3. Definition: [`catalog/control
 | Wazuh API ([op.mon.1](op.mon.1.md)) | processes, rules, `global`, `alerts`, `integration`, `vulnerability-detection` | EV-01, EV-03, EV-04, EV-08, EV-09, EV-11 |
 | `wazuh-monitoring-*` | last keepalive | EV-01 |
 | `wazuh_agent_config` fact | localfiles, SCA enabled | EV-02, EV-04, EV-10 |
-| alerts by `location` | newest event of each log of each machine, a week back | EV-02 |
+| alerts by `location` | newest event of each log of each machine, a week back; a Windows event log by its channel (`data.win.system.channel`) | EV-02 |
 | alerts in network detection groups ([op.mon.1](op.mon.1.md)) | | EV-06 |
 | SCA summary alerts ([op.exp.2](op.exp.2.md)) | policies with a result | EV-04, EV-10 |
 | `wazuh_agent_config` fact of the manager ([op.exp.8](op.exp.8.md)) | CDB lists and when they changed | EV-07 |

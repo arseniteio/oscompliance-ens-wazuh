@@ -15,6 +15,7 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 - The Windows `config` collector reads the `secedit` export as plain lines. Windows PowerShell wrote each line as an object, and the account policy and user rights could not be read.
 - On a domain controller the `identity` and `groups` collectors query that controller by name instead of locating one through DNS, so they work when the domain SRV records are missing.
 - The Windows `listening` collector leaves out UDP sockets in the dynamic port range. They are client sockets, and the DNS server of a domain controller opened enough of them to fill the facts file and the Wazuh agent buffer.
+- op.mon.3 EV-02 recognises Windows event logs. Wazuh records them all as location `EventChannel`, so a source such as `Security` was reported silent while it sent events.
 
 ## [2.1.0] - 2026-11-22
 
