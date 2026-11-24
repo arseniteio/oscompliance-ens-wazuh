@@ -1,6 +1,6 @@
 # mp.eq.4 Otros dispositivos conectados a la red
 
-mp.eq.4 juzga los dispositivos que no admiten agente: cada dispositivo que una máquina ve a su lado debe estar inventariado o ser parte de la flota, sus flujos dentro de lo que su tipo puede hacer, sus registros llegando a Wazuh, y un borrado para los que guardan información.
+mp.eq.4 juzga los dispositivos que no admiten agente: cada dispositivo que un activo ve a su lado debe estar inventariado o ser parte de la flota, sus flujos dentro de lo que su tipo puede hacer, sus registros llegando a Wazuh, y un borrado para los que guardan información.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.3.4. Definición: [`catalog/controls/ens/mp.eq.4.json`](../../../catalog/controls/ens/mp.eq.4.json).
 
@@ -17,8 +17,8 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.3.4. Definición: [`catalog/con
 
 | Fuente | Contenido | Lo usa |
 |---|---|---|
-| hecho `neighbour_snapshot` ([op.exp.1](op.exp.1.md)) | la tabla de vecinos de la máquina | EV-01, EV-02 |
-| inventario de red ([mp.com.1](mp.com.1.md)) | direcciones de cada máquina de la flota | EV-02 |
+| hecho `neighbour_snapshot` ([op.exp.1](op.exp.1.md)) | la tabla de vecinos del activo | EV-01, EV-02 |
+| inventario de red ([mp.com.1](mp.com.1.md)) | direcciones de cada activo de la flota | EV-02 |
 | alertas de las fuentes de P-03 con flujos aceptados ([mp.com.1](mp.com.1.md)) | | EV-03 |
 | alertas de cada dispositivo de P-04 | horas con alertas, una semana atrás | EV-04 |
 
@@ -39,8 +39,8 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.3.4. Definición: [`catalog/con
 
 Los jueces están en `engine/internal/controls/ens/mpeq4`.
 
-- EV-01 descubrimiento. La tabla de vecinos de la máquina leída.
-- EV-02 inventario. Cada vecino coincide con un dispositivo de P-01 por MAC o dirección, o es una dirección de una máquina de la flota.
+- EV-01 descubrimiento. La tabla de vecinos del activo leída.
+- EV-02 inventario. Cada vecino coincide con un dispositivo de P-01 por MAC o dirección, o es una dirección de un activo de la flota.
 - EV-03 flujos. Cada flujo aceptado de las fuentes de P-03 con un dispositivo de P-01 en cualquier extremo está permitido para su `tipo` hacia el otro extremo. Sin fuentes: NOT_EVALUABLE.
 - EV-04 registros de dispositivos. Como EV-01 de mp.com.1 sobre los dispositivos de P-04 y P-06; ningún dispositivo en P-04: NON_COMPLIANT.
 - EV-08 borrado. Cada dispositivo de P-01 con `almacenamiento` sí tiene un `metodo` en P-05.

@@ -2,7 +2,7 @@
 
 ## Qué se ejecuta y cuándo
 
-Cada máquina auditada ejecuta una pasada del agente cada hora en el minuto 17, el barrido del sistema de ficheros cada día a las 03:23, limitado por `sweep_timeout` (15 minutos), y el control de volumen de lecturas cada 2 minutos. El motor ejecuta una pasada cada 15 minutos. Sincroniza la configuración de grupo como máximo cada 15 minutos, y solo cuando algo ha cambiado.
+Cada activo auditado ejecuta una pasada del agente cada hora en el minuto 17, el barrido del sistema de ficheros cada día a las 03:23, limitado por `sweep_timeout` (15 minutos), y el control de volumen de lecturas cada 2 minutos. El motor ejecuta una pasada cada 15 minutos. Sincroniza la configuración de grupo como máximo cada 15 minutos, y solo cuando algo ha cambiado.
 
 ## Registros del motor
 
@@ -23,9 +23,9 @@ journalctl -u oscompliance-engine -f
 
 `requests` debería crecer linealmente con la flota, unas 0,7 por agente. Una pasada que tarda varias veces lo habitual apunta al indexer: memoria, disco o una recolección de basura larga.
 
-## Comprobar una máquina
+## Comprobar un activo
 
-En la máquina:
+En el activo:
 
 ```bash
 tail -n 5 /var/log/oscompliance/facts.ndjson | jq -c '{fact, ts, status}'
@@ -49,15 +49,15 @@ agent.name:"web-01" and scope:evidence and status:NOT_EVALUABLE
 
 ## Resolución de problemas
 
-No hay alertas 119001 de una máquina. El agente de Wazuh no ha recibido el localfile de hechos o las reglas no están cargadas. Comprueba que `/var/ossec/etc/shared/agent.conf` de la máquina menciona `facts.ndjson` y ejecuta `wazuh-analysisd -t` en el manager. Si el fichero llegó después de la primera pasada, ejecuta `touch /var/log/oscompliance/facts.ndjson`, reinicia `wazuh-agent` y ejecuta `oscompliance-agent -full`.
+No hay alertas 119001 de un activo. El agente de Wazuh no ha recibido el localfile de hechos o las reglas no están cargadas. Comprueba que `/var/ossec/etc/shared/agent.conf` del activo menciona `facts.ndjson` y ejecuta `wazuh-analysisd -t` en el manager. Si el fichero llegó después de la primera pasada, ejecuta `touch /var/log/oscompliance/facts.ndjson`, reinicia `wazuh-agent` y ejecuta `oscompliance-agent -full`.
 
-Todo sale NOT_EVALUABLE por COLLECTION en una máquina. No ha habido ninguna pasada del agente en la ventana. Revisa `/etc/cron.d/oscompliance` y ejecuta el agente a mano para leer su error. Con SELinux en enforcing, ejecuta `restorecon` como en la guía de instalación.
+Todo sale NOT_EVALUABLE por COLLECTION en un activo. No ha habido ninguna pasada del agente en la ventana. Revisa `/etc/cron.d/oscompliance` y ejecuta el agente a mano para leer su error. Con SELinux en enforcing, ejecuta `restorecon` como en la guía de instalación.
 
 Las evidencias de inicio de sesión salen NOT_EVALUABLE por COLLECTION. El registro de autenticación no llega a Wazuh, así que no hay alerta 119002. Añade `/var/log/auth.log`, `/var/log/secure` o journald a los localfiles del agente, y después inicia sesión por SSH.
 
 EV-06 de op.acc.2, op.acc.3 o EV-07 de op.acc.4 salen NOT_EVALUABLE por COLLECTION. auditd está parado, sus vigilancias no están cargadas o no se lee el registro de auditoría. Instala auditd y comprueba `auditctl -l`. El bloque del motor en la configuración de grupo añade el localfile de auditoría.
 
-Las alertas 119004 con clave `oscompliance_read` inundan el indexador desde una máquina actualizada desde la 1.2.0 o anterior. Esas versiones cargaban vigilancias de lectura en todas las rutas auditadas, incluidos ficheros legibles por todos como /etc/group, Actualiza el agente: su siguiente pasada retira las vigilancias de lectura cargadas con -w, que no tienen filtro de auid, y toda vigilancia que la configuración de grupo ya no pide. La regla 119005 ya descarta en el manager las lecturas de los ficheros que lee todo proceso.
+Las alertas 119004 con clave `oscompliance_read` inundan el indexador desde un activo actualizado desde la 1.2.0 o anterior. Esas versiones cargaban vigilancias de lectura en todas las rutas auditadas, incluidos ficheros legibles por todos como /etc/group, Actualiza el agente: su siguiente pasada retira las vigilancias de lectura cargadas con -w, que no tienen filtro de auid, y toda vigilancia que la configuración de grupo ya no pide. La regla 119005 ya descarta en el manager las lecturas de los ficheros que lee todo proceso.
 
 `failed` de `audit_watch_snapshot` dice "a read watch would fill the disk". Una ruta de P-06 de op.acc.2, P-07 de op.acc.4 o P-02 de op.exp.10 es un fichero que lee todo proceso, o un directorio que contiene uno. Declara en su lugar el fichero o directorio concreto con los datos protegidos.
 
@@ -81,9 +81,9 @@ No se aplica la configuración de grupo. Falta `-sync-apply` o el alcance no nom
 
 El manager no tiene veredictos. El agente no está instalado en él o su `ossec.conf` no tiene el localfile de hechos. Consulta la [instalación, apartado 8](install.md#8-auditar-el-manager).
 
-Una máquina nueva no muestra nada. No está en el grupo ENS, o su primera pasada se ejecutó antes de recibir la configuración de grupo. Añádela al grupo y repite el [apartado 7 de la instalación](install.md#7-instalar-el-agente-en-las-máquinas-auditadas).
+Un activo nuevo no muestra nada. No está en el grupo ENS, o su primera pasada se ejecutó antes de recibir la configuración de grupo. Añádelo al grupo y repite el [apartado 7 de la instalación](install.md#7-instalar-el-agente-en-los-activos-auditados).
 
-Una máquina instalada con `--group` no entra en el grupo. El grupo no está en el alcance ENS, al motor le falta `group:modify_assignments` o `agent:modify_group`, o no hay ningún `agent_pass` con `requested_group` en la ventana. Las líneas `group configuration` y `group requests` del registro indican cuál. Tras actualizar desde 1.1.0, ejecuta de nuevo `engine-users.sh create` para añadir las dos acciones.
+Un activo instalado con `--group` no entra en el grupo. El grupo no está en el alcance ENS, al motor le falta `group:modify_assignments` o `agent:modify_group`, o no hay ningún `agent_pass` con `requested_group` en la ventana. Las líneas `group configuration` y `group requests` del registro indican cuál. Tras actualizar desde 1.1.0, ejecuta de nuevo `engine-users.sh create` para añadir las dos acciones.
 
 El agente de Wazuh registra el aviso 1958 para `facts.ndjson`. El fichero está declarado en `ossec.conf` y en la configuración de grupo. Wazuh lo lee una sola vez, y no hay que hacer nada.
 
@@ -91,9 +91,9 @@ Power ENS no aparece en el dashboard. En paquetes, lee la salida de `deploy-plug
 
 Docker no puede descargar imágenes. El host necesita acceso a Docker Hub. Si no lo tiene, descarga `wazuh/wazuh-dashboard` de tu versión y `alpine:3.20` desde una red con acceso, y pásalas con `docker save` y `docker load`.
 
-## Antes de instalar en una máquina
+## Antes de instalar en un activo
 
-`oscompliance-doctor` ([arseniteio/oscompliance-agent-doctor-ens](https://github.com/arseniteio/oscompliance-agent-doctor-ens)) comprueba una máquina antes y después de la instalación: que el agente de Wazuh está instalado, registrado, conectado y en el grupo ENS; que auditd, auditctl, cron, el socket de syslog y el log de autenticación están disponibles; y, con el agente instalado, su fichero de cron, sus directorios, su configuración y su última pasada. En el manager comprueba el localfile de hechos en `ossec.conf` en lugar del grupo. Termina con código 0 cuando la máquina está lista y con 1 y cada problema en caso contrario.
+`oscompliance-doctor` ([arseniteio/oscompliance-agent-doctor-ens](https://github.com/arseniteio/oscompliance-agent-doctor-ens)) comprueba un activo antes y después de la instalación: que el agente de Wazuh está instalado, registrado, conectado y en el grupo ENS; que auditd, auditctl, cron, el socket de syslog y el log de autenticación están disponibles; y, con el agente instalado, su fichero de cron, sus directorios, su configuración y su última pasada. En el manager comprueba el localfile de hechos en `ossec.conf` en lugar del grupo. Termina con código 0 cuando el activo está lista y con 1 y cada problema en caso contrario.
 
 ## Capacidad
 

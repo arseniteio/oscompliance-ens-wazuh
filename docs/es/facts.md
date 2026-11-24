@@ -1,6 +1,6 @@
 # Hechos
 
-Un hecho es una observación de una máquina, escrita por `oscompliance-agent` como una línea JSON en `/var/log/oscompliance/facts.ndjson`. Los hechos no llevan veredicto, ni identificador de evidencia, ni de requisito: el catálogo asocia hechos con evidencias y el motor los juzga.
+Un hecho es una observación de un activo, escrita por `oscompliance-agent` como una línea JSON en `/var/log/oscompliance/facts.ndjson`. Los hechos no llevan veredicto, ni identificador de evidencia, ni de requisito: el catálogo asocia hechos con evidencias y el motor los juzga.
 
 Esquemas: [`catalog/schemas/facts`](../../catalog/schemas/facts) (JSON Schema). Tipos Go: [`catalog/fact`](../../catalog/fact). Ejemplos: [`catalog/schemas/facts/examples`](../../catalog/schemas/facts/examples).
 
@@ -112,7 +112,7 @@ Resumen de una lectura de las rutas de la configuración de grupo, emitido despu
 | Campo | Tipo | Significado |
 |---|---|---|
 | `in_force` | lista | Un "fact:run_id" por colector: el hecho snapshot y la pasada que lo envió. |
-| `requested_group` | cadena | Grupo de Wazuh al que la máquina pide entrar, de `wazuh_group` en `agent.json`, que escribe `install.sh agent --group`. El motor añade el agente cuando el grupo está en el alcance ENS. No aparece si no se pide ningún grupo. |
+| `requested_group` | cadena | Grupo de Wazuh al que el activo pide entrar, de `wazuh_group` en `agent.json`, que escribe `install.sh agent --group`. El motor añade el agente cuando el grupo está en el alcance ENS. No aparece si no se pide ningún grupo. |
 
 ### audit_watch_snapshot
 
@@ -132,7 +132,7 @@ Las vigilancias de auditd que ha pedido el manager en la configuración de grupo
 
 ### auth_log_probe
 
-El agente ha escrito la línea "auth log probe <run_id>" en syslog con el nivel authpriv y la etiqueta oscompliance-agent, donde se escribe el registro de autenticación. Cuando la misma línea vuelve como alerta de Wazuh (regla 119002), el registro de autenticación de la máquina llega a Wazuh, haya iniciado sesión alguien o no.
+El agente ha escrito la línea "auth log probe <run_id>" en syslog con el nivel authpriv y la etiqueta oscompliance-agent, donde se escribe el registro de autenticación. Cuando la misma línea vuelve como alerta de Wazuh (regla 119002), el registro de autenticación del activo llega a Wazuh, haya iniciado sesión alguien o no.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -185,7 +185,7 @@ Resumen de una lectura de las fuentes de configuración, emitido después de sus
 
 ### device_security
 
-Cómo protege la máquina una sesión desatendida y su disco: chasis, bloqueo de pantalla de la sesión gráfica (dconf del sistema), tiempos de inactividad de los shells (TMOUT) y de logind (StopIdleSessionSec), cifrado del sistema de ficheros raíz y los servidores DNS que consulta la máquina (resolv.conf, los superiores de systemd-resolved), y su carga: la carga media de 15 minutos frente a sus CPU y la memoria en uso, en tramos del diez por ciento, y si las cookies SYN están activadas.
+Cómo protege el activo una sesión desatendida y su disco: chasis, bloqueo de pantalla de la sesión gráfica (dconf del sistema), tiempos de inactividad de los shells (TMOUT) y de logind (StopIdleSessionSec), cifrado del sistema de ficheros raíz y los servidores DNS que consulta el activo (resolv.conf, los superiores de systemd-resolved), y su carga: la carga media de 15 minutos frente a sus CPU y la memoria en uso, en tramos del diez por ciento, y si las cookies SYN están activadas.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -237,7 +237,7 @@ Un acceso auditado a una ruta vigilada en Windows, leído por `-guard-audit` del
 
 ### firewall_snapshot
 
-El filtro de paquetes de la máquina: sus cadenas base en los puntos input y forward y su política por defecto. Una máquina sin cadena base de entrada lo acepta todo.
+El filtro de paquetes del activo: sus cadenas base en los puntos input y forward y su política por defecto. Un activo sin cadena base de entrada lo acepta todo.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -338,19 +338,19 @@ Resumen de una lectura de los sockets en escucha, emitido después de sus regist
 |---|---|---|
 | `status` | `read`, `unreadable` | read; unreadable (no se ha podido leer /proc/net). |
 | `error` | cadena |  |
-| `addresses` | lista | Direcciones de las interfaces de la máquina, sin loopback: lo que exponen 0.0.0.0 y ::. |
+| `addresses` | lista | Direcciones de las interfaces del activo, sin loopback: lo que exponen 0.0.0.0 y ::. |
 | `processes_matched` | booleano | false cuando no se han podido asociar los sockets a procesos (el agente no es root). |
 | `systemd` | `read`, `absent`, `error` | read: se ha preguntado el estado de las unidades; absent: sin systemctl (contenedores, sistemas sin systemd); error. |
 | `records_emitted` | entero |  |
 
 ### listening_socket
 
-Un socket que acepta conexiones desde fuera de la máquina (sin loopback): TCP en LISTEN, o UDP enlazado sin otro extremo. Qué servicio es, y si cifra, lo decide el motor. Se emite antes del listening_snapshot del mismo run_id. Los nombres de campo evitan los objetos de la plantilla de alertas de Wazuh (data.port, data.process).
+Un socket que acepta conexiones desde fuera del activo (sin loopback): TCP en LISTEN, o UDP enlazado sin otro extremo. Qué servicio es, y si cifra, lo decide el motor. Se emite antes del listening_snapshot del mismo run_id. Los nombres de campo evitan los objetos de la plantilla de alertas de Wazuh (data.port, data.process).
 
 | Campo | Tipo | Significado |
 |---|---|---|
 | `protocol` | `tcp`, `udp` |  |
-| `local_address` | cadena | Dirección local tal como está enlazada: 0.0.0.0 o :: son todas las direcciones de la máquina (listening_snapshot.addresses). |
+| `local_address` | cadena | Dirección local tal como está enlazada: 0.0.0.0 o :: son todas las direcciones del activo (listening_snapshot.addresses). |
 | `local_port` | entero |  |
 | `process_id` | entero | Proceso que tiene el socket; ausente cuando no se ha podido asociar ninguno (sin root). |
 | `process_name` | cadena | Nombre del proceso (/proc/<pid>/comm). |
@@ -362,7 +362,7 @@ Un socket que acepta conexiones desde fuera de la máquina (sin loopback): TCP e
 
 ### malware_protection
 
-Las defensas de la máquina contra el código dañino: productos antimalware y si se ejecutan, firmas, ajustes y último análisis completo de ClamAV, fapolicyd, y los scripts de respuesta activa y YARA instalados.
+Las defensas del activo contra el código dañino: productos antimalware y si se ejecutan, firmas, ajustes y último análisis completo de ClamAV, fapolicyd, y los scripts de respuesta activa y YARA instalados.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -378,7 +378,7 @@ Las defensas de la máquina contra el código dañino: productos antimalware y s
 
 ### neighbour_snapshot
 
-La tabla de vecinos IPv4 de la máquina (/proc/net/arp, o Get-NetNeighbor en Windows): los hosts con los que se ha comunicado en sus enlaces. Se excluyen las entradas aún en resolución.
+La tabla de vecinos IPv4 del activo (/proc/net/arp, o Get-NetNeighbor en Windows): los hosts con los que se ha comunicado en sus enlaces. Se excluyen las entradas aún en resolución.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -422,7 +422,7 @@ Una regla de la pila de un servicio PAM, en orden de evaluación, con include, s
 | `type` | `auth`, `account`, `password`, `session` |  |
 | `control` | cadena | required, requisite, sufficient, optional o un bloque [value=action ...] tal como está escrito. |
 | `module` | cadena | Nombre del módulo sin ruta (pam_unix.so). |
-| `args` | lista | Los argumentos que juzgan los controles (deny, unlock_time, minlen, minclass, los créditos, dictcheck, remember, obscure, trust); los demás nunca salen de la máquina. |
+| `args` | lista | Los argumentos que juzgan los controles (deny, unlock_time, minlen, minclass, los créditos, dictcheck, remember, obscure, trust); los demás nunca salen del activo. |
 | `file` | cadena | Fichero en el que está escrita la regla (posiblemente uno incluido). |
 | `line` | entero |  |
 | `via` | lista | Cadena de includes desde el fichero del servicio, primero el más externo. |
@@ -470,7 +470,7 @@ Resumen de una lectura de los registros de servicios de usuarios externos declar
 
 ### snapshot_list
 
-Los snapshots de LVM, ZFS y Btrfs de la máquina y cuándo se hizo cada uno.
+Los snapshots de LVM, ZFS y Btrfs del activo y cuándo se hizo cada uno.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -525,7 +525,7 @@ Resumen de una lectura de la política de sudoers (/etc/sudoers y los ficheros q
 
 ### time_sync
 
-Cómo mantiene la máquina su reloj: chrony o systemd-timesyncd, si está sincronizado, su desfase, las fuentes en uso y si están autenticadas.
+Cómo mantiene el activo su reloj: chrony o systemd-timesyncd, si está sincronizado, su desfase, las fuentes en uso y si están autenticadas.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -558,7 +558,7 @@ La umask declarada por cada fuente de shell e inicio de sesión de todo el siste
 
 ### unit_snapshot
 
-Los servicios de systemd en marcha en la máquina y los fallidos. absent: la máquina no ejecuta systemd.
+Los servicios de systemd en marcha en el activo y los fallidos. absent: el activo no ejecuta systemd.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -582,7 +582,7 @@ Lo que apt actualizaría ahora (una simulación, sin descargas) y la hora de su 
 
 ### virtualization
 
-Si la máquina es virtual, según systemd-detect-virt, el firmware (DMI) o la marca de hipervisor de la CPU. Los contenedores no son máquinas virtuales.
+Si el activo es virtual, según systemd-detect-virt, el firmware (DMI) o la marca de hipervisor de la CPU. Los contenedores no son máquinas virtuales.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -596,7 +596,7 @@ Si la máquina es virtual, según systemd-detect-virt, el firmware (DMI) o la ma
 
 ### wazuh_agent_config
 
-Lo que el agente de Wazuh de la máquina está configurado para vigilar, según su ossec.conf y los bloques del agent.conf compartido que se le aplican: los directorios de FIM y los ficheros de registro que lee. El motor comprueba con él que un silencio de Wazuh es un silencio real.
+Lo que el agente de Wazuh del activo está configurado para vigilar, según su ossec.conf y los bloques del agent.conf compartido que se le aplican: los directorios de FIM y los ficheros de registro que lee. El motor comprueba con él que un silencio de Wazuh es un silencio real.
 
 | Campo | Tipo | Significado |
 |---|---|---|
@@ -615,7 +615,7 @@ Lo que el agente de Wazuh de la máquina está configurado para vigilar, según 
 | `syscheck_scan_on_start` | booleano | FIM analiza cuando arranca el agente (valor por defecto de Wazuh). |
 | `rootcheck_disabled` | booleano |  |
 | `integrations` | lista | Nombres de <integration> de este ossec.conf (en el manager: virustotal, slack...). |
-| `active_responses` | lista | Scripts de respuesta activa que el manager envía a esta máquina (shared/ar.conf), sin los reinicios. |
+| `active_responses` | lista | Scripts de respuesta activa que el manager envía a este activo (shared/ar.conf), sin los reinicios. |
 | `sealed_days` | lista | Días (AAAA-MM-DD) de los últimos 400 cuyo registro de alertas está firmado (.log.sum). Vacío fuera del manager. |
 | `lists` | lista | Listas CDB de etc/lists. Vacío fuera del manager. |
 | `ruleset_files` | entero | Ficheros de reglas de ruleset/rules. 0 fuera del manager. |

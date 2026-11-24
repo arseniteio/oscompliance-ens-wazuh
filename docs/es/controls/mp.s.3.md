@@ -1,6 +1,6 @@
 # mp.s.3 Protección de la navegación web
 
-mp.s.3 juzga el filtro de navegación por sus registros y las reglas detrás de cada una de sus funciones, los servidores DNS y el antimalware de cada máquina, cuánto tiempo se conservan los registros de navegación, y la concienciación de los usuarios y la formación de los administradores.
+mp.s.3 juzga el filtro de navegación por sus registros y las reglas detrás de cada una de sus funciones, los servidores DNS y el antimalware de cada activo, cuánto tiempo se conservan los registros de navegación, y la concienciación de los usuarios y la formación de los administradores.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.8.3. Definición: [`catalog/controls/ens/mp.s.3.json`](../../../catalog/controls/ens/mp.s.3.json).
 
@@ -48,7 +48,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.8.3. Definición: [`catalog/con
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/mps3`. El filtro y los registros son de la organización: se juzgan igual en todas las máquinas.
+Los jueces están en `engine/internal/controls/ens/mps3`. El filtro y los registros son de la organización: se juzgan igual en todos los activos.
 
 - EV-01 registros. Como EV-01 de mp.com.1 sobre las fuentes de P-02 y P-12.
 - EV-02 a EV-04, EV-10, EV-11 funciones del filtro. Como EV-04 de mp.com.3 para categorías, descargas y contenido activo, reputación, lista negra y evasión.

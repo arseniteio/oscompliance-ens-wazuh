@@ -77,11 +77,11 @@ Los jueces están en `engine/internal/controls/ens/opexp3`. Si falta una fuente,
 
 - EV-01 línea base mantenida. Cada resumen de las políticas de P-01 de op.exp.2 en los últimos P-12 días, y el más reciente, deben ser al menos P-05 de op.exp.2; si no, NON_COMPLIANT con el más bajo. Se aplica la actualidad de SCA de EV-01 de op.exp.2.
 - EV-02 quién edita. Cada escritura con éxito de la ventana bajo P-04 debe ser de una cuenta de P-03; si no, NON_COMPLIANT. Escrituras cuya cuenta no se puede nombrar: NOT_EVALUABLE por EVIDENCE. Ninguna, con la cadena completa: COMPLIANT.
-- EV-03 software no autorizado. Cada paquete recién instalado en la ventana que la máquina mantiene a petición debe estar en P-01; si no, NON_COMPLIANT. Las dependencias no se juzgan. En una máquina con dnf: NOT_EVALUABLE por COLLECTION, porque Wazuh no decodifica el paquete de una línea de yum o dnf.
+- EV-03 software no autorizado. Cada paquete recién instalado en la ventana que el activo mantiene a petición debe estar en P-01; si no, NON_COMPLIANT. Las dependencias no se juzgan. En un activo con dnf: NOT_EVALUABLE por COLLECTION, porque Wazuh no decodifica el paquete de una línea de yum o dnf.
 - EV-04 servicios autorizados. Cada unidad en marcha, y cada proceso en escucha fuera de una unidad, debe estar en P-02 (`getty@.service` cubre cualquier `getty@tty1.service`); si no, NON_COMPLIANT. Sin systemd solo se juzgan los procesos en escucha.
 - EV-05 ediciones autorizadas. Cada cambio de FIM de la ventana bajo P-04 debe estar cubierto por una solicitud aprobada de P-10 de op.exp.5 ([op.exp.5](op.exp.5.md)); si no, NON_COMPLIANT.
 - EV-06 reacción a vulnerabilidades. EV-02 de op.exp.4 con los plazos de P-01 de op.exp.4 ([op.exp.4](op.exp.4.md)).
-- EV-07 reacción a incidentes. EV-12 de op.exp.7 sobre el registro de P-13 de op.exp.7: cada incidente cerrado de la máquina registra sus medidas.
+- EV-07 reacción a incidentes. EV-12 de op.exp.7 sobre el registro de P-13 de op.exp.7: cada incidente cerrado del activo registra sus medidas.
 - EV-08 administradores. Las cuentas que han escrito bajo P-04 en la ventana deben ser como máximo P-09; si no, NON_COMPLIANT.
 - EV-09 copias de la configuración. La copia más reciente de cada fuente de P-07 debe quedar dentro de P-10 horas; si no, NON_COMPLIANT. Una fuente sin copia: NON_COMPLIANT.
 - EV-10 regresiones. Una comprobación que ha pasado de superada a fallada en los últimos P-12 días: NON_COMPLIANT con las comprobaciones. Ninguna: COMPLIANT.
@@ -89,4 +89,4 @@ Los jueces están en `engine/internal/controls/ens/opexp3`. Si falta una fuente,
 
 ## No se mide
 
-- Las instalaciones de paquetes en máquinas rpm para EV-03. Wazuh no decodifica `/var/log/dnf.rpm.log`, así que esas máquinas quedan NOT_EVALUABLE por COLLECTION.
+- Las instalaciones de paquetes en activos rpm para EV-03. Wazuh no decodifica `/var/log/dnf.rpm.log`, así que esas activos quedan NOT_EVALUABLE por COLLECTION.

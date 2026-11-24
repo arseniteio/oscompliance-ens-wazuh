@@ -1,6 +1,6 @@
 # op.cont.3 Pruebas periódicas
 
-op.cont.3 juzga las pruebas del plan de continuidad: que ejercitan los medios alternativos, que se hacen con la frecuencia prevista para cada tipo y escenario, que cada máquina participante volvió dentro de su RTO según la monitorización de Wazuh, y que se corrigen las deficiencias que revelan.
+op.cont.3 juzga las pruebas del plan de continuidad: que ejercitan los medios alternativos, que se hacen con la frecuencia prevista para cada tipo y escenario, que cada activo participante volvió dentro de su RTO según la monitorización de Wazuh, y que se corrigen las deficiencias que revelan.
 
 Niveles: ALTO. Anexo II, apartado 4.6.3. Definición: [`catalog/controls/ens/op.cont.3.json`](../../../catalog/controls/ens/op.cont.3.json).
 
@@ -36,8 +36,8 @@ Los jueces están en `engine/internal/controls/ens/opcont3`. Una prueba parcial 
 
 - EV-01 pruebas registradas. P-02 prevé una prueba parcial o un simulacro, y se ha hecho uno dentro de P-01 meses.
 - EV-02 periodicidad. La prueba más reciente, la más reciente de cada tipo de P-02 (con sus meses o P-01) y la de cada escenario de P-03, dentro de P-01 meses.
-- EV-03 medido. Registros de monitorización de la máquina en cada prueba parcial o simulacro del periodo en que participó; ninguno: NOT_EVALUABLE.
-- EV-04 RTO. En esas pruebas, el tramo más largo en que la máquina no estuvo `active`, desde `inicio` hasta un día después de `fin`, dentro de `rto_horas` más `tolerancia_min`, y la máquina activa al final. Una máquina que no participó en ninguna prueba: COMPLIANT.
+- EV-03 medido. Registros de monitorización del activo en cada prueba parcial o simulacro del periodo en que participó; ninguno: NOT_EVALUABLE.
+- EV-04 RTO. En esas pruebas, el tramo más largo en que el activo no estuvo `active`, desde `inicio` hasta un día después de `fin`, dentro de `rto_horas` más `tolerancia_min`, y el activo activa al final. Un activo que no participó en ninguna prueba: COMPLIANT.
 - EV-05 deficiencias. Ninguna deficiencia abierta pasada de `plazo` o más antigua que la prueba más reciente, y cada prueba con al menos sus `deficiencias` en P-05.
 
 ## No se mide

@@ -1,6 +1,6 @@
 # op.exp.8 Registro de la actividad
 
-op.exp.8 es donde Wazuh es el propio control: cada máquina mantiene un registro de auditoría con los campos mínimos y lo entrega sin huecos, los registros se revisan, el reloj está sincronizado, la retención y las copias del indexer coinciden con lo declarado, solo las cuentas autorizadas leen los registros y, en ALTA, el manager analiza y responde por sí mismo.
+op.exp.8 es donde Wazuh es el propio control: cada activo mantiene un registro de auditoría con los campos mínimos y lo entrega sin huecos, los registros se revisan, el reloj está sincronizado, la retención y las copias del indexer coinciden con lo declarado, solo las cuentas autorizadas leen los registros y, en ALTA, el manager analiza y responde por sí mismo.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.3.8. Definición: [`catalog/controls/ens/op.exp.8.json`](../../../catalog/controls/ens/op.exp.8.json).
 
@@ -56,7 +56,7 @@ Uno por pasada: `tool` (`chrony`, `timesyncd`, `none`), `status`, `synchronised`
 | P-09 copias de los registros `alcance \| destino \| frecuencia \| acceso_restringido` | `frecuencia` en días | EV-09 |
 | P-10 conjuntos de reglas desplegados `conjunto_reglas \| cobertura \| mapeo_attck` | `wazuh` o `propias` | EV-10 |
 | P-11 respuestas automáticas `accion \| disparador \| alcance \| reversion` | | EV-11 |
-| P-12 horas que una máquina puede estar en silencio | por máquina; el valor de organización es el último recurso | EV-02, EV-04 |
+| P-12 horas que un activo puede estar en silencio | por activo; el valor de organización es el último recurso | EV-02, EV-04 |
 | P-13 registro de revisiones `fecha \| revisor \| alcance \| hallazgos` | | EV-05 |
 | P-14 rutas de los registros de actividad | plataforma; integradas por tipo de sistema | EV-08 |
 
@@ -74,6 +74,6 @@ Los jueces están en `engine/internal/controls/ens/opexp8`.
 - EV-08 acceso a los registros. Ninguna ruta de registro de P-14 legible por todos, y cada cuenta que nombra una entrada de ACL en P-08; si no, NON_COMPLIANT.
 - EV-09 copias de los registros. El snapshot correcto más reciente del indexer debe quedar dentro de la `frecuencia` más corta de P-09.
 - EV-10 análisis. `wazuh` en P-10 necesita el ruleset en el manager; `propias`, ficheros de reglas propias además de `local_rules.xml`.
-- EV-11 respuesta automática. Cada `accion` de P-11 debe ser una respuesta activa que el manager envía a la máquina, con su script en ella.
+- EV-11 respuesta automática. Cada `accion` de P-11 debe ser una respuesta activa que el manager envía al activo, con su script en él.
 - EV-12 respuestas ejecutadas. Se listan las respuestas activas de la ventana.
 - EV-13 integridad del sistema de registro. El agente informando y FIM vigilando `/var/ossec/etc`; si no, NON_COMPLIANT.

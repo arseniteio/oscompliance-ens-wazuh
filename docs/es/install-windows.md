@@ -1,6 +1,6 @@
 # Agente de Windows
 
-El agente OSCompliance para Windows recoge el mismo tipo de hechos que el agente de Linux y los escribe en `C:\ProgramData\oscompliance\facts.ndjson`. El agente de Wazuh envía el fichero al manager y el motor juzga los hechos con los mismos controles. El plugin muestra las máquinas Windows como cualquier otra.
+El agente OSCompliance para Windows recoge el mismo tipo de hechos que el agente de Linux y los escribe en `C:\ProgramData\oscompliance\facts.ndjson`. El agente de Wazuh envía el fichero al manager y el motor juzga los hechos con los mismos controles. El plugin muestra los activos Windows como cualquier otra.
 
 El agente de Windows solo se ha probado en el laboratorio, todavía no en una máquina física. Pruébalo en una máquina de pruebas antes de desplegarlo.
 
@@ -25,12 +25,12 @@ El script:
 
 - copia `oscompliance-agent.exe` a `C:\Program Files\OSCompliance`;
 - crea `C:\ProgramData\oscompliance` y su carpeta `state` con acceso solo para SYSTEM y Administradores;
-- escribe el grupo pedido en `C:\ProgramData\oscompliance\agent.json`, que el motor lee para añadir la máquina a ese grupo;
+- escribe el grupo pedido en `C:\ProgramData\oscompliance\agent.json`, que el motor lee para añadir el activo a ese grupo;
 - añade el fichero de hechos al `ossec.conf` local del agente de Wazuh y lo reinicia, para que los primeros hechos lleguen al manager antes que la configuración del grupo;
 - registra el origen `oscompliance-agent` en el registro Aplicación;
 - programa `\OSCompliance\agent-pass` cada hora y `\OSCompliance\audit-guard` cada 2 minutos, ambas como SYSTEM, y lanza la primera pasada.
 
-El motor añade la máquina al grupo en 15 minutos y escribe en la configuración del grupo un bloque `<agent_config os="Windows">` con el fichero de hechos, el canal de Microsoft Defender, las rutas gestionadas y las rutas de integridad de ficheros. Un grupo con máquinas Linux y Windows recibe un bloque por sistema operativo, así que ninguna máquina lee las rutas de la otra. Para configurarlo a mano, `wazuh/agent.conf.windows.fragment.xml` contiene las dos entradas `localfile`.
+El motor añade el activo al grupo en 15 minutos y escribe en la configuración del grupo un bloque `<agent_config os="Windows">` con el fichero de hechos, el canal de Microsoft Defender, las rutas gestionadas y las rutas de integridad de ficheros. Un grupo con activos Linux y Windows recibe un bloque por sistema operativo, así que ningún activo lee las rutas de la otra. Para configurarlo a mano, `wazuh/agent.conf.windows.fragment.xml` contiene las dos entradas `localfile`.
 
 El manager necesita las reglas de esta versión: la regla 119007 decodifica el fichero de hechos de Windows y la 119008 alerta de las vigilancias de lectura suspendidas.
 

@@ -28,7 +28,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.2.1. Definición: [`catalog/con
 | cualquier alerta `authentication_success`, `authentication_failed` o `sudo` en el periodo de consulta | el registro de autenticación llega a Wazuh | EV-03, EV-05, EV-06 |
 | `oscompliance-identity-history` (índice del motor) | por agente y cuenta: primera y última vez vista, deshabilitada desde, borrada el, última caducidad | EV-08, op.acc.6 EV-06 |
 
-El agente envía la tabla de identidades completa en cada pasada y nunca un hash de contraseña ni una clave. No aplica ningún umbral de UID ni calcula cambios: el motor compara pasadas, así que una línea base perdida o manipulada en la máquina no puede ocultar ni inventar un cambio.
+El agente envía la tabla de identidades completa en cada pasada y nunca un hash de contraseña ni una clave. No aplica ningún umbral de UID ni calcula cambios: el motor compara pasadas, así que una línea base perdida o manipulada en el activo no puede ocultar ni inventar un cambio.
 
 El número de claves por cuenta sale de `sshd -T -C user=<cuenta>`, así que los bloques `Match User` y `Match Group` se aplican con exactitud. Cuando decide un `AuthorizedKeysCommand`, el número es desconocido.
 
@@ -71,5 +71,5 @@ Los jueces están en `engine/internal/controls/ens/opacc1`. Si falta una fuente,
 
 ## No se mide
 
-- La identificación eIDAS (1.5) y la persona detrás de cada identificador (r1.1). Ninguna máquina las registra. Se juzgan por atestación.
-- Las cuentas de directorio. No se leen las cuentas que solo existen en LDAP, Active Directory u otro directorio: el control juzga la tabla de identidades local de cada máquina.
+- La identificación eIDAS (1.5) y la persona detrás de cada identificador (r1.1). Ningún activo las registra. Se juzgan por atestación.
+- Las cuentas de directorio. No se leen las cuentas que solo existen en LDAP, Active Directory u otro directorio: el control juzga la tabla de identidades local de cada activo.

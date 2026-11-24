@@ -69,7 +69,7 @@ The host profile decides which [profiles](#profiles) a machine gets.
 
 ## Profiles
 
-A profile gives parameter values to every machine whose host profile meets its conditions, so a value is set once per machine type instead of once per machine. Each profile is one document in `wazuh-ens-configuration` with `documentType` `PROFILE`. Power ENS shows profiles as groups and manages them in Configuración > Grupos y máquinas, which shows the machines each group reaches while it is edited, imports and exports YAML, and shows for each machine its groups and the origin of every value. `oscompliance-policy`, below, is the option for automation. The catalog ships `ubuntu`, `manager-wazuh` and `windows` in [`catalog/profiles/`](../../catalog/profiles/), with the same values as the built-in templates; a stored profile with the same `id` replaces the built-in one.
+A profile gives parameter values to every machine whose host profile meets its conditions, so a value is set once per machine type instead of once per machine. Each profile is one document in `wazuh-ens-configuration` with `documentType` `PROFILE`. Power ENS shows profiles as groups and manages them in Configuración > Grupos y activos, which shows the machines each group reaches while it is edited, imports and exports YAML, and shows for each machine its groups and the origin of every value. `oscompliance-policy`, below, is the option for automation. The catalog ships `ubuntu`, `manager-wazuh` and `windows` in [`catalog/profiles/`](../../catalog/profiles/), with the same values as the built-in templates; a stored profile with the same `id` replaces the built-in one.
 
 ```yaml
 id: web

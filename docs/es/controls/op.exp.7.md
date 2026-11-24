@@ -23,8 +23,8 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.3.7. Definición: [`catalog/con
 
 | Fuente | Contenido | Lo usa |
 |---|---|---|
-| alertas de Wazuh de la máquina | recuentos por hora iguales o superiores a los niveles de P-01 | EV-01, EV-02 |
-| alertas de respuesta activa (`rule.groups: active_response`) | contención ejecutada en la máquina | EV-06, EV-09 |
+| alertas de Wazuh del activo | recuentos por hora iguales o superiores a los niveles de P-01 | EV-01, EV-02 |
+| alertas de respuesta activa (`rule.groups: active_response`) | contención ejecutada en el activo | EV-06, EV-09 |
 | `wazuh_agent_config` del manager, campos adicionales | días con los registros de alertas sellados (`.sum`), listas CDB y sus fechas | EV-05, EV-10 |
 | `wazuh_agent_config`, `malware_protection` | respuestas activas enviadas e instaladas ([op.exp.6](op.exp.6.md)) | EV-11 |
 | P-13 | el registro de incidentes | EV-02 a EV-09, EV-12 |
@@ -55,17 +55,17 @@ Columnas de P-13: `incidente | fase | fecha | severidad | sistemas | clasificaci
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opexp7`. Un incidente son las filas que comparten `incidente`; afecta a la máquina cuando `sistemas` la nombra. Se juzgan los incidentes de los últimos 90 días.
+Los jueces están en `engine/internal/controls/ens/opexp7`. Un incidente son las filas que comparten `incidente`; afecta al activo cuando `sistemas` la nombra. Se juzgan los incidentes de los últimos 90 días.
 
-- EV-01 detección. Alertas de la máquina iguales o superiores al nivel más bajo de P-01 en la ventana, por severidad: COMPLIANT. P-01 vacío: NOT_EVALUABLE. Sin alertas de una máquina que no ha informado en la ventana: NOT_EVALUABLE por COLLECTION.
-- EV-02 conciliación. Cada hora con una alerta igual o superior al nivel de una severidad, fuera de P-12, necesita un incidente de la máquina abierto dentro del `plazo_horas` de esa severidad en P-02; si no, NON_COMPLIANT.
+- EV-01 detección. Alertas del activo iguales o superiores al nivel más bajo de P-01 en la ventana, por severidad: COMPLIANT. P-01 vacío: NOT_EVALUABLE. Sin alertas de un activo que no ha informado en la ventana: NOT_EVALUABLE por COLLECTION.
+- EV-02 conciliación. Cada hora con una alerta igual o superior al nivel de una severidad, fuera de P-12, necesita un incidente del activo abierto dentro del `plazo_horas` de esa severidad en P-02; si no, NON_COMPLIANT.
 - EV-03 tiempos. La fase intermedia dentro de `contencion_horas` y la final dentro de `resolucion_horas` desde la inicial, por severidad de P-05; un incidente abierto que los supera también falla.
 - EV-04 escalado e información. `escalado_a` debe contener el destinatario de P-02 para la severidad, y `notificado_a` los responsables de P-04 de cada sistema.
-- EV-05 evidencias conservadas. Cada día de un incidente de la máquina debe tener su registro de alertas sellado en el manager.
-- EV-06 medidas urgentes. Un incidente alto o crítico necesita una respuesta activa en la máquina entre sus fases inicial y final, o una fase intermedia.
+- EV-05 evidencias conservadas. Cada día de un incidente del activo debe tener su registro de alertas sellado en el manager.
+- EV-06 medidas urgentes. Un incidente alto o crítico necesita una respuesta activa en el activo entre sus fases inicial y final, o una fase intermedia.
 - EV-07 datos personales. P-07 vacío: NOT_EVALUABLE; una organización sin esos sistemas declara una fila `ninguno`. Un incidente en un sistema de P-07 debe rellenar `datos_personales`; si es `si`, `notificado_a` debe rellenarse en las 72 horas siguientes a la fase inicial.
 - EV-08 CCN-CERT. Un incidente cuya clasificación marca P-01 como notificable debe llevar una fecha en `notificacion_ccn_cert`.
-- EV-09 reconfiguración dinámica. Un incidente crítico necesita una respuesta activa en la máquina entre sus fases inicial y final.
+- EV-09 reconfiguración dinámica. Un incidente crítico necesita una respuesta activa en el activo entre sus fases inicial y final.
 - EV-10 avisos. La lista CDB de P-11 debe existir en el manager y haberse modificado dentro de `plazo_dias`.
 - EV-11 respuesta automática. Como EV-11 de op.exp.6.
 - EV-12 mejora. Un incidente cerrado debe rellenar `medidas_mejora`.

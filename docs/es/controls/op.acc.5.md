@@ -25,7 +25,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.2.5. Definición: [`catalog/con
 
 ## Fuentes
 
-Cada fila de P-02 (`servicio | host | log`) se convierte en un `<localfile>` de la configuración de grupo, dentro de un bloque `<agent_config>` con el nombre de la máquina y una etiqueta con el nombre del servicio. El motor escribe estos bloques mediante la API de Wazuh:
+Cada fila de P-02 (`servicio | host | log`) se convierte en un `<localfile>` de la configuración de grupo, dentro de un bloque `<agent_config>` con el nombre del activo y una etiqueta con el nombre del servicio. El motor escribe estos bloques mediante la API de Wazuh:
 
 ```xml
 <agent_config name="sede-01">
@@ -59,14 +59,14 @@ Factores: `password`, `otp`, `certificado`, `tarjeta`, `pin`, `biometria`.
 | regla 119003 | los eventos de autenticación del servicio | EV-01 a EV-08 |
 | `service_log_snapshot`, `service_log` (`services`) | para cada localfile etiquetado que se aplica al agente: inodo, tamaño, hora de modificación, copias rotadas y el `ts` de la línea más antigua en disco | EV-01, EV-03, EV-09 |
 
-Los servicios de una máquina son sus filas de P-02, los localfiles etiquetados que lee su agente y los servicios con eventos procedentes de ella.
+Los servicios de un activo son sus filas de P-02, los localfiles etiquetados que lee su agente y los servicios con eventos procedentes de él.
 
 ## Parámetros
 
 | ID | Contenido | Lo usa |
 |---|---|---|
 | P-01 mecanismo: R1, R2, R3 o R4 | uno, no acumulativo | decisiones, EV-07, EV-08 |
-| P-02 `servicio \| host \| log` | sistema | los servicios de cada máquina |
+| P-02 `servicio \| host \| log` | sistema | los servicios de cada activo |
 | P-03 máximo de intentos fallidos | | EV-02, EV-03 |
 | P-04 procedimiento de reactivación | | decisión sobre 5.8 |
 | P-05 días entre cambios de credencial | | EV-04 |
@@ -79,7 +79,7 @@ Los servicios de una máquina son sus filas de P-02, los localfiles etiquetados 
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opacc5`. Una máquina sin servicios deja todas las evidencias en NOT_EVALUABLE por CONFIGURATION, salvo que P-DA excluya el control en ella.
+Los jueces están en `engine/internal/controls/ens/opacc5`. Un activo sin servicios deja todas las evidencias en NOT_EVALUABLE por CONFIGURATION, salvo que P-DA excluya el control en ella.
 
 - EV-01 conservación. Por servicio, el registro llega hasta lo más antiguo entre su evento más antiguo en Wazuh y su línea más antigua en disco. Menos de P-08 días: NON_COMPLIANT, así que un servicio nuevo falla hasta que lleve P-08 días registrando.
 - EV-02 bloqueo. La `politica` más reciente de cada servicio: bloqueo desactivado, `max_intentos` 0 o por encima de P-03, o reactivación automática: NON_COMPLIANT. Una serie de fallos de una cuenta mayor que P-03 en la ventana, sin un éxito, un bloqueo o un desbloqueo que la corte: NON_COMPLIANT. Los fallos con la cuenta bloqueada no cuentan. Sin política declarada: NOT_EVALUABLE por EVIDENCE.
@@ -95,7 +95,7 @@ Los jueces están en `engine/internal/controls/ens/opacc5`. Una máquina sin ser
 
 op.acc.5 decide algunos requisitos por sí mismo, solo donde el requisito se aplica por nivel:
 
-- P-DA con motivo, referencia y enlace utilizable, en una máquina sin servicios: todos los requisitos NOT_APPLICABLE. En una máquina con un servicio la declaración queda contradicha y se ignora.
+- P-DA con motivo, referencia y enlace utilizable, en un activo sin servicios: todos los requisitos NOT_APPLICABLE. En un activo con un servicio la declaración queda contradicha y se ignora.
 - P-01 no utilizable: los nueve requisitos de mecanismo quedan NOT_EVALUABLE por CONFIGURATION, y ninguna atestación prueba r3.3 o r4.3. Los requisitos de los mecanismos no elegidos: NOT_APPLICABLE. R1 por encima de BAJO: r1.1 y r1.2 NON_COMPLIANT; el ENS solo permite contraseña sola en BAJO.
 - r1.2 con R1: una política declarada con la complejidad desactivada o sin longitud mínima es NON_COMPLIANT; sin política declarada es NOT_EVALUABLE; si no, EV-02.
 - 5.8: P-04 sin definir es NOT_EVALUABLE, salvo que EV-02 o EV-03 ya hayan fallado.

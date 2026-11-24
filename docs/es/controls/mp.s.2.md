@@ -1,6 +1,6 @@
 # mp.s.2 Protección de servicios y aplicaciones web
 
-mp.s.2 juzga las máquinas que sirven las aplicaciones web: sus registros en Wazuh, los ataques que enumera el requisito vigilados por reglas cargadas, la antigüedad de las vulnerabilidades críticas y altas de la plataforma, y las auditorías de cada aplicación con sus hallazgos resueltos.
+mp.s.2 juzga los activos que sirven las aplicaciones web: sus registros en Wazuh, los ataques que enumera el requisito vigilados por reglas cargadas, la antigüedad de las vulnerabilidades críticas y altas de la plataforma, y las auditorías de cada aplicación con sus hallazgos resueltos.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.8.2. Definición: [`catalog/controls/ens/mp.s.2.json`](../../../catalog/controls/ens/mp.s.2.json).
 
@@ -18,7 +18,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.8.2. Definición: [`catalog/con
 | r2.3 vulnerabilidades encontradas resueltas | B/M/A | EV-12 |
 | r3.1 proxies y cachés | A | atestación (P-ATT) |
 
-Una máquina que no es una `maquina` de P-01: todas las evidencias y requisitos NOT_APPLICABLE. Cuando ninguna máquina de P-01 informa a Wazuh, el manager asume todas las aplicaciones: EV-10 es ahí NON_COMPLIANT. Un sistema sin servicios web desactiva el control. P-07 elige auditorías de caja negra (r1) o de caja blanca (r2): los refuerzos de la otra son NOT_APPLICABLE; en ALTO se aplica caja blanca diga lo que diga P-07.
+Un activo que no es una `maquina` de P-01: todas las evidencias y requisitos NOT_APPLICABLE. Cuando ningún activo de P-01 informa a Wazuh, el manager asume todas las aplicaciones: EV-10 es ahí NON_COMPLIANT. Un sistema sin servicios web desactiva el control. P-07 elige auditorías de caja negra (r1) o de caja blanca (r2): los refuerzos de la otra son NOT_APPLICABLE; en ALTO se aplica caja blanca diga lo que diga P-07.
 
 ## Fuentes
 
@@ -48,11 +48,11 @@ Una máquina que no es una `maquina` de P-01: todas las evidencias y requisitos 
 
 Los jueces están en `engine/internal/controls/ens/mps2`.
 
-- EV-01 registros. Como EV-01 de mp.com.1 sobre las fuentes de las aplicaciones de la máquina.
+- EV-01 registros. Como EV-01 de mp.com.1 sobre las fuentes de las aplicaciones del activo.
 - EV-02 a EV-08 ataques. Como EV-04 de mp.com.3 para acceso sin autenticación, vías alternativas, manipulación de URL, manipulación de cookies, inyección, escalada de privilegios y XSS.
-- EV-10 vulnerabilidades. Ninguna vulnerabilidad crítica o alta de la máquina detectada hace más de P-09 días y aún abierta.
-- EV-11 auditorías. Cada aplicación de la máquina con una auditoría de la modalidad vigente dentro de P-10 días; una de caja blanca, con `metodologia` y `herramientas`.
-- EV-12 hallazgos. Cada hallazgo de las aplicaciones de la máquina en `resuelto`, `cerrado` o dentro de su `plazo`.
+- EV-10 vulnerabilidades. Ninguna vulnerabilidad crítica o alta del activo detectada hace más de P-09 días y aún abierta.
+- EV-11 auditorías. Cada aplicación del activo con una auditoría de la modalidad vigente dentro de P-10 días; una de caja blanca, con `metodologia` y `herramientas`.
+- EV-12 hallazgos. Cada hallazgo de las aplicaciones del activo en `resuelto`, `cerrado` o dentro de su `plazo`.
 
 ## No se mide
 

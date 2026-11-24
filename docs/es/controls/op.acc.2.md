@@ -67,5 +67,5 @@ Los jueces están en `engine/internal/controls/ens/opacc2`. Si falta una fuente,
 
 ## No se mide
 
-- Las máquinas sin auditd, como la mayoría de los contenedores: EV-06 queda ahí NOT_EVALUABLE por COLLECTION.
+- Los activos sin auditd, como la mayoría de los contenedores: EV-06 queda ahí NOT_EVALUABLE por COLLECTION.
 - No se leen los rechazos de auditd; de las ejecuciones de sudo rechazadas solo se informa.

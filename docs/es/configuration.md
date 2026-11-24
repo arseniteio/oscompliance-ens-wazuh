@@ -1,8 +1,8 @@
 # Configuración
 
-Se configuran tres cosas, en tres lugares. El operador define la conexión y los tiempos del motor una vez, con flags, `/etc/oscompliance/engine.conf` y `/etc/oscompliance/engine.env` en el manager maestro. El operador define las rutas del agente en `/etc/oscompliance/agent.json`, solo en máquinas no estándar. El responsable de seguridad define la política ENS (nivel, alcance y cada parámetro de control) en Power ENS en cualquier momento. Se guarda en `wazuh-ens-configuration`.
+Se configuran tres cosas, en tres lugares. El operador define la conexión y los tiempos del motor una vez, con flags, `/etc/oscompliance/engine.conf` y `/etc/oscompliance/engine.env` en el manager maestro. El operador define las rutas del agente en `/etc/oscompliance/agent.json`, solo en activos no estándar. El responsable de seguridad define la política ENS (nivel, alcance y cada parámetro de control) en Power ENS en cualquier momento. Se guarda en `wazuh-ens-configuration`.
 
-La política nunca reside en las máquinas. Los agentes solo guardan rutas; cada valor que decide el cumplimiento es un parámetro de Power ENS, y el motor lo recarga en cada pasada.
+La política nunca reside en los activos. Los agentes solo guardan rutas; cada valor que decide el cumplimiento es un parámetro de Power ENS, y el motor lo recarga en cada pasada.
 
 ## Motor
 
@@ -30,8 +30,8 @@ La política nunca reside en las máquinas. Los agentes solo guardan rutas; cada
 | `-verdicts-index` | `oscompliance-verdicts` | veredictos |
 | `-history-index` | `oscompliance-identity-history` | historial por cuenta |
 | `-config-history-index` | `oscompliance-config-history` | cambios en la configuración de grupo |
-| `-host-profile-index` | `oscompliance-host-profile` | lo que el motor deduce de cada máquina |
-| `-profile-groups` | desactivado | mete cada máquina en el grupo de Wazuh `ens-perfil-<id>` de cada perfil que recibe; necesita `-wazuh-api` y solo escribe con `-sync-apply` |
+| `-host-profile-index` | `oscompliance-host-profile` | lo que el motor deduce de cada activo |
+| `-profile-groups` | desactivado | mete cada activo en el grupo de Wazuh `ens-perfil-<id>` de cada perfil que recibe; necesita `-wazuh-api` y solo escribe con `-sync-apply` |
 
 | Variable de entorno | Función |
 |---|---|
@@ -47,25 +47,25 @@ OSC_INDEXER_URLS=https://10.0.0.1:9200,https://10.0.0.2:9200
 OSC_INDEXER_CA=/etc/filebeat/certs/root-ca.pem
 ```
 
-## Perfil de máquina
+## Perfil de activo
 
-En cada pasada, el motor deduce qué es cada máquina a partir del inventario de Wazuh y lo escribe en `oscompliance-host-profile`, un documento por agente. Ningún agente envía nada nuevo y no se configura nada en las máquinas.
+En cada pasada, el motor deduce qué es cada activo a partir del inventario de Wazuh y lo escribe en `oscompliance-host-profile`, un documento por agente. Ningún agente envía nada nuevo y no se configura nada en los activos.
 
 | Campo | Procede de |
 |---|---|
 | `distro`, `family` | `host.os.platform` o, si no, `host.os.name` de `wazuh-states-inventory-system`, con la versión recortada a `major` o `major.minor` |
-| `role` | `manager` para el agente 000 o una máquina con `wazuh-manager`; `workstation` para una máquina con un gestor de pantalla o un paquete de escritorio; `server` en el resto |
+| `role` | `manager` para el agente 000 o un activo con `wazuh-manager`; `workstation` para un activo con un gestor de pantalla o un paquete de escritorio; `server` en el resto |
 | `services` | paquetes instalados de `wazuh-states-inventory-packages`, como `zimbra-core` o `slapd` |
 | `groups` | los grupos de Wazuh del agente |
 | `signals` | cada deducción con el campo o el paquete del que sale |
 
 Las reglas están en [`catalog/host-signals.json`](../../catalog/host-signals.json). Un nombre de paquete que termina en `*` compara por prefijo. Un servicio con `unless` se omite cuando está presente alguno de esos servicios, para que el LDAP que trae Zimbra no aparezca como OpenLDAP.
 
-El perfil de máquina decide qué [perfiles](#perfiles) recibe cada máquina.
+El perfil de activo decide qué [perfiles](#perfiles) recibe cada activo.
 
 ## Perfiles
 
-Un perfil da valores de parámetros a todas las máquinas cuyo perfil de máquina cumple sus condiciones, de modo que un valor se define una vez por tipo de máquina y no una vez por máquina. Cada perfil es un documento de `wazuh-ens-configuration` con `documentType` `PROFILE`. Power ENS muestra los perfiles como grupos y los gestiona en Configuración > Grupos y máquinas, que muestra las máquinas a las que llega cada grupo mientras se edita, importa y exporta YAML, y muestra en cada máquina sus grupos y el origen de cada valor. `oscompliance-policy`, más abajo, es la opción para automatizar. El catálogo trae `ubuntu`, `manager-wazuh` y `windows` en [`catalog/profiles/`](../../catalog/profiles/), con los mismos valores que las plantillas integradas; un perfil guardado con el mismo `id` sustituye al integrado.
+Un perfil da valores de parámetros a todos los activos cuyo perfil de activo cumple sus condiciones, de modo que un valor se define una vez por tipo de activo y no una vez por activo. Cada perfil es un documento de `wazuh-ens-configuration` con `documentType` `PROFILE`. Power ENS muestra los perfiles como grupos y los gestiona en Configuración > Grupos y activos, que muestra los activos a las que llega cada grupo mientras se edita, importa y exporta YAML, y muestra en cada activo sus grupos y el origen de cada valor. `oscompliance-policy`, más abajo, es la opción para automatizar. El catálogo trae `ubuntu`, `manager-wazuh` y `windows` en [`catalog/profiles/`](../../catalog/profiles/), con los mismos valores que las plantillas integradas; un perfil guardado con el mismo `id` sustituye al integrado.
 
 ```yaml
 id: web
@@ -85,14 +85,14 @@ values:
 |---|---|
 | `id` | minúsculas, dígitos y guiones |
 | `layer` | `distro`, `role`, `service` o `site`, de menos a más específica |
-| `match` | condiciones que deben cumplirse todas: `distro`, `family`, `role` y `hostname` admiten `is`, `is_not`, `matches` (patrón de shell como `web-*`) o `in` (lista separada por comas, para un grupo de máquinas elegidas a mano); `service` y `group` admiten `has` o `has_not` |
+| `match` | condiciones que deben cumplirse todas: `distro`, `family`, `role` y `hostname` admiten `is`, `is_not`, `matches` (patrón de shell como `web-*`) o `in` (lista separada por comas, para un grupo de activos elegidos a mano); `service` y `group` admiten `has` o `has_not` |
 | `values` | parámetros por control, con los tipos de la [política ENS](#política-ens); no se aceptan parámetros `organisation` |
 | `match_modes` | `regex` para un parámetro dado como expresión regular |
 | `replace` | parámetros, por control, para los que este perfil descarta los valores de las capas menos específicas |
 
-Cuando varios perfiles encajan con una máquina, las listas y las tablas se suman desde todas las capas y el resto de valores sale de la más específica. Un valor definido para la propia máquina, o una plantilla asignada a ella, va primero; una máquina con la plantilla `none` no toma ningún perfil. Sin perfil de máquina, que el motor escribe en su siguiente pasada, la máquina sigue con la plantilla integrada de su tipo de sistema.
+Cuando varios perfiles encajan con un activo, las listas y las tablas se suman desde todas las capas y el resto de valores sale de la más específica. Un valor definido para la propia activo, o una plantilla asignada a ella, va primero; un activo con la plantilla `none` no toma ningún perfil. Sin perfil de activo, que el motor escribe en su siguiente pasada, el activo sigue con la plantilla integrada de su tipo de sistema.
 
-Con `-profile-groups`, el motor mantiene además un grupo de Wazuh por perfil, `ens-perfil-<id>`, con las máquinas que lo reciben, y da al grupo la etiqueta `ens.perfil.<id>`. Así las alertas llevan `agent.labels.ens.perfil.<id>`, y las reglas, los dashboards o el `agent.conf` de un grupo pueden distinguir las máquinas por perfil. Una máquina que deja de encajar sale del grupo; el manager nunca se añade. Una condición de perfil no puede usar estos grupos.
+Con `-profile-groups`, el motor mantiene además un grupo de Wazuh por perfil, `ens-perfil-<id>`, con los activos que lo reciben, y da al grupo la etiqueta `ens.perfil.<id>`. Así las alertas llevan `agent.labels.ens.perfil.<id>`, y las reglas, los dashboards o el `agent.conf` de un grupo pueden distinguir los activos por perfil. Un activo que deja de encajar sale del grupo; el manager nunca se añade. Una condición de perfil no puede usar estos grupos.
 
 Para automatizar, `oscompliance-policy`, que se instala con el motor, lee perfiles de ficheros YAML y los escribe. Sus ficheros tienen el mismo formato que Exportar e Importar en Power ENS. Usa el usuario y la contraseña del indexer, como el motor: ejecútalo en el manager con un usuario administrador.
 
@@ -103,7 +103,7 @@ oscompliance-policy plan -ca /etc/wazuh-indexer/certs/root-ca.pem perfiles/*.yam
 oscompliance-policy apply -ca /etc/wazuh-indexer/certs/root-ca.pem perfiles/*.yaml
 ```
 
-`check` valida los ficheros sin conectarse. `plan` muestra cada perfil como nuevo, cambiado (con los parámetros que cambian) o igual, y los perfiles guardados que no están en los ficheros. `apply` escribe los nuevos y los cambiados; el motor los usa desde su siguiente pasada. `export` imprime en YAML los perfiles guardados, todos o los indicados, y con `-builtin` también los integrados, para partir de lo que está en uso. `delete` borra perfiles guardados. `explain -agent 001` muestra lo que el motor ha deducido de una máquina, los perfiles que recibe y de dónde sale cada uno de sus parámetros. `-indexer` indica la URL del indexer, `https://localhost:9200` por defecto.
+`check` valida los ficheros sin conectarse. `plan` muestra cada perfil como nuevo, cambiado (con los parámetros que cambian) o igual, y los perfiles guardados que no están en los ficheros. `apply` escribe los nuevos y los cambiados; el motor los usa desde su siguiente pasada. `export` imprime en YAML los perfiles guardados, todos o los indicados, y con `-builtin` también los integrados, para partir de lo que está en uso. `delete` borra perfiles guardados. `explain -agent 001` muestra lo que el motor ha deducido de un activo, los perfiles que recibe y de dónde sale cada uno de sus parámetros. `-indexer` indica la URL del indexer, `https://localhost:9200` por defecto.
 
 ## Configuración de grupo
 
@@ -137,17 +137,17 @@ Con `-wazuh-api` y `-sync-apply`, el motor mantiene una región marcada en el `a
 | `<directories>` de FIM | rutas de P-02 de op.acc.2 fuera de los valores por defecto de Wazuh |
 | localfiles de servicio | P-02 de op.acc.5 |
 
-Lo que comparten la mayoría de las máquinas del grupo va a todos los agentes; una máquina que necesita otras rutas o tiene servicios propios recibe un bloque con su nombre. Todo lo que queda fuera de las marcas no se toca. Cada cambio se registra en `oscompliance-config-history` con la región anterior y posterior; sin `-sync-apply` el cambio se registra pero no se escribe.
+Lo que comparten la mayoría de los activos del grupo va a todos los agentes; un activo que necesita otras rutas o tiene servicios propios recibe un bloque con su nombre. Todo lo que queda fuera de las marcas no se toca. Cada cambio se registra en `oscompliance-config-history` con la región anterior y posterior; sin `-sync-apply` el cambio se registra pero no se escribe.
 
 En cada sincronización de grupos, el motor también crea los grupos del alcance ENS que no existen y les añade los agentes que los piden. Un agente pide un grupo con `wazuh_group` en su `agent.json`, que envía como `requested_group` en cada hecho `agent_pass`. El motor lee las peticiones de los hechos `agent_pass` dentro de su ventana, y solo añade un agente a un grupo del alcance ENS. Una petición de cualquier otro grupo se ignora. Cada asignación se registra en `oscompliance-config-history`.
 
 ## Grupos por control
 
-Con la opción activada en Power ENS (`scope.controlGroups`), el motor crea un grupo de Wazuh por control, `ens-excluir-<control>`, en su siguiente sincronización de grupos. Necesita `-wazuh-api`, `-sync-apply` y `group:create` en su rol de API. Sin `group:create`, la sincronización se detiene en el primer grupo con un único error; vuelve a ejecutar `catalog/wazuh/engine-users.sh` para actualizar el rol. Para sacar una máquina de un control, añádela a ese grupo. Al desactivar la opción, los grupos se ignoran y no se borra ninguno. Consulta [Veredictos](verdicts.md).
+Con la opción activada en Power ENS (`scope.controlGroups`), el motor crea un grupo de Wazuh por control, `ens-excluir-<control>`, en su siguiente sincronización de grupos. Necesita `-wazuh-api`, `-sync-apply` y `group:create` en su rol de API. Sin `group:create`, la sincronización se detiene en el primer grupo con un único error; vuelve a ejecutar `catalog/wazuh/engine-users.sh` para actualizar el rol. Para sacar un activo de un control, añádelo a ese grupo. Al desactivar la opción, los grupos se ignoran y no se borra ninguno. Consulta [Veredictos](verdicts.md).
 
 ## Sistemas ENS
 
-El motor lee todos los sistemas ENS del índice de configuración en cada pasada: el documento `ACTIVE_CONFIGURATION` es el sistema `default`, y cada documento `SYSTEM_CONFIGURATION`, con `_id` `system-<id>`, es otro. Un identificador tiene de 1 a 40 letras minúsculas, cifras o guiones. Un sistema con un identificador no válido o repetido, sin configuración o con un alcance que no indica grupos ni máquinas se deja fuera con un error. La sincronización de grupos toma los grupos de alcance de todos los sistemas y escribe la configuración de grupo de cada máquina con los parámetros de su sistema; si no puede leer las pertenencias, no toca los grupos. Consulta [Veredictos](verdicts.md).
+El motor lee todos los sistemas ENS del índice de configuración en cada pasada: el documento `ACTIVE_CONFIGURATION` es el sistema `default`, y cada documento `SYSTEM_CONFIGURATION`, con `_id` `system-<id>`, es otro. Un identificador tiene de 1 a 40 letras minúsculas, cifras o guiones. Un sistema con un identificador no válido o repetido, sin configuración o con un alcance que no indica grupos ni activos se deja fuera con un error. La sincronización de grupos toma los grupos de alcance de todos los sistemas y escribe la configuración de grupo de cada activo con los parámetros de su sistema; si no puede leer las pertenencias, no toca los grupos. Consulta [Veredictos](verdicts.md).
 
 ## Agente
 
@@ -168,8 +168,8 @@ El motor lee todos los sistemas ENS del índice de configuración en cada pasada
 | `paths.sudoers` | `/etc/sudoers` | fichero sudoers principal; se siguen los includes |
 | `paths.pam_dir` | `/etc/pam.d` | configuración de PAM |
 | `paths.wazuh_shared_conf` | `/var/ossec/etc/shared/agent.conf` | configuración de grupo que escribe el motor |
-| `paths.wazuh_client_keys` | `/var/ossec/etc/client.keys` | la clave del agente, que da nombre a la máquina en esa configuración; vacío en el manager |
-| `wazuh_group` | vacío | grupo de Wazuh al que la máquina pide que el motor la añada; lo escribe `install.sh agent --group` |
+| `paths.wazuh_client_keys` | `/var/ossec/etc/client.keys` | la clave del agente, que da nombre al activo en esa configuración; vacío en el manager |
+| `wazuh_group` | vacío | grupo de Wazuh al que el activo pide que el motor la añada; lo escribe `install.sh agent --group` |
 
 `agent/agent.example.json` contiene cada clave con su valor por defecto.
 
@@ -193,11 +193,11 @@ Hasta que se guarda una configuración, el motor y el plugin usan la configuraci
 |---|---|
 | Categoría del sistema | BÁSICO, MEDIO o ALTO (se guarda como `BAJO`, `MEDIO` o `ALTO`; el motor también lee `BÁSICO`); los requisitos fuera de ella son NOT_APPLICABLE |
 | Alcance | los grupos de Wazuh auditados |
-| Tipo de sistema de cada máquina | elige su plantilla de parámetros integrada |
+| Tipo de sistema de cada activo | elige su plantilla de parámetros integrada |
 | Control activado | un control desactivado es NOT_APPLICABLE en todas partes |
 | Parámetros del control | listados en cada [página de control](controls/README.md) |
 | Niveles por dimensión | C, I, T, A y D, BAJO, MEDIO o ALTO; un control se aplica al nivel más alto de sus dimensiones, y una dimensión sin nivel toma la categoría |
-| Ajustes de nivel | juzgan un control, o un control en una máquina, a un nivel inferior a la categoría |
+| Ajustes de nivel | juzgan un control, o un control en un activo, a un nivel inferior a la categoría |
 
 `levelAdjustments` baja el nivel al que se juzga un control:
 
@@ -205,17 +205,17 @@ Hasta que se guarda una configuración, el motor y el plugin usan la configuraci
 { "controlId": "op.acc.1", "agentId": "001", "level": "BAJO", "reason": "entorno de pruebas, análisis de riesgos de 2026-11" }
 ```
 
-`agentId` es opcional; un ajuste de máquina prevalece sobre el del control. `reason` es obligatorio. Se ignora un ajuste por encima de la categoría, sin motivo o con un nivel desconocido. Los requisitos y evidencias fuera del nivel ajustado son NOT_APPLICABLE y su motivo cita el ajuste.
+`agentId` es opcional; un ajuste de activo prevalece sobre el del control. `reason` es obligatorio. Se ignora un ajuste por encima de la categoría, sin motivo o con un nivel desconocido. Los requisitos y evidencias fuera del nivel ajustado son NOT_APPLICABLE y su motivo cita el ajuste.
 
 Cada parámetro tiene una clase que decide de dónde sale su valor:
 
 | Clase | Valor |
 |---|---|
-| `organisation` | el valor común del control; se ignoran los valores por máquina |
-| `system` | el valor propio de la máquina o, si no, la plantilla asignada o, si no, sus perfiles o, si no, la plantilla de su tipo de sistema (ninguna si su tipo es `none`, «Sin plantilla») o, si no, el valor común |
+| `organisation` | el valor común del control; se ignoran los valores por activo |
+| `system` | el valor propio del activo o, si no, la plantilla asignada o, si no, sus perfiles o, si no, la plantilla de su tipo de sistema (ninguna si su tipo es `none`, «Sin plantilla») o, si no, el valor común |
 | `platform` | como `system`; las plantillas integradas por tipo de sistema traen valores para él |
 
-Plantillas: la asignada a la máquina, integrada (`catalog/templates/`) o propia; `none` la desactiva; sin ninguna asignada, la plantilla integrada del tipo de sistema de la máquina. El tipo de sistema es el definido a mano o, si no, el que implica la plataforma del inventario de Wazuh (`catalog/system-types.json`).
+Plantillas: la asignada al activo, integrada (`catalog/templates/`) o propia; `none` la desactiva; sin ninguna asignada, la plantilla integrada del tipo de sistema del activo. El tipo de sistema es el definido a mano o, si no, el que implica la plataforma del inventario de Wazuh (`catalog/system-types.json`).
 
 Las listas comparan sin distinguir mayúsculas. Un parámetro marcado como expresión regular usa RE2, compara el valor completo, distingue mayúsculas y tiene 512 caracteres como máximo. Las tablas son filas de celdas separadas por `|`.
 
@@ -223,9 +223,9 @@ Un parámetro sin definir da NOT_EVALUABLE por CONFIGURATION en las evidencias q
 
 ## Parámetros desde un fichero
 
-Los valores por tipo de máquina van en [perfiles](#perfiles). Después del primer guardado desde Power ENS, que crea la configuración con el catálogo completo, los parámetros también se pueden definir desde un fichero JSON con `config/set-parameters.py` del repositorio power-ens-wazuh. Comprueba cada valor con el catálogo, muestra el plan y solo escribe con `--apply`. Cada ejecución guarda la versión anterior en el historial, igual que un guardado desde el dashboard.
+Los valores por tipo de activo van en [perfiles](#perfiles). Después del primer guardado desde Power ENS, que crea la configuración con el catálogo completo, los parámetros también se pueden definir desde un fichero JSON con `config/set-parameters.py` del repositorio power-ens-wazuh. Comprueba cada valor con el catálogo, muestra el plan y solo escribe con `--apply`. Cada ejecución guarda la versión anterior en el historial, igual que un guardado desde el dashboard.
 
-Ejecútalo desde la carpeta `config/` de un clon completo de power-ens-wazuh, en una máquina que llegue al indexer con su certificado de administrador. Necesita `python3`. En Docker, añade `ENS_OS_URL=https://127.0.0.1:9200` y los certificados de `config/wazuh_indexer_ssl_certs`.
+Ejecútalo desde la carpeta `config/` de un clon completo de power-ens-wazuh, en un activo que llegue al indexer con su certificado de administrador. Necesita `python3`. En Docker, añade `ENS_OS_URL=https://127.0.0.1:9200` y los certificados de `config/wazuh_indexer_ssl_certs`.
 
 ```bash
 export OS_CERT=/etc/wazuh-indexer/certs/admin.pem OS_KEY=/etc/wazuh-indexer/certs/admin-key.pem
@@ -233,7 +233,7 @@ python3 set-parameters.py /root/parameters.json
 python3 set-parameters.py /root/parameters.json --apply
 ```
 
-El fichero tiene una clave por control con sus valores de organización, `agents` con los valores por máquina según el identificador de agente de Wazuh, y `organization` con los elementos de Datos de la organización. Los valores siguen los tipos de arriba; un parámetro que admite una expresión regular recibe `{"value": "...", "matchMode": "regex"}`.
+El fichero tiene una clave por control con sus valores de organización, `agents` con los valores por activo según el identificador de agente de Wazuh, y `organization` con los elementos de Datos de la organización. Los valores siguen los tipos de arriba; un parámetro que admite una expresión regular recibe `{"value": "...", "matchMode": "regex"}`.
 
 ```json
 {

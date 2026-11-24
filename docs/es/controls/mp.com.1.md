@@ -1,6 +1,6 @@
 # mp.com.1 Perímetro seguro
 
-mp.com.1 juzga los dispositivos de perímetro por sus registros en Wazuh, los flujos que dejan pasar y la revisión de sus reglas; y, en cada máquina, las formas de rodear el perímetro: interfaces, pasarelas, túneles y administración desde internet.
+mp.com.1 juzga los dispositivos de perímetro por sus registros en Wazuh, los flujos que dejan pasar y la revisión de sus reglas; y, en cada activo, las formas de rodear el perímetro: interfaces, pasarelas, túneles y administración desde internet.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.4.1. Definición: [`catalog/controls/ens/mp.com.1.json`](../../../catalog/controls/ens/mp.com.1.json).
 
@@ -19,7 +19,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.4.1. Definición: [`catalog/con
 | alertas de esos dispositivos con `data.action` accept, allow, pass o permit | `data.srcip`, `data.dstip`, `data.protocol`, `data.dstport` | EV-02 |
 | `wazuh-states-inventory-interfaces-*`, `-networks-*`, `-protocols-*` | interfaces, direcciones y pasarelas | EV-03, EV-04, EV-05 |
 | `wazuh-states-inventory-processes-*` | procesos de herramientas de túnel | EV-05 |
-| alertas de autenticación (`sshd`, `authentication_*`) con `data.srcip` | orígenes de los inicios de sesión de cada máquina | EV-07 |
+| alertas de autenticación (`sshd`, `authentication_*`) con `data.srcip` | orígenes de los inicios de sesión de cada activo | EV-07 |
 
 El inventario del manager se lee mediante la API de Wazuh (`/syscollector/000/netiface`, `netaddr`, `netproto`, `processes`).
 
@@ -48,7 +48,7 @@ Los jueces están en `engine/internal/controls/ens/mpcom1`.
 - EV-01 registros del perímetro. Cada dispositivo de P-01 con una alerta dentro de P-10 horas.
 - EV-02 flujos. Cada flujo aceptado de la ventana coincide con una fila de P-02 con `autorizado_por`.
 - EV-03 interfaces. Cada interfaz `up` coincide con un patrón de P-07.
-- EV-04 salidas. Cada pasarela de la máquina es una `pasarela` de P-03.
+- EV-04 salidas. Cada pasarela del activo es una `pasarela` de P-03.
 - EV-05 túneles. Ninguna interfaz de túnel activa (tipo tunnel, ppp, tun, tap, wireguard; nombres tun, tap, wg, ppp, ipsec, vti, gre, tailscale, zt) ni herramienta de túnel en marcha fuera de P-08.
 - EV-06 reglas. Ninguna fila de P-02 abierta a cualquier origen en todos los puertos o en un puerto de administración (22, 23, 139, 161, 445, 1433, 1521, 2375, 3306, 3389, 5432, 5900, 5985, 5986, 6379, 9200, 27017), y la revisión más reciente de P-11 dentro de P-04 días.
 - EV-07 administración desde internet. Ninguna autenticación de la ventana desde una dirección pública fuera de P-09.

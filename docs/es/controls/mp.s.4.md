@@ -1,6 +1,6 @@
 # mp.s.4 Protección frente a la denegación de servicio
 
-mp.s.4 juzga las máquinas de los servicios expuestos: su margen de CPU y memoria, las cookies SYN y un cortafuegos que descarta por defecto, los servicios UDP que podrían amplificar ataques, las reglas y la respuesta activa de Wazuh contra la denegación de servicio, y el registro de episodios con su reacción.
+mp.s.4 juzga los activos de los servicios expuestos: su margen de CPU y memoria, las cookies SYN y un cortafuegos que descarta por defecto, los servicios UDP que podrían amplificar ataques, las reglas y la respuesta activa de Wazuh contra la denegación de servicio, y el registro de episodios con su reacción.
 
 Niveles: MEDIO, ALTO. Anexo II, apartado 5.8.4. Definición: [`catalog/controls/ens/mp.s.4.json`](../../../catalog/controls/ens/mp.s.4.json).
 
@@ -14,7 +14,7 @@ Niveles: MEDIO, ALTO. Anexo II, apartado 5.8.4. Definición: [`catalog/controls/
 | r1.2 reacción con el proveedor de comunicaciones | A | EV-06 |
 | r2.1 ataques desde las propias instalaciones | ninguno | EV-09 |
 
-Una máquina que no es una `maquina` de P-01: todas las evidencias y requisitos NOT_APPLICABLE. Cuando ninguna máquina de P-01 informa a Wazuh, el manager asume el control: EV-01, EV-02 y EV-09 son ahí NON_COMPLIANT.
+Un activo que no es una `maquina` de P-01: todas las evidencias y requisitos NOT_APPLICABLE. Cuando ningún activo de P-01 informa a Wazuh, el manager asume el control: EV-01, EV-02 y EV-09 son ahí NON_COMPLIANT.
 
 ## Fuentes
 

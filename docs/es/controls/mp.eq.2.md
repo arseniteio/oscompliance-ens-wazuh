@@ -11,7 +11,7 @@ Niveles: MEDIO, ALTO. Anexo II, apartado 5.3.2. Definición: [`catalog/controls/
 | 2.1 bloqueo por inactividad con nueva autenticación | M/A | EV-01, EV-05 |
 | r1.1 sesiones abiertas canceladas más tarde | A | EV-02 |
 
-Una máquina que no es un puesto de trabajo (P-03 o, por defecto, una sin sesión gráfica) o que P-04 exceptúa: todas las evidencias y requisitos NOT_APPLICABLE.
+Un activo que no es un puesto de trabajo (P-03 o, por defecto, una sin sesión gráfica) o que P-04 exceptúa: todas las evidencias y requisitos NOT_APPLICABLE.
 
 ## Fuentes
 
@@ -39,7 +39,7 @@ Uno por pasada, solo se emite cuando cambia:
 |---|---|---|
 | P-01 minutos de inactividad antes del bloqueo | | EV-01, EV-02 |
 | P-02 minutos de inactividad antes de cancelar | | EV-02 |
-| P-03 la máquina es un puesto de trabajo | sistema; manager: no | decisiones |
+| P-03 el activo es un puesto de trabajo | sistema; manager: no | decisiones |
 | P-04 excepciones `equipo \| justificacion \| medidas \| aprobador` | | decisiones |
 | P-05 inhibidores de inactividad | nombres de proceso | EV-05 |
 | P-ATT atestaciones documentales | | |

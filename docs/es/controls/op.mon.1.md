@@ -1,6 +1,6 @@
 # op.mon.1 Detección de intrusión
 
-op.mon.1 juzga el manager de Wazuh como sistema de detección de intrusiones: si se ejecuta y carga reglas, si esas reglas cubren el análisis de riesgos, están al día y solo se silencian con aprobación, si cada máquina está bajo él y produce detecciones, y si le llega la detección de red que pide el análisis de riesgos.
+op.mon.1 juzga el manager de Wazuh como sistema de detección de intrusiones: si se ejecuta y carga reglas, si esas reglas cubren el análisis de riesgos, están al día y solo se silencian con aprobación, si cada activo está bajo él y produce detecciones, y si le llega la detección de red que pide el análisis de riesgos.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.7.1. Definición: [`catalog/controls/ens/op.mon.1.json`](../../../catalog/controls/ens/op.mon.1.json).
 
@@ -21,13 +21,13 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.7.1. Definición: [`catalog/con
 | API de Wazuh `/rules?status=enabled` | reglas cargadas: id, nivel, fichero, directorio | EV-01, EV-04, EV-08 |
 | API de Wazuh `/manager/configuration` | `ruleset` (rule_exclude), `active-response` | EV-07, EV-08 |
 | API de Wazuh `/syscollector/000/packages` | versión y hora de instalación de `wazuh-manager` | EV-08 |
-| `wazuh-monitoring-*` | último keepalive de cada máquina | EV-02 |
+| `wazuh-monitoring-*` | último keepalive de cada activo | EV-02 |
 | hecho `wazuh_agent_config` ([op.acc.2](op.acc.2.md)) | FIM y SCA activados | EV-02 |
-| alertas, sin las de OSCompliance | alerta más reciente de cada máquina en 90 días | EV-03 |
+| alertas, sin las de OSCompliance | alerta más reciente de cada activo en 90 días | EV-03 |
 | alertas de los grupos `ids`, `suricata`, `snort`, `zeek`, `nids` | alertas de intrusión de red de la flota | EV-05 |
-| alertas de respuesta activa | respuestas ejecutadas en la máquina | EV-07 |
+| alertas de respuesta activa | respuestas ejecutadas en el activo | EV-07 |
 
-El motor lee el manager con su usuario de API (`-wazuh-api`); el rol necesita `manager:read` y `rules:read` (catalog/wazuh/engine-api-role.json). Sin la API, EV-01, EV-04, EV-07 y EV-08 quedan NOT_EVALUABLE. El manager se lee una vez y se juzga para cada máquina.
+El motor lee el manager con su usuario de API (`-wazuh-api`); el rol necesita `manager:read` y `rules:read` (catalog/wazuh/engine-api-role.json). Sin la API, EV-01, EV-04, EV-07 y EV-08 quedan NOT_EVALUABLE. El manager se lee una vez y se juzga para cada activo.
 
 ## Parámetros
 
@@ -49,8 +49,8 @@ El motor lee el manager con su usuario de API (`-wazuh-api`); el rol necesita `m
 Los jueces están en `engine/internal/controls/ens/opmon1`.
 
 - EV-01 detección en marcha. `wazuh-analysisd`, `wazuh-remoted`, `wazuh-db` y `wazuh-modulesd` en marcha, reglas de nivel 1 o superior cargadas, y cada conjunto de reglas de P-02 con al menos `minimo_reglas`.
-- EV-02 cobertura. El último keepalive de la máquina dentro de P-09 horas, y ni FIM ni SCA desactivados en la configuración de su agente. Wazuh no guarda keepalive del manager: informa mientras `wazuh-analysisd` se ejecuta.
-- EV-03 detecciones. Una alerta de la máquina dentro de P-08 días.
+- EV-02 cobertura. El último keepalive del activo dentro de P-09 horas, y ni FIM ni SCA desactivados en la configuración de su agente. Wazuh no guarda keepalive del manager: informa mientras `wazuh-analysisd` se ejecuta.
+- EV-03 detecciones. Una alerta del activo dentro de P-08 días.
 - EV-04 análisis de riesgos. Cada situación de P-03 tiene una regla cargada de nivel 1 o superior entre sus reglas.
 - EV-05 detección de red. Cuando P-01 dice `sí`, una alerta de intrusión de red dentro de P-08 días; si no, COMPLIANT con su justificación.
 - EV-07 respuestas automáticas. Cada acción de P-06 configurada y no desactivada en la respuesta activa del manager.

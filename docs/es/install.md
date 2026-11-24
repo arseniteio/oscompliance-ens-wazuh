@@ -2,9 +2,9 @@
 
 Esta guía instala OSCompliance ENS y Power ENS en un despliegue de Wazuh instalado por paquetes. Cubre un servidor todo en uno, con el manager, el indexer y el dashboard en un mismo host, y un despliegue distribuido, con un clúster de managers y nodos de indexer y de dashboard separados. Para Wazuh en Docker, consulta [Instalación con Docker](install-docker.md).
 
-Calcula alrededor de una hora en los servidores y unos minutos por máquina auditada. Todos los comandos se ejecutan como root.
+Calcula alrededor de una hora en los servidores y unos minutos por activo auditado. Todos los comandos se ejecutan como root.
 
-`install.sh server` hace los pasos de esta guía que corresponden al nodo en el que se ejecuta, e `install.sh agent --group ens` hace el apartado 7 en cada máquina auditada, como en los [primeros pasos](../../README.es.md#primeros-pasos). Esta guía es el procedimiento manual y la referencia de lo que hace el script.
+`install.sh server` hace los pasos de esta guía que corresponden al nodo en el que se ejecuta, e `install.sh agent --group ens` hace el apartado 7 en cada activo auditado, como en los [primeros pasos](../../README.es.md#primeros-pasos). Esta guía es el procedimiento manual y la referencia de lo que hace el script.
 
 ## Nodos
 
@@ -17,22 +17,22 @@ Un despliegue tiene exactamente un motor, en el manager maestro. El motor llega 
 | Manager worker | parte de worker del 2 | nada: espera del maestro las reglas de su versión y reinicia `wazuh-manager` |
 | Nodo de dashboard | 4 | plugin Power ENS |
 | Nodo de indexer | ninguno | nada |
-| Máquina auditada | 7 | agente, con `install.sh agent` |
+| Activo auditado | 7 | agente, con `install.sh agent` |
 
 Un manager es el maestro cuando su clúster está desactivado en `ossec.conf` o su `node_type` es `master`. Un manager único es maestro. El apartado 5 se hace en el dashboard y es opcional.
 
-Instala primero el maestro. Los workers toman de él las reglas a través del clúster de Wazuh, y Power ENS necesita su motor para mostrar resultados. Después instala los workers y los nodos de dashboard en cualquier orden, y las máquinas auditadas al final. El mismo comando `install.sh server` se ejecuta en cada nodo servidor.
+Instala primero el maestro. Los workers toman de él las reglas a través del clúster de Wazuh, y Power ENS necesita su motor para mostrar resultados. Después instala los workers y los nodos de dashboard en cualquier orden, y los activos auditados al final. El mismo comando `install.sh server` se ejecuta en cada nodo servidor.
 
 `install.sh server --only <componentes>` sustituye la detección por una lista separada por comas de `rules`, `audit`, `engine`, `plugin` y `worker`.
 
 ## Requisitos
 
 - Wazuh 4.14.7, 4.14.8 o 4.14.9, instalado por paquetes.
-- Máquinas auditadas en Linux, amd64 o arm64, con un agente de Wazuh registrado en el manager.
-- `curl` y `jq` en el manager maestro, `unzip` en los nodos de dashboard, `cron` y `auditd` en las máquinas auditadas.
+- Activos auditados en Linux, amd64 o arm64, con un agente de Wazuh registrado en el manager.
+- `curl` y `jq` en el manager maestro, `unzip` en los nodos de dashboard, `cron` y `auditd` en los activos auditados.
 - `curl` y `python3` en el host que tiene el certificado de administración del indexer, para dar acceso a Power ENS.
 - En un despliegue distribuido, Filebeat en el manager maestro enviando las alertas a los indexers, y el maestro llegando a ellos por el puerto 9200.
-- Que el registro de autenticación de cada máquina auditada llegue a Wazuh: `/var/log/auth.log`, `/var/log/secure` o journald, como localfile del agente de Wazuh.
+- Que el registro de autenticación de cada activo auditado llegue a Wazuh: `/var/log/auth.log`, `/var/log/secure` o journald, como localfile del agente de Wazuh.
 
 auditd alimenta EV-06 de op.acc.2, op.acc.3 y EV-04 y EV-07 de op.acc.4. Sin él, esas evidencias no son evaluables. Sin el registro de autenticación, las evidencias de inicio de sesión no son evaluables.
 
@@ -42,15 +42,15 @@ Las cifras se midieron en el laboratorio sobre arm64 con los 34 controles del ca
 
 | Componente | Dónde | CPU | Memoria | Disco |
 |---|---|---|---|---|
-| Agente | cada máquina auditada | menos de 1 segundo por pasada horaria | 15 MB durante la pasada, nada entre pasadas | 10 MB del binario, más `facts.ndjson`, unos 200 KB al día |
-| Motor | manager master | 1 núcleo durante la pasada | 50 MB más 250 MB por cada 1.000 máquinas auditadas | nada en el manager |
-| Veredictos | clúster de indexers | | | unos 2,5 MB por máquina auditada y día en `oscompliance-verdicts`, sin réplicas |
+| Agente | cada activo auditado | menos de 1 segundo por pasada horaria | 15 MB durante la pasada, nada entre pasadas | 10 MB del binario, más `facts.ndjson`, unos 200 KB al día |
+| Motor | manager master | 1 núcleo durante la pasada | 50 MB más 250 MB por cada 1.000 activos auditados | nada en el manager |
+| Veredictos | clúster de indexers | | | unos 2,5 MB por activo auditado y día en `oscompliance-verdicts`, sin réplicas |
 
-Una pasada sobre 5.000 máquinas tardó 270 segundos con un pico de 1,2 GB de memoria. La pasada debe acabar dentro de `-interval`, 15 minutos por defecto, lo que sitúa el límite de un motor en unas 15.000 máquinas. El barrido diario de ficheros del agente se detiene tras `sweep_timeout`, 15 minutos por defecto.
+Una pasada sobre 5.000 activos tardó 270 segundos con un pico de 1,2 GB de memoria. La pasada debe acabar dentro de `-interval`, 15 minutos por defecto, lo que sitúa el límite de un motor en unas 15.000 activos. El barrido diario de ficheros del agente se detiene tras `sweep_timeout`, 15 minutos por defecto.
 
 ## Antes de empezar
 
-Decide con la organización qué máquinas se auditan, su categoría ENS (BAJO, MEDIO o ALTO) y quién cambia la configuración además de los usuarios con `all_access`. Una categoría equivocada da veredictos equivocados sin ningún error. Los parámetros de los controles se pueden declarar más tarde.
+Decide con la organización qué activos se auditan, su categoría ENS (BAJO, MEDIO o ALTO) y quién cambia la configuración además de los usuarios con `all_access`. Una categoría equivocada da veredictos equivocados sin ningún error. Los parámetros de los controles se pueden declarar más tarde.
 
 En el manager maestro, comprueba la versión y adónde envía Filebeat las alertas. El motor usa los mismos indexers y el mismo certificado de CA.
 
@@ -66,7 +66,7 @@ En cada nodo de dashboard, comprueba la versión del dashboard. Debe ser 2.19.5 
 grep -m1 '"version"' /usr/share/wazuh-dashboard/package.json
 ```
 
-En cada máquina que se va a auditar, los servicios deben estar `active` y el último comando debe mostrar al menos una línea, lo que significa que el registro de autenticación llega a Wazuh. En RHEL y Rocky el servicio de cron es `crond`. `uname -m` indica el paquete: `x86_64` es amd64 y `aarch64` es arm64.
+En cada activo que se va a auditar, los servicios deben estar `active` y el último comando debe mostrar al menos una línea, lo que significa que el registro de autenticación llega a Wazuh. En RHEL y Rocky el servicio de cron es `crond`. `uname -m` indica el paquete: `x86_64` es amd64 y `aarch64` es arm64.
 
 ```bash
 systemctl is-active wazuh-agent auditd cron
@@ -95,7 +95,7 @@ En una nueva ejecución sin `OSC_INDEXER_URLS`, el script mantiene los valores d
 
 ## 1. Obtener los paquetes
 
-Descarga el paquete de tu arquitectura y sus sumas de comprobación en cada nodo servidor donde instales algo y en cada máquina auditada. `uname -m` indica la arquitectura: `x86_64` es amd64 y `aarch64` es arm64. La línea de tu paquete debe terminar en `OK`. Los comandos siguientes se ejecutan desde la carpeta del paquete.
+Descarga el paquete de tu arquitectura y sus sumas de comprobación en cada nodo servidor donde instales algo y en cada activo auditado. `uname -m` indica la arquitectura: `x86_64` es amd64 y `aarch64` es arm64. La línea de tu paquete debe terminar en `OK`. Los comandos siguientes se ejecutan desde la carpeta del paquete.
 
 ```bash
 v=2.1.0
@@ -137,7 +137,7 @@ Espera un minuto a que arranque el manager. Después crea el grupo `ens`.
 /var/ossec/bin/agent_groups -a -g ens -q
 ```
 
-El motor también crea cada grupo del alcance ENS que no existe, y añade las máquinas que piden el grupo, como en el apartado 7. Para añadir una máquina a mano, sustituye `<id>` por el identificador del agente que aparece en la lista. Cada máquina conserva sus otros grupos.
+El motor también crea cada grupo del alcance ENS que no existe, y añade los activos que piden el grupo, como en el apartado 7. Para añadir un activo a mano, sustituye `<id>` por el identificador del agente que aparece en la lista. Cada activo conserva sus otros grupos.
 
 ```bash
 /var/ossec/bin/agent_control -l
@@ -200,7 +200,7 @@ En Power ENS, abre Configuración.
 
 1. En General, rellena Cliente, cambia Nivel ENS si tu sistema tiene otro nivel y pulsa Guardar configuración global. Esto crea la configuración.
 2. En Organización, abre cada control, pulsa Completar configuración, rellena lo que falta y guarda.
-3. En Grupos y máquinas, da a cada grupo los valores de sus máquinas y abre una máquina para fijar los parámetros que solo le corresponden a ella.
+3. En Grupos y activos, da a cada grupo los valores de sus activos y abre un activo para fijar los parámetros que solo le corresponden a él.
 
 Cada página de [Controles](controls/README.md) lista los parámetros de su control. Un control se puede rellenar más tarde: hasta entonces aparece como no evaluable por configuración.
 
@@ -243,9 +243,9 @@ cat /var/ossec/etc/shared/ens/agent.conf
 
 El motor solo escribe ese bloque. Deja intacto el resto del fichero.
 
-## 7. Instalar el agente en las máquinas auditadas
+## 7. Instalar el agente en los activos auditados
 
-En cada máquina que se va a auditar, instala el agente y su fichero de cron. Lee `/etc/shadow`, `sshd -T` y los ficheros sudoers, así que se ejecuta como root. No necesita más configuración en un sistema estándar.
+En cada activo que se va a auditar, instala el agente y su fichero de cron. Lee `/etc/shadow`, `sshd -T` y los ficheros sudoers, así que se ejecuta como root. No necesita más configuración en un sistema estándar.
 
 ```bash
 install -m 755 bin/oscompliance-agent /usr/local/bin/
@@ -255,11 +255,11 @@ install -d -m 700 /var/lib/oscompliance
 touch /var/log/oscompliance/facts.ndjson
 ```
 
-Después la máquina entra en el grupo `ens` de una de estas dos formas.
+Después el activo entra en el grupo `ens` de una de estas dos formas.
 
-### Pedir al motor que añada la máquina
+### Pedir al motor que añada el activo
 
-Es lo que hace `install.sh agent --group ens`. No hace falta ningún comando por máquina en el manager.
+Es lo que hace `install.sh agent --group ens`. No hace falta ningún comando por activo en el manager.
 
 Escribe el grupo en la configuración del agente. Si `/etc/oscompliance/agent.json` ya existe, añádele la clave `wazuh_group`.
 
@@ -293,9 +293,9 @@ Cada hecho `agent_pass` lleva el grupo en `requested_group`. En su siguiente sin
 
 Cuando llega la configuración de grupo, el fichero de hechos queda declarado dos veces. Wazuh registra el aviso 1958, que indica que el fichero de registro está duplicado, y lee el fichero una sola vez. El aviso no requiere ninguna acción.
 
-### Añadir la máquina a mano
+### Añadir el activo a mano
 
-Añade la máquina al grupo en el manager maestro, como en el apartado 2. Después espera a que reciba la configuración de grupo: este comando debe devolver un número mayor que 0.
+Añade el activo al grupo en el manager maestro, como en el apartado 2. Después espera a que reciba la configuración de grupo: este comando debe devolver un número mayor que 0.
 
 ```bash
 grep -c facts.ndjson /var/ossec/etc/shared/agent.conf
@@ -329,7 +329,7 @@ dnf install -y cronie && systemctl enable --now crond
 
 Ejecuta esto en el manager maestro o en el servidor todo en uno. Los managers worker no se auditan.
 
-El manager se juzga como cualquier otra máquina. Hasta que el agente se ejecute en él, su fila aparece como no conforme. No pertenece a ningún grupo, así que necesita dos ajustes propios.
+El manager se juzga como cualquier otro activo. Hasta que el agente se ejecute en él, su fila aparece como no conforme. No pertenece a ningún grupo, así que necesita dos ajustes propios.
 
 ```bash
 install -m 755 bin/oscompliance-agent /usr/local/bin/
@@ -364,7 +364,7 @@ oscompliance-agent -full
 
 ## 9. Comprobar el resultado
 
-Inicia sesión por SSH en una máquina auditada, para que un inicio de sesión real llegue a Wazuh, y espera un minuto. Después ejecuta una pasada del motor en el manager maestro. La última línea `pass` debe mostrar `verdicts` mayor que 0 y ningún `error`.
+Inicia sesión por SSH en un activo auditado, para que un inicio de sesión real llegue a Wazuh, y espera un minuto. Después ejecuta una pasada del motor en el manager maestro. La última línea `pass` debe mostrar `verdicts` mayor que 0 y ningún `error`.
 
 ```bash
 systemctl restart oscompliance-engine
@@ -372,15 +372,15 @@ sleep 20
 journalctl -u oscompliance-engine -n 5 --no-pager
 ```
 
-Las máquinas que pidieron el grupo deben estar en él tras la siguiente sincronización de grupos. Lístalas en el manager maestro.
+Los activos que pidieron el grupo deben estar en él tras la siguiente sincronización de grupos. Lístalos en el manager maestro.
 
 ```bash
 /var/ossec/bin/agent_groups -l -g ens
 ```
 
-En el dashboard, abre Discover sobre `wazuh-alerts-*`. `rule.id:119001` debe mostrar los hechos de cada máquina, y `rule.id:119002` una sonda de autenticación por máquina y pasada.
+En el dashboard, abre Discover sobre `wazuh-alerts-*`. `rule.id:119001` debe mostrar los hechos de cada activo, y `rule.id:119002` una sonda de autenticación por activo y pasada.
 
-En Power ENS, abre Detalle del control y elige una máquina. Cada evidencia muestra su estado y el motivo. El resultado habitual en una máquina nueva es parcial: una evidencia queda no evaluable hasta que se declaran sus parámetros, y un requisito que depende de un documento queda abierto hasta que se declara su atestación en P-ATT.
+En Power ENS, abre Detalle del control y elige un activo. Cada evidencia muestra su estado y el motivo. El resultado habitual en un activo nuevo es parcial: una evidencia queda no evaluable hasta que se declaran sus parámetros, y un requisito que depende de un documento queda abierto hasta que se declara su atestación en P-ATT.
 
 El primer resultado completo necesita una pasada del agente y una pasada del motor después. Sin `-full` tarda hasta 75 minutos.
 
@@ -388,9 +388,9 @@ Si un paso da otro resultado, consulta [Operación](operations.md#resolución-de
 
 ## Actualizar
 
-Actualiza primero el maestro: su motor lee hechos de agentes más antiguos. Después actualiza los workers, los nodos de dashboard y las máquinas auditadas.
+Actualiza primero el maestro: su motor lee hechos de agentes más antiguos. Después actualiza los workers, los nodos de dashboard y los activos auditados.
 
-Con el script de instalación, ejecuta `install.sh server` de la versión nueva en el maestro, después en cada worker y nodo de dashboard, e `install.sh agent` con los mismos argumentos que antes en cada máquina auditada. En el maestro, el script mantiene las contraseñas de los usuarios del motor y actualiza sus permisos. Sigue pidiendo la contraseña de `wazuh-wui`, y la contraseña de `admin` del indexer cuando no hay certificado de administración. Un worker espera hasta `OSC_WAIT_SECONDS` a que su fichero de reglas coincida con el de la versión nueva y después reinicia su manager. Si las reglas no llegan a tiempo, el script se detiene con un error: actualiza el maestro y ejecútalo de nuevo.
+Con el script de instalación, ejecuta `install.sh server` de la versión nueva en el maestro, después en cada worker y nodo de dashboard, e `install.sh agent` con los mismos argumentos que antes en cada activo auditado. En el maestro, el script mantiene las contraseñas de los usuarios del motor y actualiza sus permisos. Sigue pidiendo la contraseña de `wazuh-wui`, y la contraseña de `admin` del indexer cuando no hay certificado de administración. Un worker espera hasta `OSC_WAIT_SECONDS` a que su fichero de reglas coincida con el de la versión nueva y después reinicia su manager. Si las reglas no llegan a tiempo, el script se detiene con un error: actualiza el maestro y ejecútalo de nuevo.
 
 A mano, en el maestro, guarda el binario actual, para poder volver a él poniéndolo de nuevo y reiniciando el servicio.
 
@@ -400,15 +400,15 @@ install -m 755 bin/oscompliance-engine bin/oscompliance-policy /usr/local/bin/
 systemctl restart oscompliance-engine
 ```
 
-Si ha cambiado el rol, ejecuta `KEEP_PASSWORDS=1 bash wazuh/engine-users.sh create` como en el apartado 3. La versión 1.2.0 añade dos acciones de la API de Wazuh, así que una actualización desde 1.1.0 lo necesita. Si han cambiado las reglas, instálalas en el maestro como en el apartado 2 y reinicia cada worker cuando lleguen, como en la parte de worker del apartado 2. En cada máquina auditada, instala el nuevo binario del agente: lo usa la siguiente ejecución de cron. En cada nodo de dashboard, instala el zip del plugin de la misma versión como en el apartado 4.
+Si ha cambiado el rol, ejecuta `KEEP_PASSWORDS=1 bash wazuh/engine-users.sh create` como en el apartado 3. La versión 1.2.0 añade dos acciones de la API de Wazuh, así que una actualización desde 1.1.0 lo necesita. Si han cambiado las reglas, instálalas en el maestro como en el apartado 2 y reinicia cada worker cuando lleguen, como en la parte de worker del apartado 2. En cada activo auditado, instala el nuevo binario del agente: lo usa la siguiente ejecución de cron. En cada nodo de dashboard, instala el zip del plugin de la misma versión como en el apartado 4.
 
-De la 1.2.0 a la 2.0.0, la primera pasada del nuevo agente descarga las vigilancias de lectura de la 1.2.0 en cada máquina Linux de un grupo con el bloque del motor. En una máquina fuera de esos grupos, ejecuta una vez `auditctl -D -k oscompliance_read` y `auditctl -D -k oscompliance_exec`. Las versiones se publican ahora en `arseniteio/oscompliance-ens-wazuh` y `arseniteio/power-ens-wazuh`: descarga `install.sh` y los paquetes de ahí.
+De la 1.2.0 a la 2.0.0, la primera pasada del nuevo agente descarga las vigilancias de lectura de la 1.2.0 en cada activo Linux de un grupo con el bloque del motor. En un activo fuera de esos grupos, ejecuta una vez `auditctl -D -k oscompliance_read` y `auditctl -D -k oscompliance_exec`. Las versiones se publican ahora en `arseniteio/oscompliance-ens-wazuh` y `arseniteio/power-ens-wazuh`: descarga `install.sh` y los paquetes de ahí.
 
 ## Desinstalar
 
-Con el script de instalación, ejecuta `install.sh uninstall` en cada nodo y en cada máquina auditada. En cada uno retira lo que encuentra: el motor y sus usuarios, el plugin, las partes del manager en un manager, y el agente con su bloque en `ossec.conf`. Las reglas y el bloque de la configuración de grupo solo se retiran en el maestro, y los workers lo siguen a través del clúster. Los pasos manuales son estos.
+Con el script de instalación, ejecuta `install.sh uninstall` en cada nodo y en cada activo auditado. En cada uno retira lo que encuentra: el motor y sus usuarios, el plugin, las partes del manager en un manager, y el agente con su bloque en `ossec.conf`. Las reglas y el bloque de la configuración de grupo solo se retiran en el maestro, y los workers lo siguen a través del clúster. Los pasos manuales son estos.
 
-En cada máquina auditada, retira el agente.
+En cada activo auditado, retira el agente.
 
 ```bash
 rm -f /etc/cron.d/oscompliance /usr/local/bin/oscompliance-agent
@@ -416,7 +416,7 @@ rm -rf /etc/oscompliance /var/log/oscompliance /var/lib/oscompliance
 augenrules --load
 ```
 
-Si la máquina pidió el grupo, retira también el bloque de `ossec.conf` y reinicia el agente de Wazuh.
+Si el activo pidió el grupo, retira también el bloque de `ossec.conf` y reinicia el agente de Wazuh.
 
 ```bash
 sed -i '/<!-- oscompliance begin -->/,/<!-- oscompliance end -->/d' /var/ossec/etc/ossec.conf
@@ -449,7 +449,7 @@ bash wazuh/engine-users.sh remove
 
 En cada manager worker, reinicia el manager cuando haya desaparecido el fichero de reglas.
 
-Los índices `oscompliance-verdicts`, `oscompliance-identity-history`, `oscompliance-config-history`, `oscompliance-host-profile` y `wazuh-ens-configuration` se quedan en el indexer, así que no se pierde el historial. Bórralos desde Dev Tools cuando ya no los necesites. Si auditaste el manager, retira también el agente del maestro como en una máquina auditada, y retira sus dos bloques localfile de `ossec.conf`.
+Los índices `oscompliance-verdicts`, `oscompliance-identity-history`, `oscompliance-config-history`, `oscompliance-host-profile` y `wazuh-ens-configuration` se quedan en el indexer, así que no se pierde el historial. Bórralos desde Dev Tools cuando ya no los necesites. Si auditaste el manager, retira también el agente del maestro como en un activo auditado, y retira sus dos bloques localfile de `ossec.conf`.
 
 ## Compilar desde el código
 

@@ -1,6 +1,6 @@
 # op.exp.10 Protección de claves criptográficas
 
-op.exp.10 juzga lo que del ciclo de vida de las claves reside en las máquinas: quién lee los almacenes de claves, dónde están las claves privadas y cómo se protegen, si las claves se generan donde se usan, si siguen ahí las claves retiradas, qué algoritmos aceptan y usan los servicios, y la validez de los certificados.
+op.exp.10 juzga lo que del ciclo de vida de las claves reside en los activos: quién lee los almacenes de claves, dónde están las claves privadas y cómo se protegen, si las claves se generan donde se usan, si siguen ahí las claves retiradas, qué algoritmos aceptan y usan los servicios, y la validez de los certificados.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.3.10. Definición: [`catalog/controls/ens/op.exp.10.json`](../../../catalog/controls/ens/op.exp.10.json).
 
@@ -24,7 +24,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 4.3.10. Definición: [`catalog/co
 | `config_file` para `sshd -T` ([op.exp.2](op.exp.2.md)) | algoritmos que acepta sshd | EV-03 |
 | inicios de sesión por sshd (regla 5715) | tipo de clave de cada inicio con clave pública | EV-04 |
 
-Los almacenes de P-02 llegan al agente como `key_stores` y a auditd como vigilancias; cuando la máquina tiene almacenes de claves, se vigila la ejecución de `/usr/bin/ssh-keygen` y `/usr/bin/openssl`.
+Los almacenes de P-02 llegan al agente como `key_stores` y a auditd como vigilancias; cuando el activo tiene almacenes de claves, se vigila la ejecución de `/usr/bin/ssh-keygen` y `/usr/bin/openssl`.
 
 ### `key_record`, `certificate_record`, `key_snapshot`
 
@@ -54,8 +54,8 @@ Los jueces están en `engine/internal/controls/ens/opexp10`.
 - EV-02 claves fuera de los almacenes. Una clave privada cuyo directorio no está bajo un almacén de P-02: NON_COMPLIANT.
 - EV-03 algoritmos configurados. Cada cifrado, MAC, intercambio de claves y algoritmo de clave de host que acepta sshd debe contener un `algoritmo` de P-03.
 - EV-04 algoritmos usados. El tipo de clave de cada inicio con clave pública de la ventana debe aparecer en un `algoritmo` de P-03.
-- EV-05 generación. En una máquina que P-05 llama `explotacion`, una ejecución de ssh-keygen u openssl en la ventana: NON_COMPLIANT.
-- EV-06 claves retiradas. Una clave de P-01 en `retirada` encontrada en la máquina por huella o por ubicación: NON_COMPLIANT.
+- EV-05 generación. En un activo que P-05 llama `explotacion`, una ejecución de ssh-keygen u openssl en la ventana: NON_COMPLIANT.
+- EV-06 claves retiradas. Una clave de P-01 en `retirada` encontrada en el activo por huella o por ubicación: NON_COMPLIANT.
 - EV-07 certificados. Un certificado caducado, una clave RSA de menos de 2048 bits o una firma con MD5 o SHA-1: NON_COMPLIANT. Se nombran los que caducan en P-10 días.
 - EV-08 ficheros de claves. Una clave privada más abierta que `modo_maximo` de su almacén, o con otro propietario: NON_COMPLIANT. Una clave fuera de todo almacén solo debe poder leerla su propietario.
 

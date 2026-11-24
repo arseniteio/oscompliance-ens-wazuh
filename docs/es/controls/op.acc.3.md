@@ -26,11 +26,11 @@ Una acción es una cuenta ejecutando un binario o tocando una ruta.
 | `audit_watch_snapshot` ([op.acc.2](op.acc.2.md)) | estado de auditd y vigilancias cargadas | silencio |
 | `identity_*` ([op.acc.1](op.acc.1.md)) | nombres de los UID de auditoría | todas las evidencias |
 
-El motor deriva las vigilancias de auditd de P-03 y las escribe en la configuración de grupo: los binarios de un directorio bin o sbin pasan a vigilancias de ejecución (`exec_watches`, clave `oscompliance_exec`); las rutas de P-03 y las rutas de seguridad (/var/ossec/etc, /etc/audit, /var/log/audit) pasan a `read_watches`. Un cambio en P-03 llega a todos los agentes sin tocar ninguna máquina.
+El motor deriva las vigilancias de auditd de P-03 y las escribe en la configuración de grupo: los binarios de un directorio bin o sbin pasan a vigilancias de ejecución (`exec_watches`, clave `oscompliance_exec`); las rutas de P-03 y las rutas de seguridad (/var/ossec/etc, /etc/audit, /var/log/audit) pasan a `read_watches`. Un cambio en P-03 llega a todos los agentes sin tocar ningún activo.
 
-Las acciones se agrupan por nombre de cuenta en todas las máquinas durante los últimos P-06 días: el mismo nombre es la misma persona. Un UID de auditoría sin nombre se notifica y nunca se agrupa.
+Las acciones se agrupan por nombre de cuenta en todos los activos durante los últimos P-06 días: el mismo nombre es la misma persona. Un UID de auditoría sin nombre se notifica y nunca se agrupa.
 
-La cadena de auditoría de una máquina está completa cuando auditd funciona, todos los indicadores de ruta de P-03 están vigilados (exactamente o bajo un directorio vigilado) y Wazuh lee el registro de auditoría.
+La cadena de auditoría de un activo está completa cuando auditd funciona, todos los indicadores de ruta de P-03 están vigilados (exactamente o bajo un directorio vigilado) y Wazuh lee el registro de auditoría.
 
 ## Parámetros
 
@@ -48,12 +48,12 @@ Los nombres de función se comparan sin mayúsculas ni acentos ("Operación" es 
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opacc3`. Si P-02, P-03 o P-06 no se pueden usar, todas las evidencias quedan NOT_EVALUABLE por CONFIGURATION. El silencio en una máquina con la cadena de auditoría incompleta es NOT_EVALUABLE por COLLECTION; un incumplimiento encontrado se mantiene.
+Los jueces están en `engine/internal/controls/ens/opacc3`. Si P-02, P-03 o P-06 no se pueden usar, todas las evidencias quedan NOT_EVALUABLE por CONFIGURATION. El silencio en un activo con la cadena de auditoría incompleta es NOT_EVALUABLE por COLLECTION; un incumplimiento encontrado se mantiene.
 
-- EV-01, EV-02, EV-04 pares incompatibles. Una persona que ha actuado en esta máquina y tiene las dos funciones del par, aquí o en cualquier otra máquina: NON_COMPLIANT, con una acción de cada función. El par no está en P-02: NOT_EVALUABLE por CONFIGURATION.
-- EV-03 tareas críticas. Una tarea ejecutada en esta máquina por menos personas distintas de las que exige P-04, durante la ventana: NON_COMPLIANT. Una tarea no ejecutada no es un fallo. Una fila sin número de personas (2 o más) o sin comando: NOT_EVALUABLE por CONFIGURATION.
+- EV-01, EV-02, EV-04 pares incompatibles. Una persona que ha actuado en este activo y tiene las dos funciones del par, aquí o en cualquier otro activo: NON_COMPLIANT, con una acción de cada función. El par no está en P-02: NOT_EVALUABLE por CONFIGURATION.
+- EV-03 tareas críticas. Una tarea ejecutada en este activo por menos personas distintas de las que exige P-04, durante la ventana: NON_COMPLIANT. Una tarea no ejecutada no es un fallo. Una fila sin número de personas (2 o más) o sin comando: NOT_EVALUABLE por CONFIGURATION.
 - EV-05 cuentas de auditoría. Con `auditoria | *` en P-02, una persona con auditoria y cualquier otra función; para cada cuenta de P-05, cualquier función que no sea auditoria o supervision: NON_COMPLIANT. Si no se declara ninguno de los dos: NOT_EVALUABLE por CONFIGURATION.
-- EV-06 acciones por cuenta. Las cuentas que han actuado en esta máquina y sus funciones. Acciones cuya cuenta no se puede nombrar: NOT_EVALUABLE por EVIDENCE.
+- EV-06 acciones por cuenta. Las cuentas que han actuado en este activo y sus funciones. Acciones cuya cuenta no se puede nombrar: NOT_EVALUABLE por EVIDENCE.
 - EV-07 información de seguridad. Quién ha leído o cambiado las rutas de seguridad. Solo informativa: r3.1 no se aplica en ningún nivel.
 
 ## No se mide

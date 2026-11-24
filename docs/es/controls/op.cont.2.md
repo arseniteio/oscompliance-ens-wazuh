@@ -1,6 +1,6 @@
 # op.cont.2 Plan de continuidad
 
-op.cont.2 juzga lo que deja registro del plan: su aprobación vigente, los contratos de sus medios alternativos y la formación de su personal; y, como refuerzo que ninguna categoría exige, si cada máquina comprueba su integridad al volver de una interrupción.
+op.cont.2 juzga lo que deja registro del plan: su aprobación vigente, los contratos de sus medios alternativos y la formación de su personal; y, como refuerzo que ninguna categoría exige, si cada activo comprueba su integridad al volver de una interrupción.
 
 Niveles: ALTO. Anexo II, apartado 4.6.2. Definición: [`catalog/controls/ens/op.cont.2.json`](../../../catalog/controls/ens/op.cont.2.json).
 

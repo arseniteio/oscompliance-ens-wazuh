@@ -44,7 +44,7 @@ Las rutas de P-07 llegan a auditd por la configuración de grupo que escribe el 
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opacc4`. Si falta una fuente, NOT_EVALUABLE por COLLECTION; si falta un parámetro o no se puede usar, NOT_EVALUABLE por CONFIGURATION. El silencio en una máquina con la cadena de auditoría incompleta (auditd parado, reglas sin cargar, registro de auditoría sin leer) es NOT_EVALUABLE por COLLECTION; un incumplimiento encontrado se mantiene.
+Los jueces están en `engine/internal/controls/ens/opacc4`. Si falta una fuente, NOT_EVALUABLE por COLLECTION; si falta un parámetro o no se puede usar, NOT_EVALUABLE por CONFIGURATION. El silencio en un activo con la cadena de auditoría incompleta (auditd parado, reglas sin cargar, registro de auditoría sin leer) es NOT_EVALUABLE por COLLECTION; un incumplimiento encontrado se mantiene.
 
 - EV-01 denegar por defecto. Son aperturas una cadena del filtro de paquetes que acepta por defecto, la falta de cadena de entrada, la falta total de filtro de paquetes, un recurso de Samba con `guest ok` o `public` y vsftpd con `anonymous_enable`. Una apertura cuyo recurso no está en la columna `recurso` de P-01: NON_COMPLIANT. Un filtro de paquetes sin reglas es una apertura.
 - EV-02 sudo frente a la matriz. Cada concesión se busca como `sujeto | sudo` en P-01, y cada parte de lo que concede debe estar entre los accesos de la fila. Una concesión sin fila o por encima de sus accesos: NON_COMPLIANT. Una fila sin accesos: NOT_EVALUABLE por CONFIGURATION. sudo sin instalar: COMPLIANT. Las concesiones a sujetos que el agente no puede nombrar dejan el silencio en NOT_EVALUABLE por COLLECTION.

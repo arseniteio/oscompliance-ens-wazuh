@@ -1,6 +1,6 @@
 # mp.com.3 Protección de la integridad y de la autenticidad
 
-mp.com.3 juzga si las máquinas autentican al otro extremo antes de intercambiar, usan los algoritmos que autoriza el CCN, detectan ataques activos y abren un incidente cuando ocurren, llevan sus canales fuera del dominio por túneles cifrados, cambian las configuraciones de canal solo bajo control de cambios y usan productos certificados.
+mp.com.3 juzga si los activos autentican al otro extremo antes de intercambiar, usan los algoritmos que autoriza el CCN, detectan ataques activos y abren un incidente cuando ocurren, llevan sus canales fuera del dominio por túneles cifrados, cambian las configuraciones de canal solo bajo control de cambios y usan productos certificados.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.4.3. Definición: [`catalog/controls/ens/mp.com.3.json`](../../../catalog/controls/ens/mp.com.3.json).
 
@@ -24,7 +24,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.4.3. Definición: [`catalog/con
 | `config_file` de `/etc/ssh/ssh_config` y sus drop-ins | `Host`, `StrictHostKeyChecking`, `UserKnownHostsFile` | EV-01 |
 | `config_file` para `sshd -T`, inicios de sesión por sshd ([op.exp.10](op.exp.10.md)) | algoritmos aceptados y tipos de clave usados | EV-02, EV-03 |
 | reglas de la API de Wazuh ([op.mon.1](op.mon.1.md)) | reglas de los indicadores de P-02 | EV-04 a EV-07 |
-| alertas de esas reglas, por máquina y hora | | EV-07 |
+| alertas de esas reglas, por activo y hora | | EV-07 |
 | P-13 de op.exp.7, registro de incidentes | | EV-07 |
 | inventario de red ([mp.com.1](mp.com.1.md)) | interfaces y procesos de túnel | EV-08 |
 | alertas de FIM ([op.exp.5](op.exp.5.md)), P-10 de op.exp.5 | cambios bajo P-06 y sus peticiones | EV-10 |
@@ -51,8 +51,8 @@ Los jueces están en `engine/internal/controls/ens/mpcom3`.
 - EV-01 el otro extremo. Sin `StrictHostKeyChecking no` (u `off`) ni `UserKnownHostsFile /dev/null` en la configuración del cliente SSH.
 - EV-02, EV-03 algoritmos. Como EV-03 y EV-04 de op.exp.10.
 - EV-04 a EV-06 ataques activos. La alteración, la inyección y el secuestro tienen cada uno filas en P-02, y cada fila una regla cargada de nivel 1 o superior.
-- EV-07 incidentes. Cada hora de la ventana con una alerta de esas reglas en la máquina tiene un incidente de op.exp.7 que la afecta, abierto desde una hora antes hasta un día después.
-- EV-08 túneles. Cada fila de P-05 para la máquina tiene su `tunel` activo como interfaz o en marcha como proceso.
+- EV-07 incidentes. Cada hora de la ventana con una alerta de esas reglas en el activo tiene un incidente de op.exp.7 que la afecta, abierto desde una hora antes hasta un día después.
+- EV-08 túneles. Cada fila de P-05 para el activo tiene su `tunel` activo como interfaz o en marcha como proceso.
 - EV-10 cambios de configuración. Cada cambio de FIM de la ventana bajo P-06 cubierto por una petición de P-10 de op.exp.5.
 - EV-11 productos. Cada producto de P-07 con una `referencia` y una `vigencia` no vencida.
 

@@ -1,6 +1,6 @@
 # op.exp.5 Gestión de cambios
 
-op.exp.5 compara los cambios que ocurren de verdad en cada máquina con el registro de cambios que la organización mantiene en Configuración: cada cambio necesita una petición aprobada, las peticiones llevan información suficiente, las de alto riesgo las aprueba antes el responsable de seguridad, el servicio sigue en marcha, la documentación se actualiza y, en ALTA, existe un punto de reversión.
+op.exp.5 compara los cambios que ocurren de verdad en cada activo con el registro de cambios que la organización mantiene en Configuración: cada cambio necesita una petición aprobada, las peticiones llevan información suficiente, las de alto riesgo las aprueba antes el responsable de seguridad, el servicio sigue en marcha, la documentación se actualiza y, en ALTA, existe un punto de reversión.
 
 Niveles: MEDIO, ALTO. Anexo II, apartado 4.3.5. Definición: [`catalog/controls/ens/op.exp.5.json`](../../../catalog/controls/ens/op.exp.5.json).
 
@@ -23,9 +23,9 @@ Niveles: MEDIO, ALTO. Anexo II, apartado 4.3.5. Definición: [`catalog/controls/
 |---|---|---|
 | alertas de FIM (`syscheck`, [op.acc.2](op.acc.2.md)) | ficheros cambiados, cuándo | EV-01, EV-02, EV-07, EV-09 |
 | registros `package_transaction` ([op.exp.4](op.exp.4.md)) | cambios de software, cuándo y por quién | EV-01, EV-02, EV-05, EV-07, EV-09 |
-| `wazuh_agent_config` | FIM activado en la máquina | EV-01 |
+| `wazuh_agent_config` | FIM activado en el activo | EV-01 |
 | `unit_snapshot` ([op.exp.3](op.exp.3.md)), campo `failed` | servicios fallidos ahora | EV-07 |
-| alertas de dpkg, regla 2902 | versiones instaladas en la máquina de preproducción | EV-05 |
+| alertas de dpkg, regla 2902 | versiones instaladas en el activo de preproducción | EV-05 |
 | `snapshot_list` ([op.exp.4](op.exp.4.md)) | puntos de reversión | EV-09 |
 | P-10 | el registro de cambios | EV-02 a EV-04, EV-06, EV-07 |
 
@@ -55,12 +55,12 @@ Columnas de P-10: `peticion | fecha_registro | sistema | descripcion | riesgo | 
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opexp5`. Si falta una fuente, NOT_EVALUABLE por COLLECTION; si falta un parámetro o no se puede usar, NOT_EVALUABLE por CONFIGURATION. Una petición cubre un cambio cuando su `sistema` es la máquina o `*`, su `estado` es `aprobada`, `implantada` o `revertida`, se aprobó antes del cambio y su ventana contiene el cambio.
+Los jueces están en `engine/internal/controls/ens/opexp5`. Si falta una fuente, NOT_EVALUABLE por COLLECTION; si falta un parámetro o no se puede usar, NOT_EVALUABLE por CONFIGURATION. Una petición cubre un cambio cuando su `sistema` es el activo o `*`, su `estado` es `aprobada`, `implantada` o `revertida`, se aprobó antes del cambio y su ventana contiene el cambio.
 
 - EV-01 cambios reales. FIM activado y el historial de apt leído: COMPLIANT con los cambios de la ventana. FIM desactivado: NON_COMPLIANT.
 - EV-02 cambios sin petición. Un cambio que ninguna petición cubre: NON_COMPLIANT con los cambios.
-- EV-03 información de la petición. Cada petición autorizada de la máquina cuya ventana toca los últimos 90 días debe rellenar las columnas de P-02, su `peticion` debe empezar por el prefijo de P-01 si lo tiene y, en ALTA, debe rellenar `impacto_seguridad`; si no, NON_COMPLIANT.
-- EV-04 aprobación de alto riesgo. Cada petición de alto riesgo de la máquina implantada en los últimos 90 días debe aprobarla la cuenta de P-04 antes de abrirse su ventana; si no, NON_COMPLIANT.
+- EV-03 información de la petición. Cada petición autorizada del activo cuya ventana toca los últimos 90 días debe rellenar las columnas de P-02, su `peticion` debe empezar por el prefijo de P-01 si lo tiene y, en ALTA, debe rellenar `impacto_seguridad`; si no, NON_COMPLIANT.
+- EV-04 aprobación de alto riesgo. Cada petición de alto riesgo del activo implantada en los últimos 90 días debe aprobarla la cuenta de P-04 antes de abrirse su ventana; si no, NON_COMPLIANT.
 - EV-05 preproducción. Como EV-08 de op.exp.4 sobre el software de la ventana, con los pares de P-06 de op.exp.4.
 - EV-06 documentación. Cada petición implantada hace más de `plazo_dias` de su documento debe nombrar en `documentacion` los documentos de P-06 que ha actualizado; si no, NON_COMPLIANT.
 - EV-07 estabilidad. Un servicio fallido ahora, con un cambio en las P-09 horas anteriores, cuya petición no está `revertida`: NON_COMPLIANT. Sin systemd: NOT_EVALUABLE por COLLECTION.

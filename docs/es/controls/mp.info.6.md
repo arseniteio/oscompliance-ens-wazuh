@@ -1,6 +1,6 @@
 # mp.info.6 Copias de seguridad
 
-mp.info.6 juzga las copias que cada máquina declara en P-04: la fecha y el tamaño de la copia más reciente, cuánto tiempo se ha conservado la más antigua, quién puede leerlas y leer sus claves de cifrado, si una está en otra máquina y las pruebas de restauración que registra la organización.
+mp.info.6 juzga las copias que cada activo declara en P-04: la fecha y el tamaño de la copia más reciente, cuánto tiempo se ha conservado la más antigua, quién puede leerlas y leer sus claves de cifrado, si una está en otro activo y las pruebas de restauración que registra la organización.
 
 Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.7.6. Definición: [`catalog/controls/ens/mp.info.6.json`](../../../catalog/controls/ens/mp.info.6.json).
 
@@ -16,7 +16,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.7.6. Definición: [`catalog/con
 | r1.1 pruebas de restauración | M/A | EV-05 |
 | r2.1 una copia guardada aparte | A | EV-06 |
 
-Una máquina sin filas en P-04 no hace ni guarda copias: todos los requisitos son ahí NOT_APPLICABLE. La norma pide copias al sistema: cuando ninguna máquina de la flota declara copias, el manager asume el control y todas las evidencias son ahí NON_COMPLIANT.
+Un activo sin filas en P-04 no hace ni guarda copias: todos los requisitos son ahí NOT_APPLICABLE. La norma pide copias al sistema: cuando ningún activo de la flota declara copias, el manager asume el control y todas las evidencias son ahí NON_COMPLIANT.
 
 ## Fuentes
 
@@ -64,8 +64,8 @@ Los jueces están en `engine/internal/controls/ens/mpinfo6`. Una fuente de P-04 
 - EV-02 intervalo. La copia más reciente de cada copia debe ser más nueva que su `frecuencia_horas`, o P-01, más P-02.
 - EV-03 retención. La copia más antigua conservada debe tener al menos `retencion_dias`, o P-03. Una fuente truncada es NOT_EVALUABLE.
 - EV-04 acceso. Ninguna copia legible por cualquiera; el propietario de cada fuente, y su grupo cuando las copias son legibles por el grupo, en P-07. Cada clave de P-08 debe existir, ser legible solo por su propietario y pertenecer a una cuenta de P-07.
-- EV-05 pruebas de restauración. La fila `correcta` más reciente de P-06 para la máquina debe quedar dentro de P-05 días.
-- EV-06 copia aparte. Al menos una copia debe estar en un sistema de ficheros de otra máquina: NFS, SMB, SSHFS, S3 y otros sistemas de red o FUSE remotos, o un dispositivo con nombre `host:ruta` o `//host/recurso`.
+- EV-05 pruebas de restauración. La fila `correcta` más reciente de P-06 para el activo debe quedar dentro de P-05 días.
+- EV-06 copia aparte. Al menos una copia debe estar en un sistema de ficheros de otro activo: NFS, SMB, SSHFS, S3 y otros sistemas de red o FUSE remotos, o un dispositivo con nombre `host:ruta` o `//host/recurso`.
 
 ## No se mide
 

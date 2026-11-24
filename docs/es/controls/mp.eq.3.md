@@ -15,7 +15,7 @@ Niveles: BAJO, MEDIO, ALTO. Anexo II, apartado 5.3.3. Definición: [`catalog/con
 | r1.1 cifrado del disco | A | EV-04 |
 | r2.1 uso en lugares protegidos | A | atestación (P-ATT) |
 
-Una máquina que no está en P-01 ni es portátil por su chasis: todas las evidencias y requisitos NOT_APPLICABLE.
+Un activo que no está en P-01 ni es portátil por su chasis: todas las evidencias y requisitos NOT_APPLICABLE.
 
 ## Fuentes
 
@@ -43,7 +43,7 @@ Una máquina que no está en P-01 ni es portátil por su chasis: todas las evide
 
 Los jueces están en `engine/internal/controls/ens/mpeq3`.
 
-- EV-01 inventario. La máquina en P-01 con un `responsable`.
+- EV-01 inventario. El activo en P-01 con un `responsable`.
 - EV-02 custodia. Un keepalive dentro de P-02 días y la comprobación más reciente del dispositivo en P-09 dentro de P-02 días.
 - EV-03 claves de acceso remoto. Ninguna clave privada bajo `/home` o `/root` fuera de P-05.
 - EV-04 cifrado. Con `nivel_confidencialidad` MEDIO o ALTO, el sistema de ficheros raíz sobre dm-crypt.

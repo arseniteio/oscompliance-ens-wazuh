@@ -1,6 +1,6 @@
 # Seguridad
 
-Una herramienta de cumplimiento se ejecuta como root en cada máquina y guarda credenciales junto al SIEM. Esta página indica qué puede hacer cada parte, qué no puede hacer y qué gana un atacante si la compromete.
+Una herramienta de cumplimiento se ejecuta como root en cada activo y guarda credenciales junto al SIEM. Esta página indica qué puede hacer cada parte, qué no puede hacer y qué gana un atacante si la compromete.
 
 ## Agente
 
@@ -40,9 +40,9 @@ El plugin Power ENS se ejecuta dentro del dashboard de Wazuh con la autenticaci�
 
 ## Modelo de amenazas
 
-Una cuenta sin privilegios en una máquina auditada no gana nada específico de OSCompliance. No puede escribir hechos, falsificar eventos de servicio ni leer el fichero de hechos.
+Una cuenta sin privilegios en un activo auditado no gana nada específico de OSCompliance. No puede escribir hechos, falsificar eventos de servicio ni leer el fichero de hechos.
 
-Root en una máquina auditada puede parar el agente. Las evidencias de la máquina pasan a NOT_EVALUABLE por COLLECTION y aparece como no conforme, así que la parada no se puede ocultar. También puede escribir hechos falsos sobre esa máquina, pero no sobre otra. No puede falsificar lo que recoge el propio Wazuh (inicios de sesión, sudo, FIM, SCA, inventario, vulnerabilidades), que muchas evidencias leen en lugar del agente.
+Root en un activo auditado puede parar el agente. Las evidencias del activo pasan a NOT_EVALUABLE por COLLECTION y aparece como no conforme, así que la parada no se puede ocultar. También puede escribir hechos falsos sobre ese activo, pero no sobre otra. No puede falsificar lo que recoge el propio Wazuh (inicios de sesión, sudo, FIM, SCA, inventario, vulnerabilidades), que muchas evidencias leen en lugar del agente.
 
 El host del motor es el host del manager de Wazuh. Quien lo controla puede cambiar veredictos, pero en ese punto Wazuh ya está comprometido.
 
@@ -50,11 +50,11 @@ Las credenciales del motor en el indexer permiten escribir veredictos falsos. No
 
 Las credenciales del motor en la API permiten cambiar la configuración de cualquier grupo y los grupos de cualquier agente. No permiten ejecutar comandos, reiniciar agentes ni cambiar reglas.
 
-Root en una máquina auditada puede pedir un grupo con `wazuh_group`. El motor solo añade el agente a un grupo del alcance ENS, así que la petición no puede meter la máquina en ningún otro grupo ni sacarla de uno.
+Root en un activo auditado puede pedir un grupo con `wazuh_group`. El motor solo añade el agente a un grupo del alcance ENS, así que la petición no puede meter el activo en ningún otro grupo ni sacarlo de uno.
 
-Con `install.sh agent --group`, la máquina auditada lee el fichero de hechos mediante un localfile en su propio `ossec.conf`, entre marcas `<!-- oscompliance begin -->`. Lee el mismo fichero que la configuración de grupo, así que no añade ninguna fuente nueva a lo que aceptan las reglas.
+Con `install.sh agent --group`, el activo auditado lee el fichero de hechos mediante un localfile en su propio `ossec.conf`, entre marcas `<!-- oscompliance begin -->`. Lee el mismo fichero que la configuración de grupo, así que no añade ninguna fuente nueva a lo que aceptan las reglas.
 
-Por eso la máquina auditada informa de hechos, nunca de veredictos, y por eso el silencio nunca es cumplimiento. Donde Wazuh ya observa algo, el motor lee Wazuh, no el agente.
+Por eso el activo auditado informa de hechos, nunca de veredictos, y por eso el silencio nunca es cumplimiento. Donde Wazuh ya observa algo, el motor lee Wazuh, no el agente.
 
 ## Cadena de suministro
 

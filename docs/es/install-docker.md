@@ -2,19 +2,19 @@
 
 Esta guía instala OSCompliance ENS y Power ENS en un despliegue de Wazuh basado en el fichero de compose single-node oficial de wazuh-docker. Para Wazuh instalado por paquetes, consulta [Instalación por paquetes](install.md).
 
-Calcula alrededor de una hora en el host de Docker y unos minutos por máquina auditada. Todos los comandos se ejecutan como root en el host de Docker, salvo en el apartado 7.
+Calcula alrededor de una hora en el host de Docker y unos minutos por activo auditado. Todos los comandos se ejecutan como root en el host de Docker, salvo en el apartado 7.
 
 ## Requisitos
 
 - Wazuh 4.14.7, 4.14.8 o 4.14.9, con los puertos 9200 y 55000 publicados en el host.
 - Los nombres de servicio, volúmenes y carpeta de certificados del fichero de compose oficial: `wazuh.manager`, `wazuh.indexer`, `wazuh.dashboard`, el volumen `wazuh_api_configuration` y `config/wazuh_indexer_ssl_certs`. Si los tuyos son otros, adapta `wazuh/docker-compose.override.yml` y las variables del apartado 1.
-- Máquinas auditadas en Linux, amd64 o arm64, con un agente de Wazuh registrado en el manager.
-- `curl`, `jq` y `python3` en el host, `cron` y `auditd` en las máquinas auditadas.
-- Que el registro de autenticación de cada máquina auditada llegue a Wazuh: `/var/log/auth.log`, `/var/log/secure` o journald, como localfile del agente de Wazuh.
+- Activos auditados en Linux, amd64 o arm64, con un agente de Wazuh registrado en el manager.
+- `curl`, `jq` y `python3` en el host, `cron` y `auditd` en los activos auditados.
+- Que el registro de autenticación de cada activo auditado llegue a Wazuh: `/var/log/auth.log`, `/var/log/secure` o journald, como localfile del agente de Wazuh.
 
 auditd alimenta EV-06 de op.acc.2, op.acc.3 y EV-04 y EV-07 de op.acc.4. Sin él, esas evidencias no son evaluables. Sin el registro de autenticación, las evidencias de inicio de sesión no son evaluables.
 
-Antes de empezar, decide con la organización, comprueba las máquinas que se van a auditar y prepara las contraseñas como en [Antes de empezar](install.md#antes-de-empezar) de la guía por paquetes. En Docker, `API_ADMIN_PASSWORD` es `API_PASSWORD` en tu fichero de compose.
+Antes de empezar, decide con la organización, comprueba los activos que se van a auditar y prepara las contraseñas como en [Antes de empezar](install.md#antes-de-empezar) de la guía por paquetes. En Docker, `API_ADMIN_PASSWORD` es `API_PASSWORD` en tu fichero de compose.
 
 ## 1. Definir las variables
 
@@ -42,7 +42,7 @@ docker exec "$PROJECT-wazuh.dashboard-1" grep -m1 '"version"' /usr/share/wazuh-d
 
 ## 2. Obtener los paquetes
 
-Descarga el paquete de tu arquitectura y sus sumas de comprobación en el host y en cada máquina auditada, y los ficheros del plugin en el host, como en el [apartado 1 de la guía por paquetes](install.md#1-obtener-los-paquetes). En Docker el plugin necesita `dashboard.Dockerfile` en lugar de `deploy-plugin.sh`.
+Descarga el paquete de tu arquitectura y sus sumas de comprobación en el host y en cada activo auditado, y los ficheros del plugin en el host, como en el [apartado 1 de la guía por paquetes](install.md#1-obtener-los-paquetes). En Docker el plugin necesita `dashboard.Dockerfile` en lugar de `deploy-plugin.sh`.
 
 ```bash
 v=2.1.0
@@ -65,7 +65,7 @@ docker exec "$MGR" /var/ossec/bin/wazuh-analysisd -t
 docker exec "$MGR" /var/ossec/bin/wazuh-control restart
 ```
 
-Espera un minuto a que arranque el manager. Después crea el grupo `ens` y añade cada máquina que quieras auditar, sustituyendo `<id>` por el identificador del agente que aparece en la lista. Cada máquina conserva sus otros grupos.
+Espera un minuto a que arranque el manager. Después crea el grupo `ens` y añade cada activo que quieras auditar, sustituyendo `<id>` por el identificador del agente que aparece en la lista. Cada activo conserva sus otros grupos.
 
 ```bash
 docker exec "$MGR" /var/ossec/bin/agent_groups -a -g ens -q
@@ -132,15 +132,15 @@ La configuración de grupo debe contener ahora un bloque entre `oscompliance beg
 docker exec "$MGR" cat /var/ossec/etc/shared/ens/agent.conf
 ```
 
-## 7. Instalar el agente en las máquinas auditadas
+## 7. Instalar el agente en los activos auditados
 
-En cada máquina que se audita, ejecuta `install.sh agent --group ens` desde el paquete, o sigue el [apartado 7 de la guía por paquetes](install.md#7-instalar-el-agente-en-las-máquinas-auditadas).
+En cada activo que se audita, ejecuta `install.sh agent --group ens` desde el paquete, o sigue el [apartado 7 de la guía por paquetes](install.md#7-instalar-el-agente-en-los-activos-auditados).
 
-Esta guía no audita el contenedor del manager, así que su fila aparece como no conforme. Para ver cada resultado, elige la máquina en el selector Máquina.
+Esta guía no audita el contenedor del manager, así que su fila aparece como no conforme. Para ver cada resultado, elige el activo en el selector Activo.
 
 ## 8. Comprobar el resultado
 
-Inicia sesión por SSH en una máquina auditada, para que un inicio de sesión real llegue a Wazuh, y espera un minuto. Después ejecuta una pasada del motor. La última línea `pass` debe mostrar `verdicts` mayor que 0 y ningún `error`.
+Inicia sesión por SSH en un activo auditado, para que un inicio de sesión real llegue a Wazuh, y espera un minuto. Después ejecuta una pasada del motor. La última línea `pass` debe mostrar `verdicts` mayor que 0 y ningún `error`.
 
 ```bash
 docker restart "$PROJECT-oscompliance.engine-1"
@@ -152,7 +152,7 @@ Después comprueba el dashboard como en el [apartado 9 de la guía por paquetes]
 
 ## Actualizar
 
-Actualiza primero el motor: lee hechos de agentes anteriores. Instala el binario nuevo y reinicia el servicio. Si cambiaron las reglas, instálalas como en el apartado 3. Si cambió el rol, ejecuta `KEEP_PASSWORDS=1 bash wazuh/engine-users.sh create` con las variables de los apartados 1 y 4; una actualización desde 1.1.0 lo necesita. En cada máquina auditada, instala el binario nuevo del agente.
+Actualiza primero el motor: lee hechos de agentes anteriores. Instala el binario nuevo y reinicia el servicio. Si cambiaron las reglas, instálalas como en el apartado 3. Si cambió el rol, ejecuta `KEEP_PASSWORDS=1 bash wazuh/engine-users.sh create` con las variables de los apartados 1 y 4; una actualización desde 1.1.0 lo necesita. En cada activo auditado, instala el binario nuevo del agente.
 
 ```bash
 install -m 755 bin/oscompliance-engine /usr/local/bin/
@@ -172,7 +172,7 @@ La imagen del dashboard se construye sobre una versión de Wazuh, así que no si
 
 ## Desinstalar
 
-En cada máquina auditada, sigue el primer paso de [la guía por paquetes](install.md#desinstalar).
+En cada activo auditado, sigue el primer paso de [la guía por paquetes](install.md#desinstalar).
 
 En el host, para el motor, borra el fichero override y recrea el dashboard con la imagen oficial. Después retira las reglas y el bloque de la configuración de grupo, y reinicia el manager.
 

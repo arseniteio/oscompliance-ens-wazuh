@@ -53,7 +53,7 @@ Grupos de reglas por módulo: `aws-s3` amazon o aws, `azure-logs` azure, `gcp-pu
 
 ## Cómo se juzga cada evidencia
 
-Los jueces están en `engine/internal/controls/ens/opnub1`. El control se juzga igual en todas las máquinas: sus datos son de la organización.
+Los jueces están en `engine/internal/controls/ens/opnub1`. El control se juzga igual en todos los activos: sus datos son de la organización.
 
 - EV-01 registros. Cada servicio de P-06 con un módulo debe tener un registro de ese módulo dentro de P-13 horas; ningún módulo: NON_COMPLIANT.
 - EV-02 postura. Cada fila de P-07 con un `grupo_reglas` tiene alertas de ese grupo en la última semana, ninguna de nivel P-14 o superior. Sin esa fila: NON_COMPLIANT. El proveedor juzga su tenant frente a su estándar (AWS Security Hub, Microsoft Defender for Cloud, Google Security Command Center); Wazuh trae los hallazgos y el motor los juzga.
