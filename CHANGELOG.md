@@ -8,6 +8,10 @@ All notable changes to OSCompliance ENS are documented in this file. The format 
 
 - The Windows agent collects the IPv4 neighbour table as `neighbour_snapshot`, so op.exp.1 EV-05 is judged on Windows.
 
+### Changed
+
+- Spanish verdict reasons, control texts and docs call the audited machines activos (assets) instead of máquinas.
+
 ### Fixed
 
 - Windows facts now alert. Rule 119007 anchored its location at the start, and analysisd matches agent events against the agent name and address followed by the path, so the rule only matched in `wazuh-logtest`.
